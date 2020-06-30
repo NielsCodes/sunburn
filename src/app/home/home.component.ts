@@ -22,10 +22,11 @@ export class HomeComponent implements OnInit {
 
     const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${scope}&state=${state}&show_dialog=true`;
 
-
     window.location.href = loginUrl;
 
   }
 
 }
 
+
+// http://localhost:4200/callback?code=AQDq98jvGzq_PiqJf0vGMfQopdGyf-k52sTRarRaysNhZMv3RDlRuY7jDCOnLaL-K91ZiSn1k76MDSvOccb64pBY60AtDljZ9CKKlbBfOw3LzF0KXzeFLFXnVhxYoY0zazeHxpRPV8dgLAqKgQN5Lo7J4mIIHfNZisAAhHgfgAg8UIa01xz2gSFLrtOG8lDExdGeVeIlsA&state=foobar
