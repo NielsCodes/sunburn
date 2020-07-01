@@ -25,11 +25,13 @@ export const spotifyLogin = functions.https.onCall(async (data, context) =>{
   try {
 
     const res = await axios.post(endpoint, requestBody);
-    return res;
+    console.log(res.data);
+    return 'success';
 
   } catch (error) {
-    return error
+    return 'no success'
   }
+
 
 });
 

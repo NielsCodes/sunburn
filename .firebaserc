@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "presave-app"
+  },
+  "targets": {
+    "presave-app": {
+      "hosting": {
+        "presave-app": [
+          "presave-app"
+        ]
+      }
+    }
   }
 }
