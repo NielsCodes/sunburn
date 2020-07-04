@@ -14,7 +14,8 @@ export const spotifyLogin = functions.https.onCall(async (data, context) =>{
 
   // API setup
   const endpoint = 'https://accounts.spotify.com/api/token';
-  const redirectURL = 'http://localhost:4200/callback';
+  // const redirectURL = 'http://localhost:4200/callback';
+  const redirectURL = 'https://presave-app.web.app/callback';
 
   // Get credentials from environment variables
   const clientID = functions.config().spotify.id;
@@ -55,6 +56,19 @@ export const spotifyLogin = functions.https.onCall(async (data, context) =>{
       timestamp: admin.firestore.Timestamp.now()
     };
 
+    // Check if user has presaved before
+    const userDocsSnap = await admin.firestore().collection('presaves').where('user.id', '==', userData.id).get()
+    const size = userDocsSnap.size;
+
+    const returnStatus = {
+      success: true,
+      size
+    };
+
+    if (size > 0) {
+      return returnStatus;
+    }
+
     // Create references to the --stats-- document and a new document
     const statsRef = admin.firestore().collection('presaves').doc('--stats--');
     const docRef = admin.firestore().collection('presaves').doc();
@@ -63,10 +77,6 @@ export const spotifyLogin = functions.https.onCall(async (data, context) =>{
     batch.set(docRef, docData);
     batch.set(statsRef, { saves: increment }, { merge: true });
     await batch.commit();
-
-    const returnStatus = {
-      success: true
-    };
 
     return returnStatus;
 

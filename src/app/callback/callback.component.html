@@ -1,6 +1,7 @@
 <div id="page-container">
 
-  <video autoplay loop [muted]="true" id="background-video" #videoPlayer *ngIf="videoURL !== undefined && presaveSuccessful">
+  <video autoplay loop playsinline [muted]="true" id="background-video" #videoPlayer *ngIf="videoURL !== undefined && presaveSuccessful">
+  <!-- <video autoplay loop [muted]="true" playsinline id="background-video" #videoPlayer *ngIf="videoURL !== undefined"> -->
     <source [src]="videoURL" type="video/mp4">
   </video>
 

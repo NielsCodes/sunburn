@@ -27,7 +27,7 @@ import {
         opacity: 0
       })),
 
-      transition('loading => loaded', animate('1000ms 1000ms ease-in'))
+      transition('loading => loaded', animate('1000ms 1200ms ease-in'))
 
     ])
   ]
@@ -51,7 +51,7 @@ export class CallbackComponent implements OnInit {
     this.route.queryParamMap.subscribe(params => {
       if (!params.has('code')) {
         // TODO: uncomment to redirect upon error
-        // this.router.navigate(['/']);
+        this.router.navigate(['/']);
       }
     });
 
@@ -73,13 +73,14 @@ export class CallbackComponent implements OnInit {
       spotifyLogin({ code: this.code }).toPromise()
         .then(res => {
 
+          console.log(res);
+
           if (res.success) {
             this.presaveSuccessful = true;
             this.updateLoadingState();
           }
 
           // ! REMOVE before flight
-          console.log(res);
           console.timeEnd('login');
         })
         .catch(err => console.error(err));
