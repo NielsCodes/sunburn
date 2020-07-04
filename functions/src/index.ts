@@ -64,7 +64,11 @@ export const spotifyLogin = functions.https.onCall(async (data, context) =>{
     batch.set(statsRef, { saves: increment }, { merge: true });
     await batch.commit();
 
-    return 'sucess';
+    const returnStatus = {
+      success: true
+    };
+
+    return returnStatus;
 
   } catch (error) {
     console.error(error);

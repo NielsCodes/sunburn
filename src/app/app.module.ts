@@ -9,6 +9,7 @@ import { CallbackComponent } from './callback/callback.component';
 
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireFunctionsModule, ORIGIN } from '@angular/fire/functions';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 
 @NgModule({
   declarations: [
@@ -20,10 +21,11 @@ import { AngularFireFunctionsModule, ORIGIN } from '@angular/fire/functions';
     BrowserModule,
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFireFunctionsModule
+    AngularFireFunctionsModule,
+    AngularFirestoreModule
   ],
   providers: [
-    { provide: ORIGIN, useValue: 'http://localhost:5001'}
+    // { provide: ORIGIN, useValue: 'http://localhost:5001'}
   ],
   bootstrap: [AppComponent]
 })

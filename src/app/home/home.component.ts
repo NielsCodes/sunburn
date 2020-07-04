@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit {
     const clientID = 'e927df0934d7411181641fbd99a56f3c';
     const redirectURL = 'http://localhost:4200/callback';
     const scope = 'user-library-modify user-read-private user-follow-modify';
-    const state = 'foobar';
+    const state = 'bbpresave';
 
     const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}&show_dialog=true`;
 

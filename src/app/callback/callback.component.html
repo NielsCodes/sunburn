@@ -1,1 +1,21 @@
-<p>callback works!</p>
+<div id="page-container">
+
+  <video autoplay loop [muted]="true" id="background-video" #videoPlayer *ngIf="videoURL !== undefined && presaveSuccessful">
+    <source [src]="videoURL" type="video/mp4">
+  </video>
+
+</div>
+
+<div id="loading-overlay">
+
+  <div id="loading-content">
+
+    <!-- LOGO -->
+
+
+    <!-- TEXT -->
+    <h3>Almost done...</h3>
+
+  </div>
+
+</div>
