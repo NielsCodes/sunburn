@@ -74,14 +74,16 @@ export class CallbackComponent implements OnInit {
         .then(res => {
 
           console.log(res);
+          // ! REMOVE before flight
+          console.timeEnd('login');
 
           if (res.success) {
             this.presaveSuccessful = true;
             this.updateLoadingState();
+          } else {
+            this.router.navigate(['/']);
           }
 
-          // ! REMOVE before flight
-          console.timeEnd('login');
         })
         .catch(err => console.error(err));
 
