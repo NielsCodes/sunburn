@@ -27,7 +27,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
     BrowserAnimationsModule
   ],
   providers: [
-    // { provide: ORIGIN, useValue: 'http://localhost:5001'}
+    { provide: ORIGIN, useValue: 'http://localhost:5001'}
   ],
   bootstrap: [AppComponent]
 })

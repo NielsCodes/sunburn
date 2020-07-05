@@ -1,3 +1,4 @@
+import { Ipresave } from './models';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
@@ -5,6 +6,16 @@ admin.initializeApp();
 
 const axios = require('axios');
 const qs = require('qs');
+
+// const redirectURL = 'http://localhost:4200/callback';
+const redirectURL = 'https://presave-app.web.app/callback';
+
+// Get credentials from environment variables
+const clientID = functions.config().spotify.id;
+const clientSecret = functions.config().spotify.secret;
+
+const credentials = `${clientID}:${clientSecret}`;
+const encoded = Buffer.from(credentials).toString('base64');
 
 // Retrieve and store Spotify tokens and subsequent user data with Authentication code
 export const spotifyLogin = functions.https.onCall(async (data, context) =>{
@@ -14,12 +25,6 @@ export const spotifyLogin = functions.https.onCall(async (data, context) =>{
 
   // API setup
   const endpoint = 'https://accounts.spotify.com/api/token';
-  // const redirectURL = 'http://localhost:4200/callback';
-  const redirectURL = 'https://presave-app.web.app/callback';
-
-  // Get credentials from environment variables
-  const clientID = functions.config().spotify.id;
-  const clientSecret = functions.config().spotify.secret;
 
   const increment = admin.firestore.FieldValue.increment(1);
 
@@ -28,21 +33,22 @@ export const spotifyLogin = functions.https.onCall(async (data, context) =>{
   const requestBody = qs.stringify({
     'grant_type': 'authorization_code',
     'code': code,
-    'redirect_uri': redirectURL,
-    'client_id': clientID,
-    'client_secret': clientSecret
+    'redirect_uri': redirectURL
   });
 
   // Try calling the Spotify API
   try {
 
     // Get token from Spotify
-    const tokenRes = await axios.post(endpoint, requestBody);
+    const tokenRes = await axios.post(endpoint, requestBody, {
+      headers: {
+        Authorization: `Basic ${encoded}`
+      }
+    });
 
     // Extract token
     const authData = {
       token: tokenRes.data.access_token,
-      expiresIn: parseInt(tokenRes.data.expires_in),
       refreshToken: tokenRes.data.refresh_token,
     }
 
@@ -53,7 +59,8 @@ export const spotifyLogin = functions.https.onCall(async (data, context) =>{
     const docData = {
       ...authData,
       user: userData,
-      timestamp: admin.firestore.Timestamp.now()
+      timestamp: admin.firestore.Timestamp.now(),
+      hasSaved: false
     };
 
     // Check if user has presaved before
@@ -97,6 +104,56 @@ export const followOnCreate = functions.firestore.document('presaves/{presaveId}
   console.log(artistFollowed);
 
   return followArtist;
+
+});
+
+export const saveTrackToLibrary = functions.pubsub.schedule('0 * * * *').onRun( async (context) => {
+
+  // Get all presaves from database
+  const presaveSnapshot = await admin.firestore().collection('presaves').get();
+  const presaves: Ipresave[] = presaveSnapshot.docs.filter(doc => doc.id !== '--stats--').map(doc => {
+    const docData = doc.data();
+    const docContent = {
+      token: docData.token,
+      expiresIn: docData.expiresIn,
+      refreshToken: docData.refreshToken,
+      user: docData.user,
+      timestamp: docData.timestamp,
+      hasSaved: docData.hasSaved
+    }
+
+    return  {
+      id: doc.id,
+      ...docContent,
+    }
+
+  }).filter(doc => doc.hasSaved !== true);
+
+  // Get new tokens with the refresh token
+  for (const presave of presaves) {
+
+    try {
+
+      const currentDocRef = admin.firestore().collection('presaves').doc(presave.id);
+
+      const token = await getTokenFromRefreshToken(presave.refreshToken);
+
+      await currentDocRef.set({ token }, { merge: true });
+
+      const trySave = await saveTrack(token);
+
+      if (trySave.success) {
+        await currentDocRef.set({ hasSaved: true }, { merge: true });
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  }
+
 
 });
 
@@ -149,5 +206,56 @@ const followArtist = async (token: string) => {
     console.error(error);
     return 'Failed to follow artist';
   }
+
+}
+
+// Get new token with Refresh Token
+const getTokenFromRefreshToken = async (refreshToken: string) => {
+
+  const endpoint = 'https://accounts.spotify.com/api/token';
+
+  const requestBody = qs.stringify({
+    'grant_type': 'refresh_token',
+    'refresh_token': refreshToken,
+    'redirect_uri': redirectURL
+  });
+
+  try {
+    const tokenRes = await axios.post(endpoint, requestBody, {
+      headers: {
+        Authorization: `Basic ${encoded}`
+      }
+    });
+
+    return tokenRes.data.access_token
+
+  } catch (error) {
+    return error;
+  }
+
+}
+
+const saveTrack = async (token: string) => {
+
+  const endpoint = 'https://api.spotify.com/v1/me/tracks';
+
+  const saveData = {
+    ids: ['7s4oDm9CSAzYnsIaMy4FaF']
+  }
+
+  try {
+    const saveRes = await axios.put(endpoint, saveData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    return { success: true };
+
+  } catch (error) {
+    return { success: false, error }
+  }
+
 
 }
