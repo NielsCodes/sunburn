@@ -1,7 +1,6 @@
 <div id="page-container">
 
-  <video autoplay loop playsinline [muted]="true" id="background-video" #videoPlayer *ngIf="videoURL !== undefined && presaveSuccessful">
-  <!-- <video autoplay loop [muted]="true" playsinline id="background-video" #videoPlayer *ngIf="videoURL !== undefined"> -->
+  <video autoplay loop playsinline [muted]="true" id="background-video" #videoPlayer [hidden]="videoURL === undefined || !presaveSuccessful">
     <source [src]="videoURL" type="video/mp4">
   </video>
 
@@ -11,7 +10,7 @@
 
   <div id="loading-content">
     <img src="../../assets/bird white.svg" alt="bitbird logo" id="loading-logo">
-    <h3 id="loading-text">Almost done...</h3>
+    <img src="../../assets/sinewave-loader.gif" alt="sine wave loader" id="preloader-gif">
   </div>
 
 </div>

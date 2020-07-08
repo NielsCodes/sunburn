@@ -1,5 +1,5 @@
-import { Config } from './../../models/config.model';
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Config, PresaveResponse } from './../../models/config.model';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Renderer2, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { AngularFirestore } from '@angular/fire/firestore';
@@ -28,17 +28,20 @@ import { HttpClient } from '@angular/common/http';
         opacity: 0
       })),
 
-      transition('loading => loaded', animate('1000ms 1200ms ease-in'))
+      transition('loading => loaded', animate('1000ms ease-in'))
 
     ])
   ]
 })
-export class CallbackComponent implements OnInit {
+export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
   code: string;
   videoURL: string;
+  videoLoaded = false;
   presaveSuccessful = false;
   loadingState = 'loading';
+
+  private unlistener: () => void;
 
   @ViewChild('videoPlayer') playerElement: ElementRef;
 
@@ -47,7 +50,8 @@ export class CallbackComponent implements OnInit {
     private router: Router,
     private fns: AngularFireFunctions,
     private afs: AngularFirestore,
-    private http: HttpClient
+    private http: HttpClient,
+    private renderer2: Renderer2
   ) {
 
     this.route.queryParamMap.subscribe(params => {
@@ -57,11 +61,11 @@ export class CallbackComponent implements OnInit {
       }
     });
 
-
     this.afs.collection('config').doc<Config>('video').valueChanges().pipe(take(1)).toPromise()
       .then(doc => {
         this.videoURL = doc.source;
         this.updateLoadingState();
+        this.playerElement.nativeElement.load();
       })
       .catch(err => console.error(err));
 
@@ -71,9 +75,9 @@ export class CallbackComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.code = params.code;
 
-      this.http.post('http://localhost:8080/login', { auth_code: this.code }).toPromise()
+      this.http.post('https://presave.bitbird.dev/login', { auth_code: this.code }).toPromise()
 
-        .then(res => {
+        .then((res: PresaveResponse) => {
 
           console.log(res);
           // ! REMOVE before flight
@@ -87,18 +91,32 @@ export class CallbackComponent implements OnInit {
           }
 
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+          console.error(err);
+          this.router.navigate(['/']);
+        });
 
     });
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void { }
 
+  ngAfterViewInit(): void {
+
+    this.unlistener = this.renderer2.listen(this.playerElement.nativeElement, 'loadeddata', e => {
+      this.videoLoaded = true;
+      this.updateLoadingState();
+    });
+
+  }
+
+  ngOnDestroy(): void {
+    this.unlistener();
   }
 
   updateLoadingState() {
 
-    if (this.presaveSuccessful && this.videoURL !== undefined) {
+    if (this.presaveSuccessful && this.videoURL !== undefined && this.videoLoaded) {
       this.loadingState = 'loaded';
     }
 

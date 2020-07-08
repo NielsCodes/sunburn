@@ -1,5 +1,5 @@
 import express from 'express';
-import * as axios from 'axios';
+import axios from 'axios';
 import * as firebase from 'firebase';
 import * as qs from 'qs';
 const cors = require('cors');
@@ -28,7 +28,7 @@ app.use(cors());
 app.get('/', (req: any, res: any) => {
 
   res.status(200);
-  res.send(process.env.FOO);
+  res.send('Login API is running');
 
 });
 
@@ -85,8 +85,7 @@ app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 const getTokenFromAuth = async (code: string) => {
 
   const endpoint = 'https://accounts.spotify.com/api/token';
-  // const redirectUrl = 'https://presave-app.web.app/callback';
-  const redirectUrl = 'http://localhost:4200/callback';
+  const redirectUrl = process.env.REDIRECT_URL || 'http://localhost:4200/callback';
 
   // Encode API credentials
   const credentials = `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`;

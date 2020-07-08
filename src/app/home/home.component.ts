@@ -19,8 +19,8 @@ export class HomeComponent implements OnInit {
 
     const rootUrl = 'https://accounts.spotify.com/authorize';
     const clientID = 'e927df0934d7411181641fbd99a56f3c';
-    const redirectURL = 'http://localhost:4200/callback';
-    // const redirectURL = 'https://presave-app.web.app/callback';
+    // const redirectURL = 'http://localhost:4200/callback';
+    const redirectURL = 'https://presave-app.web.app/callback';
     const scope = 'user-library-modify user-read-private user-follow-modify';
     const state = 'bbpresave';
 

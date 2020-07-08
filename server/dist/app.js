@@ -11,7 +11,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const axios = __importStar(require("axios"));
+const axios_1 = __importDefault(require("axios"));
 const firebase = __importStar(require("firebase"));
 const qs = __importStar(require("qs"));
 const cors = require('cors');
@@ -72,8 +72,7 @@ app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 // Get token and refresh tokens from Spotify with Authorization token
 const getTokenFromAuth = async (code) => {
     const endpoint = 'https://accounts.spotify.com/api/token';
-    // const redirectUrl = 'https://presave-app.web.app/callback';
-    const redirectUrl = 'http://localhost:4200/callback';
+    const redirectUrl = process.env.REDIRECT_URL || 'http://localhost:4200/callback';
     // Encode API credentials
     const credentials = `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`;
     const authorization = Buffer.from(credentials).toString('base64');
@@ -85,7 +84,7 @@ const getTokenFromAuth = async (code) => {
     });
     // Try calling the Spotify API
     try {
-        const tokenRes = await axios.post(endpoint, requestBody, {
+        const tokenRes = await axios_1.default.post(endpoint, requestBody, {
             headers: {
                 Authorization: `Basic ${authorization}`
             }
@@ -101,7 +100,7 @@ const getTokenFromAuth = async (code) => {
 const getUser = async (token) => {
     const endpoint = 'https://api.spotify.com/v1/me';
     try {
-        const userRes = await axios.get(endpoint, {
+        const userRes = await axios_1.default.get(endpoint, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
