@@ -12,6 +12,8 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFireFunctionsModule, ORIGIN } from '@angular/fire/functions';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 
+import { HttpClientModule } from '@angular/common/http';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,7 +26,8 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireFunctionsModule,
     AngularFirestoreModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    HttpClientModule
   ],
   providers: [
     { provide: ORIGIN, useValue: 'http://localhost:5001'}

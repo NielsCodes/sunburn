@@ -11,6 +11,7 @@ import {
   transition,
   animate
 } from '@angular/animations';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-callback',
@@ -45,7 +46,8 @@ export class CallbackComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private fns: AngularFireFunctions,
-    private afs: AngularFirestore
+    private afs: AngularFirestore,
+    private http: HttpClient
   ) {
 
     this.route.queryParamMap.subscribe(params => {
@@ -69,23 +71,27 @@ export class CallbackComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.code = params.code;
 
-      const spotifyLogin = this.fns.httpsCallable('spotifyLogin');
-      spotifyLogin({ code: this.code }).toPromise()
-        .then(res => {
-
-          console.log(res);
-          // ! REMOVE before flight
-          console.timeEnd('login');
-
-          if (res.success) {
-            this.presaveSuccessful = true;
-            this.updateLoadingState();
-          } else {
-            this.router.navigate(['/']);
-          }
-
-        })
+      this.http.post('http://localhost:8080/login', { auth: this.code }).toPromise()
+        .then(res => console.log(res))
         .catch(err => console.error(err));
+
+      // const spotifyLogin = this.fns.httpsCallable('spotifyLogin');
+      // spotifyLogin({ code: this.code }).toPromise()
+      //   .then(res => {
+
+      //     console.log(res);
+      //     // ! REMOVE before flight
+      //     console.timeEnd('login');
+
+      //     if (res.success) {
+      //       this.presaveSuccessful = true;
+      //       this.updateLoadingState();
+      //     } else {
+      //       this.router.navigate(['/']);
+      //     }
+
+      //   })
+      //   .catch(err => console.error(err));
 
     });
   }
