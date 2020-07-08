@@ -130,7 +130,6 @@ export const saveTrackToLibrary = functions.pubsub.schedule('0 * * * *').onRun( 
   }).filter(doc => doc.hasSaved !== true);
 
   // Get new tokens with the refresh token
-  for (const presave of presaves) {
 
     try {
 
