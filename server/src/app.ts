@@ -1,10 +1,10 @@
-const express = require('express');
-const axios = require('axios');
+import express from 'express';
+import * as axios from 'axios';
+import * as firebase from 'firebase';
+import * as qs from 'qs';
+const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 8080;
-const firebase = require('firebase');
-const qs = require('qs');
-const cors = require('cors');
 const fb = firebase.initializeApp({
   apiKey: 'AIzaSyDCF3Bl0KvlDjjsnK5i6TLa9NZjCetgBPE',
   authDomain: 'presave-app.firebaseapp.com',
@@ -36,14 +36,14 @@ app.get('/', (req: any, res: any) => {
 app.post('/login', async (req: any, res: any) => {
 
   // Get token from Request
-  if (req.body.auth === undefined) {
+  if (req.body.auth_code === undefined) {
     res.status(400);
     res.send('Missing authorization token');
     return;
   }
 
-  const auth = req.body.auth;
-  const tokenData = await getTokenFromAuth(auth);
+  const authCode = req.body.auth_code;
+  const tokenData = await getTokenFromAuth(authCode);
 
   const token = tokenData.access_token;
 
@@ -53,10 +53,24 @@ app.post('/login', async (req: any, res: any) => {
 
 
   // Check if user has presaved before
+  const firstPresave = await checkIfFirstSave(userData.id);
+
+  if (!firstPresave) {
+    res.status(200).json({
+      success: true,
+      message: 'User has presaved before'
+    });
+    return;
+  }
+
 
   // Store data in Firestore
+  await registerPresave(tokenData, userData);
 
-  res.json(tokenData);
+  res.status(200).json({
+    success: true,
+    message: 'Presave registered'
+  });
 
 });
 
@@ -123,4 +137,38 @@ const getUser = async (token: string) => {
     throw new Error(error);
   }
 
-}
+};
+
+// Check if the user has presaved
+const checkIfFirstSave = async (id: string) => {
+
+  const userDocsSnap = await fb.firestore().collection('presaves').where('user.id', '==', id).get();
+  const size = userDocsSnap.size;
+
+  if (size > 0) {
+    return false;
+  } else {
+    return true;
+  }
+
+};
+
+// Register presave in Firestore
+const registerPresave = async (authData: object, userData: object) => {
+  const increment = firebase.firestore.FieldValue.increment(1);
+  const docData = {
+    authorization: authData,
+    user: userData,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    hasSaved: false
+  };
+
+  const statsRef = fb.firestore().collection('presaves').doc('--stats--');
+  const docRef = fb.firestore().collection('presaves').doc();
+
+  const batch = fb.firestore().batch();
+  batch.set(docRef, docData);
+  batch.set(statsRef, { saves: increment }, { merge: true });
+  return batch.commit();
+
+};

@@ -71,27 +71,23 @@ export class CallbackComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.code = params.code;
 
-      this.http.post('http://localhost:8080/login', { auth: this.code }).toPromise()
-        .then(res => console.log(res))
+      this.http.post('http://localhost:8080/login', { auth_code: this.code }).toPromise()
+
+        .then(res => {
+
+          console.log(res);
+          // ! REMOVE before flight
+          console.timeEnd('login');
+
+          if (res.success) {
+            this.presaveSuccessful = true;
+            this.updateLoadingState();
+          } else {
+            this.router.navigate(['/']);
+          }
+
+        })
         .catch(err => console.error(err));
-
-      // const spotifyLogin = this.fns.httpsCallable('spotifyLogin');
-      // spotifyLogin({ code: this.code }).toPromise()
-      //   .then(res => {
-
-      //     console.log(res);
-      //     // ! REMOVE before flight
-      //     console.timeEnd('login');
-
-      //     if (res.success) {
-      //       this.presaveSuccessful = true;
-      //       this.updateLoadingState();
-      //     } else {
-      //       this.router.navigate(['/']);
-      //     }
-
-      //   })
-      //   .catch(err => console.error(err));
 
     });
   }

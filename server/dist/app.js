@@ -1,11 +1,22 @@
 "use strict";
-const express = require('express');
-const axios = require('axios');
-const app = express();
-const port = process.env.PORT || 8080;
-const firebase = require('firebase');
-const qs = require('qs');
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const axios = __importStar(require("axios"));
+const firebase = __importStar(require("firebase"));
+const qs = __importStar(require("qs"));
 const cors = require('cors');
+const app = express_1.default();
+const port = process.env.PORT || 8080;
 const fb = firebase.initializeApp({
     apiKey: 'AIzaSyDCF3Bl0KvlDjjsnK5i6TLa9NZjCetgBPE',
     authDomain: 'presave-app.firebaseapp.com',
@@ -19,7 +30,7 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 // Use JSON parser
-app.use(express.json());
+app.use(express_1.default.json());
 app.use(cors());
 // Status endpoint
 app.get('/', (req, res) => {
@@ -29,20 +40,32 @@ app.get('/', (req, res) => {
 // Spotify login endpoint
 app.post('/login', async (req, res) => {
     // Get token from Request
-    if (req.body.auth === undefined) {
+    if (req.body.auth_code === undefined) {
         res.status(400);
         res.send('Missing authorization token');
         return;
     }
-    const auth = req.body.auth;
-    const tokenData = await getTokenFromAuth(auth);
+    const authCode = req.body.auth_code;
+    const tokenData = await getTokenFromAuth(authCode);
     const token = tokenData.access_token;
     // Get user data with token
     const userData = await getUser(token);
     console.log(userData);
     // Check if user has presaved before
+    const firstPresave = await checkIfFirstSave(userData.id);
+    if (!firstPresave) {
+        res.status(200).json({
+            success: true,
+            message: 'User has presaved before'
+        });
+        return;
+    }
     // Store data in Firestore
-    res.json(tokenData);
+    await registerPresave(tokenData, userData);
+    res.status(200).json({
+        success: true,
+        message: 'Presave registered'
+    });
 });
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
@@ -89,5 +112,32 @@ const getUser = async (token) => {
         console.error(error);
         throw new Error(error);
     }
+};
+// Check if the user has presaved
+const checkIfFirstSave = async (id) => {
+    const userDocsSnap = await fb.firestore().collection('presaves').where('user.id', '==', id).get();
+    const size = userDocsSnap.size;
+    if (size > 0) {
+        return false;
+    }
+    else {
+        return true;
+    }
+};
+// Register presave in Firestore
+const registerPresave = async (authData, userData) => {
+    const increment = firebase.firestore.FieldValue.increment(1);
+    const docData = {
+        authorization: authData,
+        user: userData,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        hasSaved: false
+    };
+    const statsRef = fb.firestore().collection('presaves').doc('--stats--');
+    const docRef = fb.firestore().collection('presaves').doc();
+    const batch = fb.firestore().batch();
+    batch.set(docRef, docData);
+    batch.set(statsRef, { saves: increment }, { merge: true });
+    return batch.commit();
 };
 //# sourceMappingURL=app.js.map
