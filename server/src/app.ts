@@ -43,17 +43,20 @@ app.post('/login', async (req: any, res: any) => {
   }
 
   const auth = req.body.auth;
+  const tokenData = await getTokenFromAuth(auth);
+
+  const token = tokenData.access_token;
 
   // Get user data with token
-  const tokenData = await getTokenFromAuth(auth);
+  const userData = await getUser(token);
+  console.log(userData);
+
 
   // Check if user has presaved before
 
   // Store data in Firestore
 
-  res.json({
-    message: 'done'
-  });
+  res.json(tokenData);
 
 });
 
@@ -95,7 +98,29 @@ const getTokenFromAuth = async (code: string) => {
 
   } catch (error) {
     console.error(error);
-    return error;
+    throw new Error(error);
   }
 
 };
+
+// Get user data with token
+const getUser = async (token: string) => {
+
+  const endpoint = 'https://api.spotify.com/v1/me';
+
+  try {
+
+    const userRes = await axios.get(endpoint, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    return userRes.data;
+
+  } catch (error) {
+    console.error(error);
+    throw new Error(error);
+  }
+
+}

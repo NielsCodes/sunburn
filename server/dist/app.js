@@ -35,13 +35,14 @@ app.post('/login', async (req, res) => {
         return;
     }
     const auth = req.body.auth;
-    // Get user data with token
     const tokenData = await getTokenFromAuth(auth);
+    const token = tokenData.access_token;
+    // Get user data with token
+    const userData = await getUser(token);
+    console.log(userData);
     // Check if user has presaved before
     // Store data in Firestore
-    res.json({
-        message: 'done'
-    });
+    res.json(tokenData);
 });
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
@@ -70,7 +71,23 @@ const getTokenFromAuth = async (code) => {
     }
     catch (error) {
         console.error(error);
-        return error;
+        throw new Error(error);
+    }
+};
+// Get user data with token
+const getUser = async (token) => {
+    const endpoint = 'https://api.spotify.com/v1/me';
+    try {
+        const userRes = await axios.get(endpoint, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return userRes.data;
+    }
+    catch (error) {
+        console.error(error);
+        throw new Error(error);
     }
 };
 //# sourceMappingURL=app.js.map
