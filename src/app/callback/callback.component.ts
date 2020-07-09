@@ -28,7 +28,7 @@ import { HttpClient } from '@angular/common/http';
         opacity: 0
       })),
 
-      transition('loading => loaded', animate('1000ms ease-in'))
+      transition('loading => loaded', animate('500ms ease-in'))
 
     ])
   ]
@@ -79,7 +79,6 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
         .then((res: PresaveResponse) => {
 
-          console.log(res);
           // ! REMOVE before flight
           console.timeEnd('login');
 

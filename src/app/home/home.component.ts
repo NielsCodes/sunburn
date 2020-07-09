@@ -24,7 +24,9 @@ export class HomeComponent implements OnInit {
     const scope = 'user-library-modify user-read-private user-follow-modify';
     const state = 'bbpresave';
 
+    // tslint:disable-next-line: max-line-length
     const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}&show_dialog=true`;
+    // const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}`;
 
     window.location.href = loginUrl;
 
