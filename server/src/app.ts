@@ -15,6 +15,8 @@ const fb = firebase.initializeApp({
   appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
 
+const apiVersion = '1.021';
+
 if (process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
 }
@@ -28,7 +30,7 @@ app.use(cors());
 app.get('/', (req: any, res: any) => {
 
   res.status(200);
-  res.send('Login API is running');
+  res.send(`Login API is running. Version: ${apiVersion}`);
 
 });
 
@@ -42,42 +44,93 @@ app.post('/login', async (req: any, res: any) => {
     return;
   }
 
-  const authCode = req.body.auth_code;
-  const tokenData = await getTokenFromAuth(authCode);
+  try {
 
-  const token = tokenData.access_token;
+    const authCode = req.body.auth_code;
+    const tokenData = await getTokenFromAuth(authCode);
 
-  // Get user data with token
-  const userData = await getUser(token);
-  console.log(userData);
+    const token = tokenData.access_token;
+
+    // Get user data with token
+    const userData = await getUser(token);
+    console.log(userData);
 
 
-  // Check if user has presaved before
-  const firstPresave = await checkIfFirstSave(userData.id);
+    // Check if user has presaved before
+    const firstPresave = await checkIfFirstSave(userData.id);
 
-  if (!firstPresave) {
+    if (!firstPresave) {
+      res.status(200).json({
+        success: true,
+        message: 'User has presaved before'
+      });
+      return;
+    }
+
+
+    // Store data in Firestore
+    await registerPresave(tokenData, userData);
+
     res.status(200).json({
       success: true,
-      message: 'User has presaved before'
+      message: 'Presave registered'
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error
+    });
+
+  }
+
+});
+
+// Messenger presave from Zapier
+app.post('/zapier', async (req: any, res: any) => {
+
+  console.log(req.body);
+
+  const id = req.body.id;
+
+  if (id === undefined) {
+    res.status(400).json({
+      success: false,
+      message: 'No ID found'
+    });
+    console.error(`Retrieved call without ID`);
+    return;
+  }
+
+  const email = req.body.email || 'undefined';
+  const firstName = req.body.firstName || 'undefined';
+  const lastName = req.body.lastName || 'undefined';
+
+  try {
+    const isFirstSave = await checkIfFirstMessengerSave(id);
+    if (!isFirstSave) {
+      return;
+    }
+    await registerMessengerSave(id, email, firstName, lastName);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error
     });
     return;
   }
 
-
-  // Store data in Firestore
-  await registerPresave(tokenData, userData);
-
   res.status(200).json({
     success: true,
-    message: 'Presave registered'
+    message: 'Messenger save registered successfully'
   });
 
 });
 
-// Start listening on defined port
+
+// Start listening on defined por
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
-
-
 
 
 
@@ -152,6 +205,20 @@ const checkIfFirstSave = async (id: string) => {
 
 };
 
+// Check if the user has presaved with Messenger
+const checkIfFirstMessengerSave = async (id: number) => {
+
+  const userDocsSnap = await fb.firestore().collection('messengerSaves').where('id', '==', id).get();
+  const size = userDocsSnap.size;
+
+  if (size > 0) {
+    return false;
+  } else {
+    return true;
+  }
+
+};
+
 // Register presave in Firestore
 const registerPresave = async (authData: object, userData: object) => {
   const increment = firebase.firestore.FieldValue.increment(1);
@@ -167,7 +234,34 @@ const registerPresave = async (authData: object, userData: object) => {
 
   const batch = fb.firestore().batch();
   batch.set(docRef, docData);
-  batch.set(statsRef, { saves: increment }, { merge: true });
+  batch.set(statsRef, {
+    saves: increment,
+    spotify: increment
+  }, { merge: true });
   return batch.commit();
 
+};
+
+// Register Messenger signup in Firestore
+const registerMessengerSave = async (id: string, email: string, firstName: string, lastName: string) => {
+  const increment = firebase.firestore.FieldValue.increment(1);
+
+  const docData = {
+    id,
+    email,
+    firstName,
+    lastName,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  const statsRef = fb.firestore().collection('presaves').doc('--stats--');
+  const docRef = fb.firestore().collection('messengerSaves').doc();
+
+  const batch = fb.firestore().batch();
+  batch.set(docRef, docData);
+  batch.set(statsRef, {
+    saves: increment,
+    messenger: increment
+  }, { merge: true });
+  return batch.commit();
 };
