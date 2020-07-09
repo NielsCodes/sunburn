@@ -32,6 +32,45 @@ export const followOnCreate = functions.firestore.document('presaves/{presaveId}
 });
 
 
+// Change save count when presave is removed
+export const decrementSaveOnDelete = functions.firestore.document('presaves/{presaveId}').onDelete( async (snap, context) => {
+
+  const id = snap.id;
+
+  // Return if removed document is stats doc itself
+  if (id === '--stats--') {
+    return;
+  }
+
+  const statsRef = admin.firestore().collection('presaves').doc('--stats--');
+  const decrement = admin.firestore.FieldValue.increment(-1);
+
+  await statsRef.set({
+    saves: decrement,
+    spotify: decrement
+  }, { merge: true });
+
+  return;
+
+});
+
+
+// Change save count when Messenger presave is removed
+export const decrementSaveOnMessengerDelete = functions.firestore.document('messengerSaves/{presaveId}').onDelete( async (snap, context) => {
+
+  const statsRef = admin.firestore().collection('presaves').doc('--stats--');
+  const decrement = admin.firestore.FieldValue.increment(-1);
+
+  await statsRef.set({
+    saves: decrement,
+    messenger: decrement
+  }, { merge: true });
+
+  return;
+
+});
+
+
 // Update video link from presave count on stat update
 export const parseSaveCount = functions.firestore.document('presaves/{docId}').onUpdate( async (change, context) => {
 
