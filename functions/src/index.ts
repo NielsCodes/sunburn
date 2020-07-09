@@ -31,6 +31,78 @@ export const followOnCreate = functions.firestore.document('presaves/{presaveId}
 
 });
 
+
+// Update video link from presave count on stat update
+export const parseSaveCount = functions.firestore.document('presaves/{docId}').onUpdate( async (change, context) => {
+
+  const docID = change.after.id;
+  if (docID !== '--stats--') {
+    console.log('Not stats doc');
+    return;
+  }
+
+  const newSaves = change.after.get('saves');
+  const configRef = admin.firestore().collection('config').doc('video');
+
+  let videoURL: string = '';
+
+  // STAGE 1
+  if (newSaves < 100) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 2
+  if (newSaves >= 100 && newSaves < 200) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 3
+  if (newSaves >= 200 && newSaves < 300) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 4
+  if (newSaves >= 300 && newSaves < 400) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 5
+  if (newSaves >= 400 && newSaves < 500) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 6
+  if (newSaves >= 500 && newSaves < 600) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 7
+  if (newSaves >= 600 && newSaves < 700) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 8
+  if (newSaves >= 700 && newSaves < 800) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 9
+  if (newSaves >= 800 && newSaves < 900) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  // STAGE 10
+  if (newSaves >= 900) {
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+  }
+
+  await configRef.set({ source: videoURL });
+
+  return;
+
+})
+
+
 // export const saveTrackToLibrary = functions.pubsub.schedule('0 * * * *').onRun( async (context) => {
 
 //   // Get all presaves from database
