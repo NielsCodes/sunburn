@@ -1,6 +1,23 @@
 <div id="page-container" class="static-frame">
 
-  <button id="presave-btn" class="save-link-btn" (click)="onSpotifyLogin()">Presave on Spotify</button>
-  <button id="messenger-btn" class="save-link-btn" (click)="onMessengerNotify()">Notify me on Messenger</button>
+  <div id="presave-options-container">
+    <h2 id="presave-options-title">Presave to ...</h2>
+
+    <div id="presave-options">
+
+      <div id="presave-btn" class="save-link" (click)="onSpotifyLogin()">
+        <img src="../../assets/spotify.svg" alt="Spotify logo" class="save-option-logo">
+        <div class="link-btn">Presave</div>
+      </div>
+
+      <div id="messenger-btn" class="save-link" (click)="onMessengerNotify()">
+        <img src="../../assets/messenger.svg" alt="Messenger logo" class="save-option-logo">
+        <div class="link-btn">Notify me</div>
+      </div>
+
+    </div>
+
+
+  </div>
 
 </div>

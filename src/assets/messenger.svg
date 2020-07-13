@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 4561 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="Artboard1" transform="matrix(4.45361,0,0,1,0,0)">
+        <rect x="0" y="0" width="1024" height="1024" style="fill:none;"/>
+        <g id="Messenger_4_" transform="matrix(0.224537,0,0,1,0,0)">
+            <path id="Bubble_Solid_3_" d="M512,11.5C232,11.5 15,216.6 15,493.6C15,638.5 74.4,763.7 171.1,850.2C179.2,857.5 184.1,867.6 184.5,878.5L187.2,966.9C188.1,995.1 217.2,1013.4 243,1002.1L341.6,958.6C350,954.9 359.3,954.2 368.1,956.6C413.4,969.1 461.7,975.7 512,975.7C792,975.7 1009,770.6 1009,493.6C1009,216.6 792,11.5 512,11.5Z" style="fill:url(#_Linear1);"/>
+            <g transform="matrix(1.04557,0,0,1.04557,-202.02,-54.7075)">
+                <text x="1287.5px" y="752.991px" style="font-family:'FacebookReader-Regular', 'Facebook Reader', sans-serif;font-size:614.604px;fill:rgb(24,119,242);">Messeng<tspan x="3935.22px " y="752.991px ">e</tspan>r</text>
+            </g>
+            <path id="Bolt_4_" d="M213.6,634.6L359.6,403C382.8,366.2 432.6,357 467.4,383.1L583.5,470.2C594.2,478.2 608.8,478.1 619.4,470.1L776.2,351.1C797.1,335.2 824.5,360.3 810.4,382.5L664.5,614C641.3,650.8 591.5,660 556.7,633.9L440.6,546.8C429.9,538.8 415.3,538.9 404.7,546.9L247.8,666C226.9,681.9 199.5,656.8 213.6,634.6Z" style="fill:white;"/>
+        </g>
+    </g>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(6.08649e-14,994,-994,6.08649e-14,512,11.5)"><stop offset="0" style="stop-color:rgb(0,178,255);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(0,106,255);stop-opacity:1"/></linearGradient>
+    </defs>
+</svg>
