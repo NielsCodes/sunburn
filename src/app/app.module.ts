@@ -13,6 +13,7 @@ import { AngularFireFunctionsModule, ORIGIN } from '@angular/fire/functions';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 
 import { HttpClientModule } from '@angular/common/http';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { HttpClientModule } from '@angular/common/http';
     AngularFireFunctionsModule,
     AngularFirestoreModule,
     BrowserAnimationsModule,
-    HttpClientModule
+    HttpClientModule,
+    ClipboardModule
   ],
   providers: [
     { provide: ORIGIN, useValue: 'http://localhost:5001'}

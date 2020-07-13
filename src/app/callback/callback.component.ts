@@ -12,6 +12,7 @@ import {
   animate
 } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-callback',
@@ -33,16 +34,16 @@ import { HttpClient } from '@angular/common/http';
     ])
   ]
 })
-export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CallbackComponent implements OnDestroy, AfterViewInit {
 
+  private pageURL = 'https://presave-app.web.app';
   videoURL: string;
   videoLoaded = false;
   presaveSuccessful = false;
   loadingState = 'loading';
   referrer: string;
 
-  // TODO: Store referrer
-  // If not Spotify login, don't perform presave storage
+  canShare = false;
 
   private unlistener: () => void;
 
@@ -54,7 +55,8 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     private fns: AngularFireFunctions,
     private afs: AngularFirestore,
     private http: HttpClient,
-    private renderer2: Renderer2
+    private renderer2: Renderer2,
+    private clipboard: Clipboard
   ) {
 
     // Redirect to home when navigation does not come from Messenger save or Spotify login
@@ -112,10 +114,14 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
       })
       .catch(err => console.error(err));
 
+    // Check if platform supports Web share API
+    if (navigator.share) {
+      this.canShare = true;
+    }
+
   }
 
-  ngOnInit(): void { }
-
+  // Listen to load state of video playaer after load
   ngAfterViewInit(): void {
 
     this.unlistener = this.renderer2.listen(this.playerElement.nativeElement, 'loadeddata', e => {
@@ -125,6 +131,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
+  // Stop event listener on video before unload
   ngOnDestroy(): void {
     this.unlistener();
   }
@@ -134,6 +141,45 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.presaveSuccessful && this.videoURL !== undefined && this.videoLoaded) {
       this.loadingState = 'loaded';
     }
+
+  }
+
+  // Copy link to clipboard
+  onCopyToClipboard() {
+
+    // TODO: Change link to final destination
+    this.clipboard.copy(this.pageURL);
+
+  }
+
+  // Share on Facebook
+  onShareToFacebook() {
+
+    const facebookBaseURL = 'https://www.facebook.com/sharer/sharer.php?u=';
+    const shareURL = `${facebookBaseURL}${this.pageURL}`;
+
+    window.open(shareURL, 'Share to Facebook', 'left=0,top=0,height=500,width=500');
+
+  }
+
+  // Share on Twitter
+  onShareToTwitter() {
+
+    const twitterBaseURL = 'https://twitter.com/intent/tweet?text=';
+    const shareURL = `${twitterBaseURL}I just presaved this mystery track for a special hint! @bitbird&url=${this.pageURL}`;
+
+    window.open(shareURL, 'Share to Twitter', 'left=0,top=0,height=500,width=500');
+
+  }
+
+  // Open share menu on mobile devices
+  onMobileShare() {
+
+    navigator.share({
+      title: 'Mystery release!',
+      text: 'Check out this mystery release for a hint!',
+      url: this.pageURL
+    });
 
   }
 
