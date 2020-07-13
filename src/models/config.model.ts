@@ -1,5 +1,6 @@
 export interface Config {
   source: string;
+  mobileSource: string;
 }
 
 export interface PresaveResponse {

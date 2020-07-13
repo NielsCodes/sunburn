@@ -84,58 +84,76 @@ export const parseSaveCount = functions.firestore.document('presaves/{docId}').o
   const configRef = admin.firestore().collection('config').doc('video');
 
   let videoURL: string = '';
+  let mobileURL: string = '';
+
+  // TODO: change mobile URLS to 9x16
 
   // STAGE 1
   if (newSaves < 100) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/01.mp4?alt=media&token=919fdb01-9614-4d18-abce-a6bbcbe1eda8';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F01.mp4?alt=media&token=330d934e-6920-4c48-bafb-c712e9ccd3d1';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F01.mp4?alt=media&token=330d934e-6920-4c48-bafb-c712e9ccd3d1';
   }
 
   // STAGE 2
   if (newSaves >= 100 && newSaves < 200) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/02.mp4?alt=media&token=1fe2c0b2-0908-4b9b-8909-d871f36ae374';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F02.mp4?alt=media&token=05214845-9992-40f4-a600-e984f5aa2074';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F02.mp4?alt=media&token=05214845-9992-40f4-a600-e984f5aa2074';
   }
 
   // STAGE 3
   if (newSaves >= 200 && newSaves < 300) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/03.mp4?alt=media&token=7fc8b081-9abb-4a31-8f20-a2e023daacb8';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F03.mp4?alt=media&token=840b6676-7369-466c-9ee7-686e8fc38203';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F03.mp4?alt=media&token=840b6676-7369-466c-9ee7-686e8fc38203';
   }
 
   // STAGE 4
   if (newSaves >= 300 && newSaves < 400) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/04.mp4?alt=media&token=681fd651-b95a-4239-b68c-917be7fafb8a';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F04.mp4?alt=media&token=9f25f5cd-211e-4c85-81a1-17a37e9cf738';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F04.mp4?alt=media&token=9f25f5cd-211e-4c85-81a1-17a37e9cf738';
   }
 
   // STAGE 5
   if (newSaves >= 400 && newSaves < 500) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/05.mp4?alt=media&token=ca50015a-e81e-4d69-90ce-1258d976bcb3';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F05.mp4?alt=media&token=0fb24520-364f-41f4-bfb0-aec68b7ceee3';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F05.mp4?alt=media&token=0fb24520-364f-41f4-bfb0-aec68b7ceee3';
   }
 
   // STAGE 6
   if (newSaves >= 500 && newSaves < 600) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/06.mp4?alt=media&token=c906b31f-2dbc-4055-9ce3-ac8b76ca9c13';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F06.mp4?alt=media&token=754e37ab-de2d-4870-9d12-624f561e16df';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F06.mp4?alt=media&token=754e37ab-de2d-4870-9d12-624f561e16df';
   }
 
   // STAGE 7
   if (newSaves >= 600 && newSaves < 700) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/07.mp4?alt=media&token=5288f819-ed8b-40a0-9fb5-beee142323e6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F07.mp4?alt=media&token=ea999002-df03-4f82-87ee-8dd64222fe3b';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F07.mp4?alt=media&token=ea999002-df03-4f82-87ee-8dd64222fe3b';
   }
 
   // STAGE 8
   if (newSaves >= 700 && newSaves < 800) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/08.mp4?alt=media&token=dfbc9d96-eff9-4665-aa34-b48fee8814c8';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F08.mp4?alt=media&token=e93fafa9-3224-40d9-ba9f-8fd7868adcdd';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F08.mp4?alt=media&token=e93fafa9-3224-40d9-ba9f-8fd7868adcdd';
   }
 
   // STAGE 9
   if (newSaves >= 800 && newSaves < 900) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/09.mp4?alt=media&token=abc4c00b-2e85-430a-b758-62eaad0dea0b';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F09.mp4?alt=media&token=b9e088d2-c591-4727-b1ab-8e9e32e10a37';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F09.mp4?alt=media&token=b9e088d2-c591-4727-b1ab-8e9e32e10a37';
   }
 
   // STAGE 10
   if (newSaves >= 900) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/10.mp4?alt=media&token=cc6f305e-78f7-44ac-aa82-cf0fcfc4ab64';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F10.mp4?alt=media&token=fd5358e6-e7b8-42c7-b7db-9018aa5b34fc';
+    mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/16x9%2F10.mp4?alt=media&token=fd5358e6-e7b8-42c7-b7db-9018aa5b34fc';
   }
 
-  await configRef.set({ source: videoURL });
+  // TODO: change share menu text after hitting 1000
+
+  await configRef.set({
+    source: videoURL,
+    mobileSource: mobileURL
+   });
 
   return;
 
@@ -273,6 +291,5 @@ const saveTrack = async (token: string) => {
   } catch (error) {
     return { success: false, error }
   }
-
 
 }

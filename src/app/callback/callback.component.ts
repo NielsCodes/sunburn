@@ -1,5 +1,5 @@
 import { Config, PresaveResponse } from './../../models/config.model';
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Renderer2, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Renderer2, AfterViewInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { AngularFirestore } from '@angular/fire/firestore';
@@ -35,11 +35,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
 
     trigger('shareState', [
       state('inactive', style({
-        opacity: 0
+        opacity: 0,
+        pointerEvents: 'none'
       })),
 
       state('active', style({
-        opacity: 1
+        opacity: 1,
+        pointerEvents: 'initial'
       })),
 
       transition('inactive => active', animate('250ms ease-in'))
@@ -55,6 +57,9 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
   loadingState = 'loading';
   shareState = 'inactive';
   referrer: string;
+  isVertical = false;
+
+  nav: any = window.navigator;
 
   canShare = false;
 
@@ -62,6 +67,19 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
   private shareUnlistener: () => void;
 
   @ViewChild('videoPlayer') playerElement: ElementRef;
+  @HostListener('window:resize', ['$event'])
+  onResize(event?) {
+
+    const height: number = window.innerHeight;
+    const width: number = window.innerWidth;
+
+    if (height > width) {
+      this.isVertical = true;
+    } else {
+      this.isVertical = false;
+    }
+
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -76,7 +94,6 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
     // Redirect to home when navigation does not come from Messenger save or Spotify login
     this.route.queryParamMap.subscribe(params => {
       if (!(params.has('code') && params.has('state')) && !params.has('ref')) {
-        // TODO: uncomment to redirect upon error
         this.router.navigate(['/']);
       }
 
@@ -122,16 +139,24 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
 
     this.afs.collection('config').doc<Config>('video').valueChanges().pipe(take(1)).toPromise()
       .then(doc => {
-        this.videoURL = doc.source;
+
+        if (this.isVertical) {
+          this.videoURL = doc.mobileSource;
+        } else {
+          this.videoURL = doc.source;
+        }
+
         this.updateLoadingState();
         this.playerElement.nativeElement.load();
       })
       .catch(err => console.error(err));
 
     // Check if platform supports Web share API
-    if (navigator.share) {
+    if (this.nav.share) {
       this.canShare = true;
     }
+
+    this.onResize();
 
   }
 
@@ -145,7 +170,7 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
 
     this.shareUnlistener = this.renderer2.listen(this.playerElement.nativeElement, 'ended', e => {
       this.shareState = 'active';
-    })
+    });
 
   }
 
@@ -165,36 +190,27 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
 
   // Copy link to clipboard
   onCopyToClipboard() {
-
-    // TODO: Change link to final destination
     this.clipboard.copy(this.pageURL);
-
   }
 
   // Share on Facebook
   onShareToFacebook() {
-
     const facebookBaseURL = 'https://www.facebook.com/sharer/sharer.php?u=';
     const shareURL = `${facebookBaseURL}${this.pageURL}`;
-
     window.open(shareURL, 'Share to Facebook', 'left=0,top=0,height=500,width=500');
-
   }
 
   // Share on Twitter
   onShareToTwitter() {
-
     const twitterBaseURL = 'https://twitter.com/intent/tweet?text=';
     const shareURL = `${twitterBaseURL}I just presaved this mystery track for a special hint! @bitbird&url=${this.pageURL}`;
-
     window.open(shareURL, 'Share to Twitter', 'left=0,top=0,height=500,width=500');
-
   }
 
   // Open share menu on mobile devices
   onMobileShare() {
 
-    navigator.share({
+    this.nav.share({
       title: 'Mystery release!',
       text: 'Check out this mystery release for a hint!',
       url: this.pageURL
