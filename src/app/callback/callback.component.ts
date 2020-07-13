@@ -35,11 +35,14 @@ import { HttpClient } from '@angular/common/http';
 })
 export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  code: string;
   videoURL: string;
   videoLoaded = false;
   presaveSuccessful = false;
   loadingState = 'loading';
+  referrer: string;
+
+  // TODO: Store referrer
+  // If not Spotify login, don't perform presave storage
 
   private unlistener: () => void;
 
@@ -54,11 +57,51 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     private renderer2: Renderer2
   ) {
 
+    // Redirect to home when navigation does not come from Messenger save or Spotify login
     this.route.queryParamMap.subscribe(params => {
-      if (!params.has('code')) {
+      if (!(params.has('code') && params.has('state')) && !params.has('ref')) {
         // TODO: uncomment to redirect upon error
         this.router.navigate(['/']);
       }
+
+      const ref = params.get('ref');
+      const code = params.get('code');
+      const URLState = params.get('state');
+
+      if (ref === 'messenger') {
+        this.referrer = 'messenger';
+        this.presaveSuccessful = true;
+      }
+
+      if (code !== null && URLState !== 'bbpresave') {
+
+        this.referrer = 'spotify';
+
+        // ! REMOVE before flight
+        console.time('login');
+
+        this.http.post('https://presave.bitbird.dev/login', { auth_code: code }).toPromise()
+
+          .then((res: PresaveResponse) => {
+
+            // ! REMOVE before flight
+            console.timeEnd('login');
+
+            if (res.success) {
+              this.presaveSuccessful = true;
+              this.updateLoadingState();
+            } else {
+              this.router.navigate(['/']);
+            }
+
+          })
+          .catch(err => {
+            console.error(err);
+            this.router.navigate(['/']);
+          });
+
+      }
+
     });
 
     this.afs.collection('config').doc<Config>('video').valueChanges().pipe(take(1)).toPromise()
@@ -69,33 +112,6 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
       })
       .catch(err => console.error(err));
 
-    // ! REMOVE before flight
-    console.time('login');
-
-    this.route.queryParams.subscribe(params => {
-      this.code = params.code;
-
-      this.http.post('https://presave.bitbird.dev/login', { auth_code: this.code }).toPromise()
-
-        .then((res: PresaveResponse) => {
-
-          // ! REMOVE before flight
-          console.timeEnd('login');
-
-          if (res.success) {
-            this.presaveSuccessful = true;
-            this.updateLoadingState();
-          } else {
-            this.router.navigate(['/']);
-          }
-
-        })
-        .catch(err => {
-          console.error(err);
-          this.router.navigate(['/']);
-        });
-
-    });
   }
 
   ngOnInit(): void { }
