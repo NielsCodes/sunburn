@@ -87,52 +87,52 @@ export const parseSaveCount = functions.firestore.document('presaves/{docId}').o
 
   // STAGE 1
   if (newSaves < 100) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/01.mp4?alt=media&token=919fdb01-9614-4d18-abce-a6bbcbe1eda8';
   }
 
   // STAGE 2
   if (newSaves >= 100 && newSaves < 200) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/02.mp4?alt=media&token=1fe2c0b2-0908-4b9b-8909-d871f36ae374';
   }
 
   // STAGE 3
   if (newSaves >= 200 && newSaves < 300) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/03.mp4?alt=media&token=7fc8b081-9abb-4a31-8f20-a2e023daacb8';
   }
 
   // STAGE 4
   if (newSaves >= 300 && newSaves < 400) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/04.mp4?alt=media&token=681fd651-b95a-4239-b68c-917be7fafb8a';
   }
 
   // STAGE 5
   if (newSaves >= 400 && newSaves < 500) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/05.mp4?alt=media&token=ca50015a-e81e-4d69-90ce-1258d976bcb3';
   }
 
   // STAGE 6
   if (newSaves >= 500 && newSaves < 600) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/06.mp4?alt=media&token=c906b31f-2dbc-4055-9ce3-ac8b76ca9c13';
   }
 
   // STAGE 7
   if (newSaves >= 600 && newSaves < 700) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/07.mp4?alt=media&token=5288f819-ed8b-40a0-9fb5-beee142323e6';
   }
 
   // STAGE 8
   if (newSaves >= 700 && newSaves < 800) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/08.mp4?alt=media&token=dfbc9d96-eff9-4665-aa34-b48fee8814c8';
   }
 
   // STAGE 9
   if (newSaves >= 800 && newSaves < 900) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/09.mp4?alt=media&token=abc4c00b-2e85-430a-b758-62eaad0dea0b';
   }
 
   // STAGE 10
   if (newSaves >= 900) {
-    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/never%20gonna%20give%20you%20up.mp4?alt=media&token=21cd4d81-7d3b-4b4a-879c-0ac79f879bb6';
+    videoURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/10.mp4?alt=media&token=cc6f305e-78f7-44ac-aa82-cf0fcfc4ab64';
   }
 
   await configRef.set({ source: videoURL });
