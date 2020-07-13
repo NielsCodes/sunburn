@@ -71,9 +71,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
       if (ref === 'messenger') {
         this.referrer = 'messenger';
         this.presaveSuccessful = true;
-      }
-
-      if (code !== null && URLState !== 'bbpresave') {
+      } else if (code !== null && URLState === 'bbpresave') {
 
         this.referrer = 'spotify';
 
@@ -100,6 +98,8 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
             this.router.navigate(['/']);
           });
 
+      } else {
+        this.router.navigate(['']);
       }
 
     });
