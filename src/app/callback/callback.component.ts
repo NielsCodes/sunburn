@@ -42,7 +42,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
         opacity: 1
       })),
 
-      transition('inactive => active', animate('500ms ease-in'))
+      transition('inactive => active', animate('250ms ease-in'))
     ])
   ]
 })
