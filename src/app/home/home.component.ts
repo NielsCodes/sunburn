@@ -37,10 +37,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onMessengerNotify() {
-    const popupWindow = window.open('https://google.com', 'Test', 'width=500,height=600,left=50%,top=50%');
-
-    // this.unlistener = this.renderer2.listen(popupWindow, 'beforeunload', e => console.log(e));
-    popupWindow.addEventListener('beforeunload', () => console.log('close'));
 
     // this.router.navigate(['/callback'], { queryParams: { ref: 'messenger' } });
   }
