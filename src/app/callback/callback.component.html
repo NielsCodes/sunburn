@@ -32,15 +32,15 @@
 
     <div id="share-controls-desktop" *ngIf="!canShare">
 
-      <div id="share-btn-twitter" class="share-btn" (click)="onShareToTwitter()">
+      <div id="share-btn-twitter" class="share-btn" (click)="onShareToTwitter()" title="Share on Twitter!">
         Share on Twitter
       </div>
 
-      <div id="share-btn-facebook" class="share-btn" (click)="onShareToFacebook()">
+      <div id="share-btn-facebook" class="share-btn" (click)="onShareToFacebook()" title="Share on Facebook">
         Share on Facebook
       </div>
 
-      <div id="share-btn-link" class="share-btn" (click)="onCopyToClipboard()">
+      <div id="share-btn-link" class="share-btn" (click)="onCopyToClipboard()" title="Copy the link to share with your friends!">
         Copy link
       </div>
 
