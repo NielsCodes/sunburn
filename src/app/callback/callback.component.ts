@@ -31,6 +31,18 @@ import { Clipboard } from '@angular/cdk/clipboard';
 
       transition('loading => loaded', animate('500ms ease-in'))
 
+    ]),
+
+    trigger('shareState', [
+      state('inactive', style({
+        opacity: 0
+      })),
+
+      state('active', style({
+        opacity: 1
+      })),
+
+      transition('inactive => active', animate('500ms ease-in'))
     ])
   ]
 })
@@ -41,11 +53,13 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
   videoLoaded = false;
   presaveSuccessful = false;
   loadingState = 'loading';
+  shareState = 'inactive';
   referrer: string;
 
   canShare = false;
 
   private unlistener: () => void;
+  private shareUnlistener: () => void;
 
   @ViewChild('videoPlayer') playerElement: ElementRef;
 
@@ -129,11 +143,16 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
       this.updateLoadingState();
     });
 
+    this.shareUnlistener = this.renderer2.listen(this.playerElement.nativeElement, 'ended', e => {
+      this.shareState = 'active';
+    })
+
   }
 
   // Stop event listener on video before unload
   ngOnDestroy(): void {
     this.unlistener();
+    this.shareUnlistener();
   }
 
   updateLoadingState() {
