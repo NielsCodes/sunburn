@@ -1,14 +1,31 @@
-import { Component } from '@angular/core';
+import { ApiService } from './../services/api.service';
+import { ScriptsService } from './../services/scripts.service';
+import { Component, OnInit } from '@angular/core';
+
+declare var MusicKit: any;
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.sass']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
+
+  appleToken: string;
 
   constructor(
-  ) { }
+    private scripts: ScriptsService,
+    private api: ApiService
+  ) {
+    this.scripts.loadMusicKit();
+    this.api.getAppleToken()
+      .then( (token) => {
+        this.appleToken = token;
+      });
+  }
+
+  ngOnInit(): void {
+  }
 
   onSpotifyLogin() {
 
@@ -21,6 +38,32 @@ export class HomeComponent {
     // tslint:disable-next-line: max-line-length
     const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}&show_dialog=true`;
     window.location.href = loginUrl;
+
+  }
+
+  async onAppleLogin() {
+
+    if (!this.scripts.mkHasLoaded) {
+      await this.scripts.loadMusicKit();
+    }
+
+    if (this.appleToken === null) {
+      this.appleToken = await this.api.getAppleToken();
+    }
+
+    MusicKit.configure({
+      developerToken: this.appleToken,
+      app: {
+        name: 'bitbird presave',
+        build: '0.0.1'
+      }
+    });
+
+    const music = MusicKit.getInstance();
+
+    music.authorize().then( (token: string) => {
+
+    });
 
   }
 

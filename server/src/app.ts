@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response, Request, Application } from 'express';
 import axios from 'axios';
 import path from 'path';
 import fs from 'fs';
@@ -6,7 +6,7 @@ import * as firebase from 'firebase';
 import * as qs from 'qs';
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const app = express();
+const app: Application = express();
 const port = process.env.PORT || 8080;
 const fb = firebase.initializeApp({
   apiKey: 'AIzaSyDCF3Bl0KvlDjjsnK5i6TLa9NZjCetgBPE',
@@ -18,7 +18,9 @@ const fb = firebase.initializeApp({
   appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
 
-const apiVersion = '1.022';
+const apiVersion = '1.023';
+const statsRef = fb.firestore().collection('presaves').doc('--stats--');
+const increment = firebase.firestore.FieldValue.increment(1);
 
 if (process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
@@ -30,7 +32,7 @@ app.use(express.json());
 app.use(cors());
 
 // Status endpoint
-app.get('/', (req: any, res: any) => {
+app.get('/', (req: Request, res: Response) => {
 
   res.status(200);
   res.send(`Login API is running. Version: ${apiVersion}`);
@@ -38,7 +40,7 @@ app.get('/', (req: any, res: any) => {
 });
 
 // Spotify login endpoint
-app.post('/login', async (req: any, res: any) => {
+app.post('/login', async (req: Request, res: Response) => {
 
   // Get token from Request
   if (req.body.auth_code === undefined) {
@@ -91,7 +93,7 @@ app.post('/login', async (req: any, res: any) => {
 });
 
 // Messenger presave from Zapier
-app.post('/zapier', async (req: any, res: any) => {
+app.post('/zapier', async (req: Request, res: Response) => {
 
   console.log(req.body);
 
@@ -132,34 +134,48 @@ app.post('/zapier', async (req: any, res: any) => {
 });
 
 // Get Apple Music developer token
-app.get('/devtoken', async (req: any, res: any) => {
+app.get('/devtoken', async (req: Request, res: Response) => {
 
-  // Read private Apple Music key
-  const keyPath = path.resolve(__dirname, '../keys', 'apple.key');
-  const key = fs.readFileSync(keyPath);
-
-  // Current UNIX timestamp + UNIX timestamp in 6 months
-  const currentTime: number = Math.floor(Date.now() / 1000);
-  const expiryTime: number = currentTime + 15777000;
-
-  const jwtPayload = {
-    iss: '8FCF4L99M8',
-    iat: currentTime,
-    exp: expiryTime
-  };
-
-  const jwtOptions = {
-    algorithm: 'ES256',
-    keyid: 'MW4F85X63U',
-  };
-
-  const token = jwt.sign(jwtPayload, key, jwtOptions);
+  const token = createAppleToken();
 
   res.status(200).json({
     success: true,
     message: 'Token generated',
     token
   });
+
+});
+
+app.post('/apple', async (req: Request, res: Response) => {
+
+  // Get token from Request
+  if (req.body.token === undefined) {
+    res.status(400);
+    res.send('Missing token');
+    return;
+  }
+
+  // Get locale from token
+  const userToken: string = req.body.token;
+  const devToken: string = createAppleToken();
+
+  try {
+    const region = await getLocalization(userToken, devToken);
+
+    await registerApplePresave(userToken, region);
+
+    res.status(200);
+    res.json({
+      success: true,
+      message: 'Saved Apple presave successfully'
+    });
+
+  } catch (error) {
+    res.status(500);
+    res.send('Something went wrong');
+    console.error(error);
+    throw new Error(error);
+  }
 
 });
 
@@ -173,7 +189,7 @@ app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 const getTokenFromAuth = async (code: string) => {
 
   const endpoint = 'https://accounts.spotify.com/api/token';
-  const redirectUrl = process.env.REDIRECT_URL || 'http://localhost:4200/callback';
+  const redirectUrl = process.env.REDIRECT_URL;
 
   // Encode API credentials
   const credentials = `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`;
@@ -256,7 +272,6 @@ const checkIfFirstMessengerSave = async (id: number) => {
 
 // Register presave in Firestore
 const registerPresave = async (authData: object, userData: object) => {
-  const increment = firebase.firestore.FieldValue.increment(1);
   const docData = {
     authorization: authData,
     user: userData,
@@ -264,7 +279,6 @@ const registerPresave = async (authData: object, userData: object) => {
     hasSaved: false
   };
 
-  const statsRef = fb.firestore().collection('presaves').doc('--stats--');
   const docRef = fb.firestore().collection('presaves').doc();
 
   const batch = fb.firestore().batch();
@@ -279,7 +293,6 @@ const registerPresave = async (authData: object, userData: object) => {
 
 // Register Messenger signup in Firestore
 const registerMessengerSave = async (id: string, email: string, firstName: string, lastName: string) => {
-  const increment = firebase.firestore.FieldValue.increment(1);
 
   const docData = {
     id,
@@ -289,7 +302,6 @@ const registerMessengerSave = async (id: string, email: string, firstName: strin
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   };
 
-  const statsRef = fb.firestore().collection('presaves').doc('--stats--');
   const docRef = fb.firestore().collection('messengerSaves').doc();
 
   const batch = fb.firestore().batch();
@@ -299,4 +311,73 @@ const registerMessengerSave = async (id: string, email: string, firstName: strin
     messenger: increment
   }, { merge: true });
   return batch.commit();
+};
+
+// Register Apple Presave in Firestore
+const registerApplePresave = async (token: string, region: string) => {
+
+  const docData = {
+    token,
+    region,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  const docRef = fb.firestore().collection('applePresaves').doc();
+
+  const batch = fb.firestore().batch();
+  batch.set(docRef, docData);
+  batch.set(statsRef, {
+    saves: increment,
+    apple: increment
+  }, { merge: true });
+  return batch.commit();
+
+};
+
+// Create signed Apple Developer token
+const createAppleToken = () => {
+  // Read private Apple Music key
+  const keyPath = path.resolve(__dirname, '../keys', 'apple.key');
+  const key = fs.readFileSync(keyPath);
+
+  // Current UNIX timestamp + UNIX timestamp in 6 months
+  const currentTime: number = Math.floor(Date.now() / 1000);
+  const expiryTime: number = currentTime + 15777000;
+
+  const jwtPayload = {
+    iss: '8FCF4L99M8',
+    iat: currentTime,
+    exp: expiryTime
+  };
+
+  const jwtOptions = {
+    algorithm: 'ES256',
+    keyid: 'MW4F85X63U',
+  };
+
+  return jwt.sign(jwtPayload, key, jwtOptions);
+};
+
+// Get localization for Apple Music user
+const getLocalization = async (userToken: string, devToken: string) => {
+
+  const endpoint = 'https://api.music.apple.com/v1/me/storefront';
+
+  try {
+
+    const res = await axios.get(endpoint, {
+      headers: {
+        Authorization: `Bearer ${devToken}`,
+        'Music-User-Token': userToken
+      }
+    });
+
+    return res.data.data[0].id;
+
+  } catch (error) {
+
+    throw new Error(error);
+
+  }
+
 };

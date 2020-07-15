@@ -32,7 +32,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     ClipboardModule
   ],
   providers: [
-    { provide: ORIGIN, useValue: 'http://localhost:5001'}
+    { provide: ORIGIN, useValue: 'http://localhost:5001'} // TODO: Remove before flight
   ],
   bootstrap: [AppComponent]
 })

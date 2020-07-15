@@ -7,3 +7,9 @@ export interface PresaveResponse {
   success: boolean;
   message?: string;
 }
+
+export interface AppleTokenResult {
+  success: boolean;
+  message: string;
+  token?: string;
+}
