@@ -25,4 +25,22 @@ export class ApiService {
 
   }
 
+  async registerApplePresave(token: string) {
+
+    let success = false;
+
+    const endpoint = 'https://presave.bitbird.dev/apple';
+    try {
+      const res = await this.http.post<{success: boolean, message: string}>(endpoint, { token }).toPromise();
+      if (res.success) {
+        success = true;
+        return success;
+      }
+    } catch (error) {
+      console.error(error);
+      return success;
+    }
+
+  }
+
 }

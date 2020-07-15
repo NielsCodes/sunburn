@@ -104,6 +104,9 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
       if (ref === 'messenger') {
         this.referrer = 'messenger';
         this.presaveSuccessful = true;
+      } else if (ref === 'apple') {
+        this.referrer = 'apple';
+        this.presaveSuccessful = true;
       } else if (code !== null && URLState === 'bbpresave') {
 
         this.referrer = 'spotify';

@@ -1,6 +1,7 @@
 import { ApiService } from './../services/api.service';
 import { ScriptsService } from './../services/scripts.service';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 declare var MusicKit: any;
 
@@ -15,7 +16,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private scripts: ScriptsService,
-    private api: ApiService
+    private api: ApiService,
+    private router: Router
   ) {
     this.scripts.loadMusicKit();
     this.api.getAppleToken()
@@ -54,15 +56,21 @@ export class HomeComponent implements OnInit {
     MusicKit.configure({
       developerToken: this.appleToken,
       app: {
-        name: 'bitbird presave',
+        name: 'bitbird presaves',
         build: '0.0.1'
       }
     });
 
     const music = MusicKit.getInstance();
 
-    music.authorize().then( (token: string) => {
+    music.unauthorize();
 
+    music.authorize().then( async (token: string) => {
+      const hasSaved = await this.api.registerApplePresave(token);
+      if (hasSaved) {
+        music.unauthorize();
+        this.router.navigate(['/callback'], { queryParams: { ref: 'apple'} });
+      }
     });
 
   }

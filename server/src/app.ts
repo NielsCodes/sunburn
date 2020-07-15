@@ -18,7 +18,7 @@ const fb = firebase.initializeApp({
   appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
 
-const apiVersion = '1.023';
+const apiVersion = '1.024';
 const statsRef = fb.firestore().collection('presaves').doc('--stats--');
 const increment = firebase.firestore.FieldValue.increment(1);
 
@@ -352,7 +352,7 @@ const createAppleToken = () => {
 
   const jwtOptions = {
     algorithm: 'ES256',
-    keyid: 'MW4F85X63U',
+    keyid: '2XNHW5P3K5',
   };
 
   return jwt.sign(jwtPayload, key, jwtOptions);
