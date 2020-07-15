@@ -1,8 +1,11 @@
 import express from 'express';
 import axios from 'axios';
+import path from 'path';
+import fs from 'fs';
 import * as firebase from 'firebase';
 import * as qs from 'qs';
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT || 8080;
 const fb = firebase.initializeApp({
@@ -15,7 +18,7 @@ const fb = firebase.initializeApp({
   appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
 
-const apiVersion = '1.021';
+const apiVersion = '1.022';
 
 if (process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
@@ -124,6 +127,38 @@ app.post('/zapier', async (req: any, res: any) => {
   res.status(200).json({
     success: true,
     message: 'Messenger save registered successfully'
+  });
+
+});
+
+// Get Apple Music developer token
+app.get('/devtoken', async (req: any, res: any) => {
+
+  // Read private Apple Music key
+  const keyPath = path.resolve(__dirname, '../keys', 'apple.key');
+  const key = fs.readFileSync(keyPath);
+
+  // Current UNIX timestamp + UNIX timestamp in 6 months
+  const currentTime: number = Math.floor(Date.now() / 1000);
+  const expiryTime: number = currentTime + 15777000;
+
+  const jwtPayload = {
+    iss: '8FCF4L99M8',
+    iat: currentTime,
+    exp: expiryTime
+  };
+
+  const jwtOptions = {
+    algorithm: 'ES256',
+    keyid: 'MW4F85X63U',
+  };
+
+  const token = jwt.sign(jwtPayload, key, jwtOptions);
+
+  res.status(200).json({
+    success: true,
+    message: 'Token generated',
+    token
   });
 
 });
