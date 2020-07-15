@@ -70,6 +70,20 @@ export const decrementSaveOnMessengerDelete = functions.firestore.document('mess
 
 });
 
+// Change save count when Apple presave is removed
+export const decrementSaveOnAppleDelete = functions.firestore.document('applePresaves/{presaveId}').onDelete( async (snap, context) => {
+
+  const statsRef = admin.firestore().collection('presaves').doc('--stats--');
+  const decrement = admin.firestore.FieldValue.increment(-1);
+
+  await statsRef.set({
+    saves: decrement,
+    apple: decrement
+  }, { merge: true });
+
+  return;
+
+});
 
 // Update video link from presave count on stat update
 export const parseSaveCount = functions.firestore.document('presaves/{docId}').onUpdate( async (change, context) => {
