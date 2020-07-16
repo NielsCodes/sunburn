@@ -18,7 +18,7 @@ const fb = firebase.initializeApp({
   appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
 
-const apiVersion = '1.024';
+const apiVersion = '1.026';
 const statsRef = fb.firestore().collection('presaves').doc('--stats--');
 const increment = firebase.firestore.FieldValue.increment(1);
 
@@ -35,7 +35,7 @@ app.use(cors());
 app.get('/', (req: Request, res: Response) => {
 
   res.status(200);
-  res.send(`Login API is running. Version: ${apiVersion}`);
+  res.send(`Presave API is running. Version: ${apiVersion}`);
 
 });
 

@@ -1,7 +1,7 @@
 <!-- Main content container -->
 <div id="page-container">
 
-  <video autoplay playsinline [muted]="true" id="background-video" #videoPlayer [hidden]="videoURL === undefined || !presaveSuccessful">
+  <video playsinline [muted]="true" id="background-video" #videoPlayer [hidden]="videoURL === undefined || !presaveSuccessful">
     <source [src]="videoURL" type="video/mp4">
   </video>
 

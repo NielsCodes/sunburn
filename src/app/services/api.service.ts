@@ -1,11 +1,14 @@
 import { AppleTokenResult } from './../../models/config.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
+
+  hasSaved: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(
     private http: HttpClient
@@ -27,18 +30,14 @@ export class ApiService {
 
   async registerApplePresave(token: string) {
 
-    let success = false;
-
     const endpoint = 'https://presave.bitbird.dev/apple';
     try {
       const res = await this.http.post<{success: boolean, message: string}>(endpoint, { token }).toPromise();
       if (res.success) {
-        success = true;
-        return success;
+        this.hasSaved.next(true);
       }
     } catch (error) {
       console.error(error);
-      return success;
     }
 
   }

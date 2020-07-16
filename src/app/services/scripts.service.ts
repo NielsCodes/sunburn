@@ -1,3 +1,4 @@
+import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
 
 declare var document: HTMLDocument;
@@ -8,27 +9,24 @@ declare var document: HTMLDocument;
 export class ScriptsService {
 
   // Track state of Music Kit
-  mkHasLoaded = false;
+  mkHasLoaded: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor() { }
 
   // Load Music Kit script
-  async loadMusicKit() {
+  loadMusicKit(): BehaviorSubject<boolean> {
 
-    return new Promise( (resolve, reject) => {
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://js-cdn.music.apple.com/musickit/v1/musickit.js';
+    document.getElementsByTagName('head')[0].appendChild(script);
 
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = 'https://js-cdn.music.apple.com/musickit/v1/musickit.js';
 
-      document.getElementsByTagName('head')[0].appendChild(script);
-
-      document.addEventListener('musickitloaded', () => {
-        this.mkHasLoaded = true;
-        resolve();
-      });
-
+    document.addEventListener('musickitloaded', () => {
+      this.mkHasLoaded.next(true);
     });
+
+    return this.mkHasLoaded;
 
   }
 

@@ -1,3 +1,4 @@
+import { ApiService } from './../services/api.service';
 import { Config, PresaveResponse } from './../../models/config.model';
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Renderer2, AfterViewInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -88,7 +89,8 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
     private afs: AngularFirestore,
     private http: HttpClient,
     private renderer2: Renderer2,
-    private clipboard: Clipboard
+    private clipboard: Clipboard,
+    private api: ApiService
   ) {
 
     // Redirect to home when navigation does not come from Messenger save or Spotify login
@@ -106,7 +108,12 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
         this.presaveSuccessful = true;
       } else if (ref === 'apple') {
         this.referrer = 'apple';
-        this.presaveSuccessful = true;
+
+        this.api.hasSaved.subscribe( (appleState: boolean) => {
+          this.presaveSuccessful = appleState;
+          this.updateLoadingState();
+        });
+
       } else if (code !== null && URLState === 'bbpresave') {
 
         this.referrer = 'spotify';
@@ -187,6 +194,7 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
 
     if (this.presaveSuccessful && this.videoURL !== undefined && this.videoLoaded) {
       this.loadingState = 'loaded';
+      this.playerElement.nativeElement.play();
     }
 
   }
