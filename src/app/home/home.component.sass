@@ -19,6 +19,7 @@
     z-index: 1
     color: #fff
     backdrop-filter: blur(10px)
+    box-shadow: 0 0 0 1px rgba(#fff,.2)
 
     @media screen and (max-width: 300px)
       padding: 30px
@@ -59,13 +60,17 @@
       .link-btn
         margin-left: 40px
         font-size: 1.2em
+        padding-bottom: 2px
+        border-bottom: 2px solid transparent
+        transition: all .2s ease
 
         @media screen and (max-width: 300px)
           margin-left: 0
           margin-top: 5px
 
       &:hover
-        color: #989898
+        .link-btn
+          border-bottom: 2px solid #fff
 
   #messenger-btn, #apple-btn
     margin-top: 50px

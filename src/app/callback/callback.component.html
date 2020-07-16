@@ -22,34 +22,46 @@
 <!-- Share popup -->
 <div id="share-overlay" [@shareState]="shareState">
 
-  <div id="share-popup">
 
-    <h2 id="share-title">Almost there...</h2>
+  <div id="share-container">
+  	<div id="share-popup">
 
-    <p id="share-content">
-      Share this with your friends to reveal more!
-    </p>
+  	  <h2 id="share-title">{{ 'Almost there...' | uppercase }} </h2>
 
-    <div id="share-controls-desktop" *ngIf="!canShare">
+  	  <p id="share-content">
+  	    Share this with your friends to reveal more!
+  	  </p>
 
-      <div id="share-btn-twitter" class="share-btn" (click)="onShareToTwitter()" title="Share on Twitter!">
-        Share on Twitter
+  	  <div id="share-controls-desktop" *ngIf="!canShare">
+
+  	    <div id="share-btn-twitter" class="share-btn" (click)="onShareToTwitter()" title="Share on Twitter!">
+  	      Share on Twitter
+  	    </div>
+
+  	    <div id="share-btn-facebook" class="share-btn" (click)="onShareToFacebook()" title="Share on Facebook">
+  	      Share on Facebook
+  	    </div>
+
+  	    <div id="share-btn-link" class="share-btn" (click)="onCopyToClipboard()" title="Copy the link to share with your friends!">
+  	      Copy link
+  	    </div>
+
+  	  </div>
+
+  	  <div id="share-controls-mobile" *ngIf="canShare">
+  	    <div id="share-control-mobile-btn" (click)="onMobileShare()">Share!</div>
+  	  </div>
+
+  	</div>
+
+  	<div id="link-popup">
+      <h2 id="link-title">Join the community!</h2>
+      <div id="communities-container">
+        <a href="https://youtube.com/droeloemusic" class="community-link">YouTube</a>
+        <a href="https://www.facebook.com/groups/908924002589641/" class="community-link">Facebook</a>
+        <a href="https://www.reddit.com/r/DROELOE/" class="community-link">Reddit</a>
       </div>
-
-      <div id="share-btn-facebook" class="share-btn" (click)="onShareToFacebook()" title="Share on Facebook">
-        Share on Facebook
-      </div>
-
-      <div id="share-btn-link" class="share-btn" (click)="onCopyToClipboard()" title="Copy the link to share with your friends!">
-        Copy link
-      </div>
-
-    </div>
-
-    <div id="share-controls-mobile" *ngIf="canShare">
-      <div id="share-control-mobile-btn" (click)="onMobileShare()">Share!</div>
-    </div>
-
+  	</div>
   </div>
 
 </div>

@@ -1,7 +1,7 @@
 #page-container
   width: 100vw
-  height: 100vh
-  height: -webkit-fill-available
+  min-height: 100vh
+  min-height: -webkit-fill-available
   position: absolute
   top: 0
   left: 0
@@ -26,8 +26,8 @@
   top: 0
   left: 0
   width: 100vw
-  height: 100vh
-  height: -webkit-fill-available
+  min-height: 100vh
+  min-height: -webkit-fill-available
   background: #fff
   display: flex
   align-items: center
@@ -52,42 +52,114 @@
   top: 0
   left: 0
   width: 100vw
-  height: 100vh
-  height: -webkit-fill-available
+  min-height: 100vh
+  min-height: -webkit-fill-available
   display: flex
+  flex-direction: column
   align-items: center
   justify-content: center
 
-  #share-popup
-    padding: 40px 80px
-    border-radius: 20px
-    background: rgba(#fff,.7)
+  #link-popup
+    position: relative
+    padding: 40px
+    margin-top: 20px
+    position: relative
+    backdrop-filter: blur(20px)
+    color: #fff
+    box-shadow: 0 0 0 1px rgba(#fff,.2)
     display: flex
     flex-direction: column
     align-items: center
     max-width: 90vw
     box-sizing: border-box
 
+    &::after
+      content: ''
+      position: absolute
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+      background-image: linear-gradient(#919a61, #a38b71)
+      opacity: 0.4
+      z-index: -1
+
+    #link-title
+      font-size: 2.5em
+      text-align: center
+
+    #communities-container
+      margin-top: 20px
+      display: flex
+      align-items: center
+
+      @media screen and (max-width: 600px)
+        flex-direction: column
+
+      .community-link
+        color: inherit
+        font-size: 1.4em
+        text-decoration: none
+        transition: all .2s ease
+        padding-bottom: 2px
+        border-bottom: 2px solid transparent
+
+        &:hover
+          border-bottom: 2px solid #fff
+
+        &:nth-child(2)
+          margin: 0 40px
+
+        @media screen and (max-width: 600px)
+          margin: 5px 0
+
+
+  #share-popup
+    position: relative
+    padding: 80px
+    display: flex
+    flex-direction: column
+    align-items: center
+    max-width: 90vw
+    box-sizing: border-box
+    backdrop-filter: blur(20px)
+    color: #fff
+    box-shadow: 0 0 0 1px rgba(#fff,.2)
+
+    &::after
+      content: ''
+      position: absolute
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+      background-image: linear-gradient(#919a61, #a38b71)
+      opacity: 0.4
+      z-index: -1
+      mix-blend-mode: darken
+
     @media screen and (max-width: 600px)
       padding: 40px
+
+    #share-title
+      font-size: 2.5em
 
     #share-content
       margin: 40px 0
 
     #share-controls-desktop
       display: flex
-
-      @media screen and (max-width: 600px)
-        flex-direction: column
+      flex-direction: column
+      align-items: center
 
       .share-btn
         color: #fff
         cursor: pointer
         user-select: none
         padding: 8px 10px
-        border-radius: 5px
         transition: all .2s ease
         text-align: center
+        margin: 10px 0
 
         &:hover
           box-shadow: 2px 2px 8px rgba(#000, .3)
@@ -101,13 +173,10 @@
 
       #share-btn-facebook
         background: #4267B2
-        margin: 0 20px
-
-        @media screen and (max-width: 600px)
-          margin: 10px 0
 
       #share-btn-link
         background: #383938
+        margin-bottom: 0
 
     #share-controls-mobile
       user-select: none
@@ -116,12 +185,12 @@
       #share-control-mobile-btn
         font-size: 1.2em
         padding: 10px 20px
-        border-radius: 10px
         transition: all .2s ease
-        box-shadow: 1px 1px 4px rgba(#000, .3)
         background: #c6d2b2
         color: #fff
 
         &:hover
-          background: lighten(#c6d2b2, 10%)
+          // background: lighten(#c6d2b2, 10%)
+          box-shadow: 1px 1px 4px rgba(#000, .2)
+
 
