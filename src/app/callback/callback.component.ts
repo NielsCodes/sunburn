@@ -49,7 +49,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
     ])
   ]
 })
-export class CallbackComponent implements OnDestroy, AfterViewInit {
+export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private pageURL = 'https://presave-app.web.app';
   videoURL: string;
@@ -168,6 +168,18 @@ export class CallbackComponent implements OnDestroy, AfterViewInit {
 
     this.onResize();
 
+  }
+
+  // Redirect back to home if loading state has not changed after 10 seconds
+  ngOnInit(): void {
+    setTimeout(() => {
+
+      if (this.loadingState === 'loading') {
+        console.error('Something went wrong...');
+        this.router.navigate(['']);
+      }
+
+    }, 10000);
   }
 
   // Listen to load state of video playaer after load
