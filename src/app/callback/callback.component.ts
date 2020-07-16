@@ -29,7 +29,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 
       state('loaded', style({
         opacity: 0,
-        zIndex: 10
+        zIndex: -2
       })),
 
       transition('loading => loaded', animate('500ms ease-in'))
@@ -97,6 +97,11 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Redirect to home when navigation does not come from Messenger save or Spotify login
     this.route.queryParamMap.subscribe(params => {
+
+      if (params.has('error')) {
+        this.router.navigate(['']);
+      }
+
       if (!(params.has('code') && params.has('state')) && !params.has('ref')) {
         this.router.navigate(['/']);
       }
@@ -200,8 +205,13 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Stop event listener on video before unload
   ngOnDestroy(): void {
-    this.unlistener();
-    this.shareUnlistener();
+
+    if (this.unlistener !== undefined && this.shareUnlistener !== undefined) {
+
+      this.unlistener();
+      this.shareUnlistener();
+    }
+
   }
 
   updateLoadingState() {

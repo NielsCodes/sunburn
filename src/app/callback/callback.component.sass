@@ -20,6 +20,16 @@
     @media screen and (min-aspect-ratio: 1920/1080)
       width: 100%
 
+    &.vertical
+      height: 100%
+
+      @media screen and (min-aspect-ratio: 1080/1920)
+        width: 100%
+        height: auto
+
+
+
+
 
 #loading-overlay
   position: absolute
@@ -84,9 +94,21 @@
       opacity: 0.4
       z-index: -1
 
+    @media screen and (max-width: 400px)
+      padding: 20px
+
+    @media screen and (max-width: 300px)
+      display: none
+
     #link-title
       font-size: 2.5em
       text-align: center
+
+      @media screen and (max-width: 600px)
+        font-size: 1.8em
+
+      @media screen and (max-width: 400px)
+        font-size: 1.2em
 
     #communities-container
       margin-top: 20px
@@ -112,6 +134,9 @@
 
         @media screen and (max-width: 600px)
           margin: 5px 0
+
+        @media screen and (max-width: 400px)
+          font-size: 1em
 
 
   #share-popup
@@ -141,12 +166,22 @@
     @media screen and (max-width: 600px)
       padding: 40px
 
+    @media screen and (max-width: 400px)
+      padding: 20px
+
     #share-title
       font-size: 2.5em
       text-align: center
 
+      @media screen and (max-width: 600px)
+        font-size: 1.8em
+
+      @media screen and (max-width: 400px)
+        font-size: 1.2em
+
     #share-content
       margin: 40px 0
+      text-align: center
 
     #share-controls-desktop
       display: flex

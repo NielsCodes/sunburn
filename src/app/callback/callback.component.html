@@ -1,7 +1,7 @@
 <!-- Main content container -->
 <div id="page-container">
 
-  <video playsinline [muted]="true" id="background-video" #videoPlayer [hidden]="videoURL === undefined || !presaveSuccessful">
+  <video playsinline [muted]="true" id="background-video" #videoPlayer [hidden]="videoURL === undefined || !presaveSuccessful" [ngClass]="{'vertical': isVertical}">
     <source [src]="videoURL" type="video/mp4">
   </video>
 
@@ -13,7 +13,7 @@
 
   <div id="loading-content">
     <img src="../../assets/bird black.svg" alt="bitbird logo" id="loading-logo">
-    <img src="../../assets/sinewave-loader-white.gif" alt="sine wave loader" id="preloader-gif">
+    <img src="../../assets/loader.gif" alt="loading icon" id="preloader-gif">
   </div>
 
 </div>
@@ -57,9 +57,9 @@
   	<div id="link-popup">
       <h2 id="link-title">Join the community!</h2>
       <div id="communities-container">
-        <a href="https://youtube.com/droeloemusic" class="community-link">YouTube</a>
-        <a href="https://www.facebook.com/groups/908924002589641/" class="community-link">Facebook</a>
-        <a href="https://www.reddit.com/r/DROELOE/" class="community-link">Reddit</a>
+        <a href="https://youtube.com/droeloemusic" class="community-link" target="_blank">YouTube</a>
+        <a href="https://www.facebook.com/groups/908924002589641/" class="community-link"  target="_blank">Facebook</a>
+        <a href="https://www.reddit.com/r/DROELOE/" class="community-link" target="_blank">Reddit</a>
       </div>
   	</div>
   </div>

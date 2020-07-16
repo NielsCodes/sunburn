@@ -48,7 +48,7 @@ export class HomeComponent {
     const state = 'bbpresave';
 
     // tslint:disable-next-line: max-line-length
-    const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}`;
+    const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}&show_dialog=true`; // TODO: Remove show_dialog
     window.location.href = loginUrl;
 
   }
