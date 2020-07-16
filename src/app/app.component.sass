@@ -1,11 +1,57 @@
-#bitbird-overlay
+#cookie-overlay
   position: absolute
-  bottom: 20px
+  bottom: 40px
   left: 50%
   transform: translateX(-50%)
   z-index: 10
-  width: 50px
-  display: block
+  display: flex
+  background: rgba(#fff,.4)
+  padding: 10px 20px
+  align-items: center
+  color: #404040
+  // font-family: arial, sans-serif
+  box-sizing: border-box
 
-  img
-    width: 50px
+  @media screen and (max-width: 700px)
+    width: 90vw
+    bottom: 5vw
+
+  @media screen and (max-width: 400px)
+    flex-direction: column
+
+    #cookie-btn
+      margin-left: 0
+      margin-top: 10px
+
+  #cookie-text
+    font-size: .8em
+
+    #privacy-policy-link
+      margin-left: 5px
+      cursor: pointer
+
+      &:hover
+        text-decoration: underline
+
+      a
+        color: inherit
+        text-decoration: none
+
+  #cookie-btn
+    padding: 10px 20px
+    margin-left: 20px
+    background: rgba(#fff,.8)
+    cursor: pointer
+    transition: all .2s ease
+    user-select: none
+    border: none
+    outline: none
+    font-size: 1em
+    font-family: 'G68C3crED4Jg', sans-serif
+    color: #404040
+
+    &:hover
+      box-shadow: 1px 1px 4px rgba(#000, .2)
+
+    &:active
+      box-shadow: none

@@ -23,11 +23,13 @@ import { Clipboard } from '@angular/cdk/clipboard';
     trigger('loadingState', [
 
       state('loading', style({
-        opacity: 1
+        opacity: 1,
+        zIndex: 12
       })),
 
       state('loaded', style({
-        opacity: 0
+        opacity: 0,
+        zIndex: 10
       })),
 
       transition('loading => loaded', animate('500ms ease-in'))
