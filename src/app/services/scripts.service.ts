@@ -1,6 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { DocumentReference } from '@google-cloud/firestore';
 
 declare var document: HTMLDocument;
 
@@ -11,6 +10,7 @@ export class ScriptsService {
 
   // Track state of Music Kit
   mkHasLoaded: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  pixelLoaded = false;
 
   constructor() { }
 
@@ -35,7 +35,7 @@ export class ScriptsService {
   loadPixel(): void {
 
     const pixelCode = `
-    function(f,b,e,v,n,t,s)
+    var pixelCode = function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
@@ -52,6 +52,8 @@ export class ScriptsService {
     script.innerHTML = pixelCode;
     document.getElementsByTagName('head')[0].appendChild(script);
 
+    this.pixelLoaded = true;
+
   }
 
   // Remove Pixel after cookie consent revoke
@@ -62,6 +64,8 @@ export class ScriptsService {
     if (pixelElement) {
       pixelElement.remove();
     }
+
+    this.pixelLoaded = false;
 
   }
 

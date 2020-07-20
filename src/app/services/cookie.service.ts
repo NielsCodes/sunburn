@@ -9,6 +9,7 @@ import { AngularFireAnalytics } from '@angular/fire/analytics';
 export class CookieService {
 
   private hasConsented: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  private trackingActive = false;
 
   constructor(
     private analytics: AngularFireAnalytics,
@@ -22,6 +23,12 @@ export class CookieService {
     const local = localStorage.getItem('cookieConsent');
     if (local === 'true') {
       this.hasConsented.next(true);
+
+      // If tracking has not been initialized yet
+      if (!this.trackingActive) {
+        this.setTracking();
+      }
+
     } else {
       this.hasConsented.next(false);
     }
@@ -30,30 +37,30 @@ export class CookieService {
   }
 
   setConsent() {
-
     // Set local storage item
     localStorage.setItem('cookieConsent', 'true');
+    this.setTracking();
+    this.checkConsent();
+  }
 
+  removeConsent() {
+    localStorage.removeItem('cookieConsent');
+    // Disable Firebase analytics
+    this.analytics.setAnalyticsCollectionEnabled(false);
+    // Remove FB Pixel
+    this.scripts.removePixel();
+    this.trackingActive = false;
+    this.checkConsent();
+  }
+
+  private setTracking() {
     // Enable Firebase analytics
     this.analytics.setAnalyticsCollectionEnabled(true);
 
     // Enable FB Pixel
     this.scripts.loadPixel();
 
-    this.checkConsent();
-  }
-
-  removeConsent() {
-
-    localStorage.removeItem('cookieConsent');
-
-    // Disable Firebase analytics
-    this.analytics.setAnalyticsCollectionEnabled(false);
-
-    // Remove FB Pixel
-    this.scripts.removePixel();
-
-    this.checkConsent();
+    this.trackingActive = true;
   }
 
 }

@@ -38,10 +38,6 @@ export class AppComponent {
 
   acceptCookies() {
     this.cookieService.setConsent();
-
-    setTimeout(() => {
-      this.cookieService.removeConsent();
-    }, 10000);
   }
 
 }
