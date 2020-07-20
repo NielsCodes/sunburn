@@ -1,3 +1,4 @@
+import { ScriptsService } from './scripts.service';
 import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/analytics';
@@ -10,7 +11,8 @@ export class CookieService {
   private hasConsented: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(
-    private analytics: AngularFireAnalytics
+    private analytics: AngularFireAnalytics,
+    private scripts: ScriptsService
   ) {
     this.checkConsent();
    }
@@ -36,19 +38,20 @@ export class CookieService {
     this.analytics.setAnalyticsCollectionEnabled(true);
 
     // Enable FB Pixel
+    this.scripts.loadPixel();
 
     this.checkConsent();
   }
 
   removeConsent() {
 
-    // Remove local storage item
     localStorage.removeItem('cookieConsent');
 
     // Disable Firebase analytics
     this.analytics.setAnalyticsCollectionEnabled(false);
 
     // Remove FB Pixel
+    this.scripts.removePixel();
 
     this.checkConsent();
   }

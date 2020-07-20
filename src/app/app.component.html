@@ -1,12 +1,12 @@
 <router-outlet></router-outlet>
 
-<div id="cookie-overlay">
+<div id="cookie-overlay" *ngIf="!(hasConsented | async)" [@cookieAnimation]>
 
   <div id="cookie-text">
     <span>we use cookies to ensure you get the best experience.</span>
     <span id="privacy-policy-link"><a href="https://bitbirdofficial.com/privacy/" target="_blank">Privacy Policy</a></span>
   </div>
 
-  <button id="cookie-btn">Accept</button>
+  <button id="cookie-btn" (click)="acceptCookies()">Accept</button>
 
 </div>

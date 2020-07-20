@@ -56,7 +56,13 @@ export class ScriptsService {
 
   // Remove Pixel after cookie consent revoke
   removePixel(): void {
-    document.getElementById('pixel-script').remove();
+
+    const pixelElement = document.getElementById('pixel-script');
+
+    if (pixelElement) {
+      pixelElement.remove();
+    }
+
   }
 
 }
