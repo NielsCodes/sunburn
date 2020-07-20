@@ -180,7 +180,7 @@ app.post('/apple', async (req: Request, res: Response) => {
 });
 
 
-// Start listening on defined por
+// Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 
 

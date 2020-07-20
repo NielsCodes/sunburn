@@ -1,4 +1,5 @@
 {
+  "compilteOnSave": true,
   "compilerOptions": {
     "module": "commonjs",
     "noImplicitReturns": false,
