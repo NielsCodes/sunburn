@@ -54,31 +54,68 @@ app.post('/login', async (req, res) => {
     try {
         const authCode = req.body.auth_code;
         const tokenData = await getTokenFromAuth(authCode);
+        // If Token retrieval fails, check if this is due to reuse of auth token or not
+        if (tokenData === false) {
+            // If token retrieval failed, check if value already in Firestore
+            const authCodefirstUse = await checkAuthCodeFirstUse(authCode);
+            if (authCodefirstUse === true) {
+                // This means the auth code was not used before but still failed to retrieve tokens
+                res
+                    .status(400)
+                    .json({
+                    success: false,
+                    message: 'Could not receive Spotify tokens with auth code'
+                })
+                    .send();
+                throw Error(`Could not receive Spotify tokens with auth code: ${authCode}`);
+            }
+            else {
+                // Auth code was used before. Likely due to page refresh
+                res
+                    .status(200)
+                    .json({
+                    success: true,
+                    message: 'Auth token reused. Presave successful'
+                })
+                    .send();
+                return;
+            }
+        }
         const token = tokenData.access_token;
         // Get user data with token
         const userData = await getUser(token);
         // Check if user has presaved before
         const firstPresave = await checkIfFirstSave(userData.id);
         if (!firstPresave) {
-            res.status(200).json({
+            res
+                .status(200)
+                .json({
                 success: true,
                 message: 'User has presaved before'
-            });
+            })
+                .send();
             return;
         }
         // Store data in Firestore
-        await registerPresave(tokenData, userData);
-        res.status(200).json({
+        await registerPresave(tokenData, userData, authCode);
+        res
+            .status(200)
+            .json({
             success: true,
             message: 'Presave registered'
-        });
+        })
+            .send();
     }
     catch (error) {
         console.error(error);
-        res.status(500).json({
+        res
+            .status(500)
+            .json({
             success: false,
             message: error
-        });
+        })
+            .send();
+        throw Error(error);
     }
 });
 // Messenger presave from Zapier
@@ -177,8 +214,14 @@ const getTokenFromAuth = async (code) => {
         return tokenRes.data;
     }
     catch (error) {
-        console.error(error);
-        throw new Error(error);
+        if (error.response.status === 400) {
+            console.log('Invalid client error');
+            return false;
+        }
+        else {
+            console.error(error);
+            throw new Error(error);
+        }
     }
 };
 // Get user data with token
@@ -208,6 +251,17 @@ const checkIfFirstSave = async (id) => {
         return true;
     }
 };
+// Check if auth token was already used
+const checkAuthCodeFirstUse = async (authCode) => {
+    const authCodeSnap = await fb.firestore().collection('presaves').where('authCode', '==', authCode).get();
+    const size = authCodeSnap.size;
+    if (size > 0) {
+        return false;
+    }
+    else {
+        return true;
+    }
+};
 // Check if the user has presaved with Messenger
 const checkIfFirstMessengerSave = async (id) => {
     const userDocsSnap = await fb.firestore().collection('messengerSaves').where('id', '==', id).get();
@@ -220,12 +274,13 @@ const checkIfFirstMessengerSave = async (id) => {
     }
 };
 // Register presave in Firestore
-const registerPresave = async (authData, userData) => {
+const registerPresave = async (authData, userData, authCode) => {
     const docData = {
         authorization: authData,
         user: userData,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        hasSaved: false
+        hasSaved: false,
+        authCode
     };
     const docRef = fb.firestore().collection('presaves').doc();
     const batch = fb.firestore().batch();

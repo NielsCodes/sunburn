@@ -57,6 +57,38 @@ app.post('/login', async (req: Request, res: Response) => {
     const authCode = req.body.auth_code;
     const tokenData = await getTokenFromAuth(authCode);
 
+    // If Token retrieval fails, check if this is due to reuse of auth token or not
+    if (tokenData === false) {
+
+      // If token retrieval failed, check if value already in Firestore
+      const authCodefirstUse = await checkAuthCodeFirstUse(authCode);
+
+      if (authCodefirstUse === true) {
+
+        // This means the auth code was not used before but still failed to retrieve tokens
+        res
+          .status(400)
+          .json({
+            success: false,
+            message: 'Could not receive Spotify tokens with auth code'
+          })
+          .send();
+        throw Error(`Could not receive Spotify tokens with auth code: ${authCode}`);
+      } else {
+
+        // Auth code was used before. Likely due to page refresh
+        res
+          .status(200)
+          .json({
+            success: true,
+            message: 'Auth token reused. Presave successful'
+          })
+          .send();
+        return;
+      }
+
+    }
+
     const token = tokenData.access_token;
 
     // Get user data with token
@@ -66,31 +98,40 @@ app.post('/login', async (req: Request, res: Response) => {
     const firstPresave = await checkIfFirstSave(userData.id);
 
     if (!firstPresave) {
-      res.status(200).json({
-        success: true,
-        message: 'User has presaved before'
-      });
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: 'User has presaved before'
+        })
+        .send();
       return;
     }
 
-
     // Store data in Firestore
-    await registerPresave(tokenData, userData);
+    await registerPresave(tokenData, userData, authCode);
 
-    res.status(200).json({
-      success: true,
-      message: 'Presave registered'
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: 'Presave registered'
+      })
+      .send();
 
   } catch (error) {
 
     console.error(error);
 
-    res.status(500).json({
-      success: false,
-      message: error
-    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: error
+      })
+      .send();
 
+    throw Error(error);
   }
 
 });
@@ -219,8 +260,14 @@ const getTokenFromAuth = async (code: string) => {
     return tokenRes.data;
 
   } catch (error) {
-    console.error(error);
-    throw new Error(error);
+
+    if (error.response.status === 400) {
+      console.log('Invalid client error');
+      return false;
+    } else {
+      console.error(error);
+      throw new Error(error);
+    }
   }
 
 };
@@ -261,6 +308,20 @@ const checkIfFirstSave = async (id: string) => {
 
 };
 
+// Check if auth token was already used
+const checkAuthCodeFirstUse = async (authCode: string) => {
+
+  const authCodeSnap = await fb.firestore().collection('presaves').where('authCode', '==', authCode).get();
+  const size = authCodeSnap.size;
+
+  if (size > 0) {
+    return false;
+  } else {
+    return true;
+  }
+
+};
+
 // Check if the user has presaved with Messenger
 const checkIfFirstMessengerSave = async (id: number) => {
 
@@ -276,12 +337,13 @@ const checkIfFirstMessengerSave = async (id: number) => {
 };
 
 // Register presave in Firestore
-const registerPresave = async (authData: object, userData: object) => {
+const registerPresave = async (authData: object, userData: object, authCode: string) => {
   const docData = {
     authorization: authData,
     user: userData,
     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    hasSaved: false
+    hasSaved: false,
+    authCode
   };
 
   const docRef = fb.firestore().collection('presaves').doc();
@@ -344,7 +406,6 @@ const registerApplePresave = async (token: string, region: string) => {
 const createAppleToken = () => {
   // Read private Apple Music key
   const key = process.env.APPLE_PRIVATE_KEY;
-
 
   // Current UNIX timestamp + UNIX timestamp in 6 months
   const currentTime: number = Math.floor(Date.now() / 1000);
