@@ -3,8 +3,13 @@ steps:
     entrypoint: npm
     args: ['install']
   - name: 'okumaonome/angular-cli'
-    args: ['npm', 'install']
-  - name: 'okumaonome/angular-cli'
     args: ['ng', 'build', '--prod']
   - name: 'okumaonome/firebase-tools'
-    args: ['firebase', 'deploy', '--token', '$_FIREBASE_TOKEN', '--only', 'hosting,functions']
+    args: ['firebase', 'deploy', '--token', '$_FIREBASE_TOKEN', '--only', 'hosting']
+  - name: node
+    entrypoint: npm
+    dir: functions
+    args: ['install']
+  - name: 'okumaonome/firebase-tools'
+    dir: functions
+    args: ['firebase', 'deploy', '--token', '$_FIREBASE_TOKEN', '--only', 'functions']
