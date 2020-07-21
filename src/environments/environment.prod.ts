@@ -7,6 +7,7 @@ export const environment = {
     projectId: 'presave-app',
     storageBucket: 'presave-app.appspot.com',
     messagingSenderId: '565477002562',
-    appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
+    appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb',
+    measurementId: 'G-5WJ2N84FVF'
   }
 };

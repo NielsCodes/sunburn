@@ -9,8 +9,9 @@ import { HomeComponent } from './home/home.component';
 import { CallbackComponent } from './callback/callback.component';
 
 import { AngularFireModule } from '@angular/fire';
-import { AngularFireFunctionsModule, ORIGIN } from '@angular/fire/functions';
+import { AngularFireFunctionsModule } from '@angular/fire/functions';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireAnalyticsModule, COLLECTION_ENABLED } from '@angular/fire/analytics';
 
 import { HttpClientModule } from '@angular/common/http';
 import { ClipboardModule } from '@angular/cdk/clipboard';
@@ -29,10 +30,11 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     AngularFirestoreModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    ClipboardModule
+    ClipboardModule,
+    AngularFireAnalyticsModule,
   ],
   providers: [
-    { provide: ORIGIN, useValue: 'http://localhost:5001'} // TODO: Remove before flight
+    { provide: COLLECTION_ENABLED, useValue: false },
   ],
   bootstrap: [AppComponent]
 })
