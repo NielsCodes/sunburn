@@ -6,7 +6,7 @@
   "scripts": {
     "run": "tsc && node dist/app.js",
     "build": "tsc",
-    "test": "tsc && dist/app.js"
+    "test": "tsc && node dist/app.js"
   },
   "author": "Niels Kersic <hi@niels.codes>",
   "license": "ISC",
