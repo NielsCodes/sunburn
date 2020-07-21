@@ -9,7 +9,7 @@ import { HomeComponent } from './home/home.component';
 import { CallbackComponent } from './callback/callback.component';
 
 import { AngularFireModule } from '@angular/fire';
-import { AngularFireFunctionsModule, ORIGIN } from '@angular/fire/functions';
+import { AngularFireFunctionsModule } from '@angular/fire/functions';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAnalyticsModule, COLLECTION_ENABLED } from '@angular/fire/analytics';
 
@@ -31,10 +31,10 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     BrowserAnimationsModule,
     HttpClientModule,
     ClipboardModule,
-    AngularFireAnalyticsModule
+    AngularFireAnalyticsModule,
   ],
   providers: [
-    { provide: COLLECTION_ENABLED, useValue: false }
+    { provide: COLLECTION_ENABLED, useValue: false },
   ],
   bootstrap: [AppComponent]
 })

@@ -1,3 +1,4 @@
+import { CookieService } from './../services/cookie.service';
 import { ApiService } from './../services/api.service';
 import { Config, PresaveResponse } from './../../models/config.model';
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Renderer2, AfterViewInit, HostListener } from '@angular/core';
@@ -14,6 +15,10 @@ import {
 } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { AngularFireAnalytics } from '@angular/fire/analytics';
+import { AngularFirePerformance } from '@angular/fire/performance';
+
+declare const fbq: any;
 
 @Component({
   selector: 'app-callback',
@@ -53,7 +58,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 })
 export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  private pageURL = 'https://presave-app.web.app';
+  private pageURL = 'https://presave.droeloe.com';
   videoURL: string;
   videoLoaded = false;
   presaveSuccessful = false;
@@ -92,12 +97,15 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     private http: HttpClient,
     private renderer2: Renderer2,
     private clipboard: Clipboard,
-    private api: ApiService
+    private api: ApiService,
+    private cookie: CookieService,
+    private analytics: AngularFireAnalytics,
   ) {
 
     // Redirect to home when navigation does not come from Messenger save or Spotify login
     this.route.queryParamMap.subscribe(params => {
 
+      // Route back to homepage if error parameter is present. This means a Spotify login attempt was cancelled
       if (params.has('error')) {
         this.router.navigate(['']);
       }
@@ -113,31 +121,40 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
       if (ref === 'messenger') {
         this.referrer = 'messenger';
         this.presaveSuccessful = true;
+        if (this.cookie.trackingActive) {
+          fbq('trackCustom', 'presave', { platform: 'messenger' });
+          this.analytics.logEvent('presave', { platform: 'messenger' });
+        }
       } else if (ref === 'apple') {
         this.referrer = 'apple';
 
         this.api.hasSaved.subscribe( (appleState: boolean) => {
           this.presaveSuccessful = appleState;
           this.updateLoadingState();
+          if (this.cookie.trackingActive) {
+            fbq('trackCustom', 'presave', { platform: 'apple' });
+            this.analytics.logEvent('presave', { platform: 'apple' });
+          }
         });
 
       } else if (code !== null && URLState === 'bbpresave') {
 
         this.referrer = 'spotify';
 
-        // ! REMOVE before flight
-        console.time('login');
 
         this.http.post('https://presave.bitbird.dev/login', { auth_code: code }).toPromise()
 
           .then((res: PresaveResponse) => {
 
-            // ! REMOVE before flight
-            console.timeEnd('login');
-
             if (res.success) {
               this.presaveSuccessful = true;
               this.updateLoadingState();
+
+              if (this.cookie.trackingActive) {
+                fbq('trackCustom', 'presave', { platform: 'spotify' });
+                this.analytics.logEvent('presave', { platform: 'spotify' });
+              }
+
             } else {
               this.router.navigate(['/']);
             }

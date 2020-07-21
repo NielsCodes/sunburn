@@ -9,7 +9,7 @@ import { AngularFireAnalytics } from '@angular/fire/analytics';
 export class CookieService {
 
   private hasConsented: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  private trackingActive = false;
+  trackingActive = false;
 
   constructor(
     private analytics: AngularFireAnalytics,
