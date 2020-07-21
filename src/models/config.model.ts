@@ -13,3 +13,8 @@ export interface AppleTokenResult {
   message: string;
   token?: string;
 }
+
+export interface EndMessage {
+  title: string;
+  content: string;
+}

@@ -1,4 +1,3 @@
-import { Ipresave } from './models';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
@@ -99,11 +98,14 @@ export const parseSaveCount = functions.firestore.document('presaves/{docId}').o
 
   const newSaves = change.after.get('saves');
   const configRef = admin.firestore().collection('config').doc('video');
+  const msgRef = admin.firestore().collection('config').doc('message');
 
   let videoURL: string = '';
   let mobileURL: string = '';
 
-  // TODO: change mobile URLS to 9x16
+  let endTitle = 'Almost there...';
+  let endMessage = 'Share this with your friends to reveal more!';
+
 
   // STAGE 1
   if (newSaves < step) {
@@ -165,11 +167,19 @@ export const parseSaveCount = functions.firestore.document('presaves/{docId}').o
     mobileURL = 'https://firebasestorage.googleapis.com/v0/b/presave-app.appspot.com/o/9x16%2F10.mp4?alt=media&token=79c153e5-bd9a-4930-bb7c-218896a20d7b';
   }
 
-  // TODO: change share menu text after hitting 1000
+  if (newSaves >= goal) {
+    endTitle = 'Congratulations!';
+    endMessage = `'Open Blinds' will be out on August 21`;
+  }
 
   await configRef.set({
     source: videoURL,
     mobileSource: mobileURL
+   });
+
+   await msgRef.set({
+    title: endTitle,
+    content: endMessage
    });
 
   return;
