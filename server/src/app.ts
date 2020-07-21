@@ -45,7 +45,9 @@ app.post('/login', async (req: Request, res: Response) => {
   // Get token from Request
   if (req.body.auth_code === undefined) {
     res.status(400);
-    res.send('Missing authorization token');
+    const msg = 'Invalid request: missing authorization token';
+    console.error(msg);
+    res.send(msg);
     return;
   }
 
@@ -58,8 +60,6 @@ app.post('/login', async (req: Request, res: Response) => {
 
     // Get user data with token
     const userData = await getUser(token);
-    console.log(userData);
-
 
     // Check if user has presaved before
     const firstPresave = await checkIfFirstSave(userData.id);
@@ -82,6 +82,8 @@ app.post('/login', async (req: Request, res: Response) => {
     });
 
   } catch (error) {
+
+    console.error(error);
 
     res.status(500).json({
       success: false,
@@ -151,7 +153,9 @@ app.post('/apple', async (req: Request, res: Response) => {
   // Get token from Request
   if (req.body.token === undefined) {
     res.status(400);
-    res.send('Missing token');
+    const msg = 'Invalid request: Missing User token';
+    console.error(msg);
+    res.send(msg);
     return;
   }
 
@@ -319,7 +323,8 @@ const registerApplePresave = async (token: string, region: string) => {
   const docData = {
     token,
     region,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    hasSaved: false
   };
 
   const docRef = fb.firestore().collection('applePresaves').doc();

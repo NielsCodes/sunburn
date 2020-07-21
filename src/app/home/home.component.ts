@@ -55,17 +55,25 @@ export class HomeComponent {
 
   onAppleLogin() {
 
-    if (this.scripts.mkHasLoaded.getValue() === false) {
+    const hasSaved = localStorage.getItem('appleSave');
 
-      this.scripts.mkHasLoaded.pipe(filter( (status: boolean) => status === true)).subscribe( (status: boolean) => {
-        this.loginWithApple();
-      });
+    if (hasSaved === 'true'){
+
+      this.router.navigate(['/callback'], { queryParams: { ref: 'apple', status: '2' }});
 
     } else {
 
-      this.loginWithApple();
+      // If MusicScript has not loaded yet, load it before calling the login function
+      if (this.scripts.mkHasLoaded.getValue() === false) {
+        this.scripts.mkHasLoaded.pipe(filter( (status: boolean) => status === true)).subscribe( (status: boolean) => {
+          this.loginWithApple();
+        });
+      } else {
+        this.loginWithApple();
+      }
 
     }
+
 
   }
 

@@ -131,14 +131,22 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
       } else if (ref === 'apple') {
         this.referrer = 'apple';
 
-        this.api.hasSaved.subscribe( (appleState: boolean) => {
-          this.presaveSuccessful = appleState;
-          this.updateLoadingState();
-          if (this.cookie.trackingActive) {
-            fbq('trackCustom', 'presave', { platform: 'apple' });
-            this.analytics.logEvent('presave', { platform: 'apple' });
-          }
-        });
+        if (params.has('status')) {
+          this.presaveSuccessful = true;
+        } else {
+
+          this.api.hasSaved.subscribe( (appleState: boolean) => {
+            this.presaveSuccessful = appleState;
+            localStorage.setItem('appleSave', 'true');
+            this.updateLoadingState();
+            if (this.cookie.trackingActive) {
+              fbq('trackCustom', 'presave', { platform: 'apple' });
+              this.analytics.logEvent('presave', { platform: 'apple' });
+            }
+          });
+
+        }
+
 
       } else if (code !== null && URLState === 'bbpresave') {
 
