@@ -8,7 +8,8 @@ steps:
     dir: server
     args: ['push', 'gcr.io/presave-app/presave-api']
   - id: Deploy server to Cloud Run
-    name: 'gcr.io./cloud-builders/gcloud'
+    name: 'gcr.io/cloud-builders/gcloud'
+    dir: server
     args: ['beta', 'run', 'deploy', 'presave-api', '--image', 'gcr.io/presave-app/presave-api', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
   - id: Install Angular packages
     name:  node
