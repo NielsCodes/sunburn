@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import * as firebase from 'firebase';
 import * as qs from 'qs';
+import { create } from 'domain';
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const app: Application = express();
@@ -342,8 +343,8 @@ const registerApplePresave = async (token: string, region: string) => {
 // Create signed Apple Developer token
 const createAppleToken = () => {
   // Read private Apple Music key
-  const keyPath = path.resolve(__dirname, '../keys', 'apple.key');
-  const key = fs.readFileSync(keyPath);
+  const key = process.env.APPLE_PRIVATE_KEY;
+
 
   // Current UNIX timestamp + UNIX timestamp in 6 months
   const currentTime: number = Math.floor(Date.now() / 1000);
@@ -362,6 +363,7 @@ const createAppleToken = () => {
 
   return jwt.sign(jwtPayload, key, jwtOptions);
 };
+
 
 // Get localization for Apple Music user
 const getLocalization = async (userToken: string, devToken: string) => {

@@ -12,8 +12,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const axios_1 = __importDefault(require("axios"));
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const firebase = __importStar(require("firebase"));
 const qs = __importStar(require("qs"));
 const cors = require('cors');
@@ -29,7 +27,7 @@ const fb = firebase.initializeApp({
     messagingSenderId: '565477002562',
     appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
-const apiVersion = '1.024';
+const apiVersion = '1.026';
 const statsRef = fb.firestore().collection('presaves').doc('--stats--');
 const increment = firebase.firestore.FieldValue.increment(1);
 if (process.env.NODE_ENV !== 'production') {
@@ -41,14 +39,16 @@ app.use(cors());
 // Status endpoint
 app.get('/', (req, res) => {
     res.status(200);
-    res.send(`Login API is running. Version: ${apiVersion}`);
+    res.send(`Presave API is running. Version: ${apiVersion}`);
 });
 // Spotify login endpoint
 app.post('/login', async (req, res) => {
     // Get token from Request
     if (req.body.auth_code === undefined) {
         res.status(400);
-        res.send('Missing authorization token');
+        const msg = 'Invalid request: missing authorization token';
+        console.error(msg);
+        res.send(msg);
         return;
     }
     try {
@@ -57,7 +57,6 @@ app.post('/login', async (req, res) => {
         const token = tokenData.access_token;
         // Get user data with token
         const userData = await getUser(token);
-        console.log(userData);
         // Check if user has presaved before
         const firstPresave = await checkIfFirstSave(userData.id);
         if (!firstPresave) {
@@ -75,6 +74,7 @@ app.post('/login', async (req, res) => {
         });
     }
     catch (error) {
+        console.error(error);
         res.status(500).json({
             success: false,
             message: error
@@ -128,7 +128,9 @@ app.post('/apple', async (req, res) => {
     // Get token from Request
     if (req.body.token === undefined) {
         res.status(400);
-        res.send('Missing token');
+        const msg = 'Invalid request: Missing User token';
+        console.error(msg);
+        res.send(msg);
         return;
     }
     // Get locale from token
@@ -150,7 +152,7 @@ app.post('/apple', async (req, res) => {
         throw new Error(error);
     }
 });
-// Start listening on defined por
+// Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 // Get token and refresh tokens from Spotify with Authorization token
 const getTokenFromAuth = async (code) => {
@@ -257,7 +259,8 @@ const registerApplePresave = async (token, region) => {
     const docData = {
         token,
         region,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        hasSaved: false
     };
     const docRef = fb.firestore().collection('applePresaves').doc();
     const batch = fb.firestore().batch();
@@ -271,8 +274,7 @@ const registerApplePresave = async (token, region) => {
 // Create signed Apple Developer token
 const createAppleToken = () => {
     // Read private Apple Music key
-    const keyPath = path_1.default.resolve(__dirname, '../keys', 'apple.key');
-    const key = fs_1.default.readFileSync(keyPath);
+    const key = process.env.APPLE_PRIVATE_KEY;
     // Current UNIX timestamp + UNIX timestamp in 6 months
     const currentTime = Math.floor(Date.now() / 1000);
     const expiryTime = currentTime + 15777000;

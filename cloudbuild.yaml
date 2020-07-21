@@ -1,26 +1,26 @@
 steps:
-  - id: Build server
-    name: 'gcr.io/cloud-builders/docker'
-    dir: server
-    args: ['build', '-t', 'gcr.io/presave-app/presave-api', '.']
-  - id: Push server
-    name: 'gcr.io/cloud-builders/docker'
-    dir: server
-    args: ['push', 'gcr.io/presave-app/presave-api']
-  - id: Deploy server to Cloud Run
-    name: 'gcr.io/cloud-builders/gcloud'
-    dir: server
-    args: ['beta', 'run', 'deploy', 'presave-api', '--image', 'gcr.io/presave-app/presave-api', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
-  - id: Install Angular packages
-    name:  node
-    entrypoint: npm
-    args: ['install']
-  - id: Build Angular production application
-    name: 'okumaonome/angular-cli'
-    args: ['ng', 'build', '--prod']
-  - id: Deploy Angular application to Firebase Hosting
-    name: 'okumaonome/firebase-tools'
-    args: ['firebase', 'deploy', '--token', '$_FIREBASE_TOKEN', '--only', 'hosting']
+  # - id: Build server
+  #   name: 'gcr.io/cloud-builders/docker'
+  #   dir: server
+  #   args: ['build', '-t', 'gcr.io/presave-app/presave-api', '.']
+  # - id: Push server
+  #   name: 'gcr.io/cloud-builders/docker'
+  #   dir: server
+  #   args: ['push', 'gcr.io/presave-app/presave-api']
+  # - id: Deploy server to Cloud Run
+  #   name: 'gcr.io/cloud-builders/gcloud'
+  #   dir: server
+  #   args: ['beta', 'run', 'deploy', 'presave-api', '--image', 'gcr.io/presave-app/presave-api', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
+  # - id: Install Angular packages
+  #   name:  node
+  #   entrypoint: npm
+  #   args: ['install']
+  # - id: Build Angular production application
+  #   name: 'okumaonome/angular-cli'
+  #   args: ['ng', 'build', '--prod']
+  # - id: Deploy Angular application to Firebase Hosting
+  #   name: 'okumaonome/firebase-tools'
+  #   args: ['firebase', 'deploy', '--token', '$_FIREBASE_TOKEN', '--only', 'hosting']
   - id: Install Cloud Functions packages
     name: node
     entrypoint: npm
@@ -31,5 +31,5 @@ steps:
     dir: functions
     args: ['firebase', 'deploy', '--token', '$_FIREBASE_TOKEN', '--only', 'functions']
 
-images:
-  - gcr.io/presave-app/presave-api
+# images:
+#   - gcr.io/presave-app/presave-api

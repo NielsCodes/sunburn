@@ -49,3 +49,6 @@ Thumbs.db
 /server/node_modules
 /server/*.env
 /server/keys/*.key
+
+# Firebase hosting cache
+.firebase
