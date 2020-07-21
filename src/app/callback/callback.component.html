@@ -26,10 +26,10 @@
   <div id="share-container">
   	<div id="share-popup">
 
-  	  <h2 id="share-title">{{ 'Almost there...' | uppercase }} </h2>
+  	  <h2 id="share-title"> {{ (endMessage | async)?.title | uppercase }} </h2>
 
   	  <p id="share-content">
-  	    Share this with your friends to reveal more!
+  	    {{ (endMessage | async)?.content }}
   	  </p>
 
   	  <div id="share-controls-desktop" *ngIf="!canShare">

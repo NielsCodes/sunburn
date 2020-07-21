@@ -1,6 +1,6 @@
 import { CookieService } from './../services/cookie.service';
 import { ApiService } from './../services/api.service';
-import { Config, PresaveResponse } from './../../models/config.model';
+import { Config, PresaveResponse, EndMessage } from './../../models/config.model';
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Renderer2, AfterViewInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFireFunctions } from '@angular/fire/functions';
@@ -16,6 +16,7 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AngularFireAnalytics } from '@angular/fire/analytics';
+import { Observable } from 'rxjs';
 
 declare const fbq: any;
 
@@ -65,6 +66,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
   shareState = 'inactive';
   referrer: string;
   isVertical = false;
+  endMessage: Observable<EndMessage>;
 
   nav: any = window.navigator;
 
@@ -112,6 +114,8 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
       if (!(params.has('code') && params.has('state')) && !params.has('ref')) {
         this.router.navigate(['/']);
       }
+
+      this.getEndContent();
 
       const ref = params.get('ref');
       const code = params.get('code');
@@ -266,6 +270,13 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
       text: 'this is a description',
       url: this.pageURL
     });
+
+  }
+
+  // Get data for end screen from Firestore
+  getEndContent() {
+
+    this.endMessage = this.afs.collection('config').doc<EndMessage>('message').valueChanges().pipe(take(1));
 
   }
 
