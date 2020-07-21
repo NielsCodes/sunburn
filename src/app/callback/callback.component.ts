@@ -16,7 +16,6 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AngularFireAnalytics } from '@angular/fire/analytics';
-import { AngularFirePerformance } from '@angular/fire/performance';
 
 declare const fbq: any;
 
@@ -263,8 +262,8 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
   onMobileShare() {
 
     this.nav.share({
-      title: 'Mystery release!',
-      text: 'Check out this mystery release for a hint!',
+      title: '⏳',
+      text: 'this is a description',
       url: this.pageURL
     });
 
