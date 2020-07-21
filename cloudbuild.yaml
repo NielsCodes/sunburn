@@ -9,18 +9,7 @@ steps:
     args: ['push', 'gcr.io/presave-app/presave-api']
   - id: Deploy server to Cloud Run
     name: 'gcr.io./cloud-builders/gcloud'
-    args:
-        - beta
-        - run
-        - deploy
-        - presave-api
-        - --image
-        - gcr.io/presave-app/presave-api
-        - --region
-        - us-central1
-        - --platform
-        - managed
-        - --allow-unauthenticated
+    args: ['beta', 'run', 'deploy', 'presave-api', '--image', 'gcr.io/presave-app/presave-api', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
   - id: Install Angular packages
     name:  node
     entrypoint: npm
@@ -43,4 +32,3 @@ steps:
 
 images:
   - gcr.io/presave-app/presave-api
-
