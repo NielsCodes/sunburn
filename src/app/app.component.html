@@ -1,6 +1,6 @@
 <router-outlet></router-outlet>
 
-<div id="cookie-overlay" *ngIf="!(hasConsented | async)" [@cookieAnimation]>
+<div id="cookie-overlay" class="fullscreen" *ngIf="!(hasConsented | async)" [@cookieAnimation]>
 
   <div id="cookie-text">
     <span>we use cookies to ensure you get the best experience.</span>

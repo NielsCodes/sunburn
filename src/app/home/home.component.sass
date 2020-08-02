@@ -1,11 +1,13 @@
 #page-container
   min-height: 100vh
-  min-height: -webkit-fill-available
   width: 100vw
   display: flex
   align-items: center
   justify-content: center
   flex-direction: column
+
+  &.mobile
+    min-height: -webkit-fill-available
 
   #presave-options-container
     background: rgba(#fff,.3)
