@@ -1,7 +1,7 @@
 <!-- Main content container -->
-<div id="page-container">
+<div id="page-container" [style.height.px]="windowHeight">
 
-  <video playsinline [muted]="true" id="background-video" #videoPlayer [hidden]="videoURL === undefined || !presaveSuccessful" [ngClass]="{'vertical': isVertical}" [style.height.px]="windowHeight">
+  <video playsinline [muted]="true" id="background-video" #videoPlayer [hidden]="videoURL === undefined || !presaveSuccessful" [ngClass]="{'vertical': isVertical}">
     <source [src]="videoURL" type="video/mp4">
   </video>
 
