@@ -67,6 +67,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
   referrer: string;
   isVertical = false;
   endMessage: Observable<EndMessage>;
+  windowHeight: number;
 
   nav: any = window.navigator;
 
@@ -81,6 +82,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const height: number = window.innerHeight;
     const width: number = window.innerWidth;
+    this.windowHeight = height;
 
     if (height > width) {
       this.isVertical = true;
@@ -101,6 +103,9 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     private cookie: CookieService,
     private analytics: AngularFireAnalytics,
   ) {
+
+    // Get device orientation to fetch right video file
+    this.onResize();
 
     // Redirect to home when navigation does not come from Messenger save or Spotify login
     this.route.queryParamMap.subscribe(params => {
@@ -199,8 +204,6 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.nav.share) {
       this.canShare = true;
     }
-
-    this.onResize();
 
   }
 

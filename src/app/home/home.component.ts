@@ -1,6 +1,6 @@
 import { ApiService } from './../services/api.service';
 import { ScriptsService } from './../services/scripts.service';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
@@ -16,12 +16,20 @@ export class HomeComponent {
   appleToken: string;
   music: any;
   isMobile: boolean;
+  windowHeight: number;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event?){
+    this.windowHeight = window.innerHeight;
+    console.log(`Window height: ${this.windowHeight}`);
+  }
 
   constructor(
     private scripts: ScriptsService,
     private api: ApiService,
     private router: Router
   ) {
+    this.onResize();
     this.scripts.loadMusicKit().pipe(filter((status: boolean) => status === true)).subscribe((status: boolean) => {
 
       this.api.getAppleToken()
