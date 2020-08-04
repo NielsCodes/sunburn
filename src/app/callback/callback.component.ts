@@ -93,7 +93,6 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private fns: AngularFireFunctions,
     private afs: AngularFirestore,
     private http: HttpClient,
     private renderer2: Renderer2,
