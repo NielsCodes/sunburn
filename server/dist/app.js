@@ -155,18 +155,21 @@ app.post('/zapier', async (req, res) => {
 // Get Apple Music developer token
 app.get('/devtoken', async (req, res) => {
     const token = createAppleToken();
+    if (token === null) {
+        const msg = 'Error creating Apple token. No environment variable';
+        res
+            .status(503)
+            .json({
+            success: false,
+            message: msg
+        })
+            .send();
+        console.error(msg);
+    }
     res.status(200).json({
         success: true,
         message: 'Token generated',
         token
-    });
-});
-// Test route for apple dev key
-app.get('/test', (req, res) => {
-    const key = process.env.APPLE_PRIVATE_KEY;
-    res.json({
-        status: 'success',
-        key
     });
 });
 app.post('/apple', async (req, res) => {
@@ -337,7 +340,11 @@ const registerApplePresave = async (token, region) => {
 // Create signed Apple Developer token
 const createAppleToken = () => {
     // Read private Apple Music key
-    const key = process.env.APPLE_PRIVATE_KEY;
+    const privateKey = process.env.APPLE_PRIVATE_KEY;
+    if (privateKey === undefined || privateKey === null) {
+        return null;
+    }
+    const key = privateKey.replace(/\\n/gm, '\n');
     // Current UNIX timestamp + UNIX timestamp in 6 months
     const currentTime = Math.floor(Date.now() / 1000);
     const expiryTime = currentTime + 15777000;

@@ -179,6 +179,19 @@ app.get('/devtoken', async (req: Request, res: Response) => {
 
   const token = createAppleToken();
 
+  if (token === null) {
+    const msg = 'Error creating Apple token. No environment variable';
+    res
+      .status(503)
+      .json({
+        success: false,
+        message: msg
+      })
+      .send();
+
+    console.error(msg);
+  }
+
   res.status(200).json({
     success: true,
     message: 'Token generated',
@@ -186,17 +199,6 @@ app.get('/devtoken', async (req: Request, res: Response) => {
   });
 
 });
-
-// Test route for apple dev key
-app.get('/test', (req: Request, res: Response) => {
-  const key = process.env.APPLE_PRIVATE_KEY;
-
-  res.json({
-    status: 'success',
-    key
-  });
-
-})
 
 app.post('/apple', async (req: Request, res: Response) => {
 
@@ -412,8 +414,15 @@ const registerApplePresave = async (token: string, region: string) => {
 
 // Create signed Apple Developer token
 const createAppleToken = () => {
+
   // Read private Apple Music key
-  const key = process.env.APPLE_PRIVATE_KEY;
+  const privateKey = process.env.APPLE_PRIVATE_KEY;
+
+  if (privateKey === undefined || privateKey === null) {
+    return null;
+  }
+
+  const key = privateKey.replace(/\\n/gm, '\n');
 
   // Current UNIX timestamp + UNIX timestamp in 6 months
   const currentTime: number = Math.floor(Date.now() / 1000);
