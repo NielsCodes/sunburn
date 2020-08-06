@@ -161,6 +161,14 @@ app.get('/devtoken', async (req, res) => {
         token
     });
 });
+// Test route for apple dev key
+app.get('/test', (req, res) => {
+    const key = process.env.APPLE_PRIVATE_KEY;
+    res.json({
+        status: 'success',
+        key
+    });
+});
 app.post('/apple', async (req, res) => {
     // Get token from Request
     if (req.body.token === undefined) {

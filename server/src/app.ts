@@ -1,10 +1,7 @@
 import express, { Response, Request, Application } from 'express';
 import axios from 'axios';
-import path from 'path';
-import fs from 'fs';
 import * as firebase from 'firebase';
 import * as qs from 'qs';
-import { create } from 'domain';
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const app: Application = express();
@@ -189,6 +186,17 @@ app.get('/devtoken', async (req: Request, res: Response) => {
   });
 
 });
+
+// Test route for apple dev key
+app.get('/test', (req: Request, res: Response) => {
+  const key = process.env.APPLE_PRIVATE_KEY;
+
+  res.json({
+    status: 'success',
+    key
+  });
+
+})
 
 app.post('/apple', async (req: Request, res: Response) => {
 
