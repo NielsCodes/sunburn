@@ -17,6 +17,9 @@ import { HttpClient } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AngularFireAnalytics } from '@angular/fire/analytics';
 import { Observable } from 'rxjs';
+import { detect } from 'detect-browser';
+
+const detectBrowser = detect();
 
 declare const fbq: any;
 
@@ -103,6 +106,9 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     private cookie: CookieService,
     private analytics: AngularFireAnalytics,
   ) {
+
+    console.log(detectBrowser.name);
+    console.log(detectBrowser.os);
 
     // Get device orientation to fetch right video file
     this.onResize();
@@ -202,7 +208,11 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Check if platform supports Web share API
     if (this.nav.share) {
-      this.canShare = true;
+
+      if (detectBrowser.os !== 'Mac OS' && detectBrowser.name !== 'safari') {
+        this.canShare = true;
+      }
+
     }
 
   }

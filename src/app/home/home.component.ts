@@ -21,7 +21,6 @@ export class HomeComponent {
   @HostListener('window:resize', ['$event'])
   onResize(event?){
     this.windowHeight = window.innerHeight;
-    console.log(`Window height: ${this.windowHeight}`);
   }
 
   constructor(
