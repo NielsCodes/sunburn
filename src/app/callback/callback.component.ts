@@ -265,7 +265,8 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Copy link to clipboard
   onCopyToClipboard() {
-    this.clipboard.copy(this.pageURL);
+    // this.clipboard.copy(this.pageURL);
+    this.clipboard.copy('https://bitbird.lnk.to/presaveCL');
   }
 
   // Share on Facebook
@@ -278,7 +279,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
   // Share on Twitter
   onShareToTwitter() {
     const twitterBaseURL = 'https://twitter.com/intent/tweet?text=';
-    const shareURL = `${twitterBaseURL}I just presaved this mystery track for a special hint! @bitbird&url=${this.pageURL}`;
+    const shareURL = `${twitterBaseURL} find out what's behind the blinds @bitbird&url=${this.pageURL}`;
     window.open(shareURL, 'Share to Twitter', 'left=0,top=0,height=500,width=500');
   }
 
