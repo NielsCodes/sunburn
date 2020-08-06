@@ -107,9 +107,6 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     private analytics: AngularFireAnalytics,
   ) {
 
-    console.log(detectBrowser.name);
-    console.log(detectBrowser.os);
-
     // Get device orientation to fetch right video file
     this.onResize();
 
