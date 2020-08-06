@@ -3,7 +3,6 @@ import { ApiService } from './../services/api.service';
 import { Config, PresaveResponse, EndMessage } from './../../models/config.model';
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Renderer2, AfterViewInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFireFunctions } from '@angular/fire/functions';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { take } from 'rxjs/operators';
 import {
@@ -276,7 +275,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
   // Share on Twitter
   onShareToTwitter() {
     const twitterBaseURL = 'https://twitter.com/intent/tweet?text=';
-    const shareURL = `${twitterBaseURL} ⏳⏳⏳ @bitbird&url=${this.pageURL}`;
+    const shareURL = `${twitterBaseURL} ⏳⏳⏳ @DROELOEMUSIC @bitbird&url=${this.pageURL}`;
     window.open(shareURL, 'Share to Twitter', 'left=0,top=0,height=500,width=500');
   }
 

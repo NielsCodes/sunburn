@@ -135,10 +135,9 @@ app.post('/zapier', async (req, res) => {
     const lastName = req.body.lastName || 'undefined';
     try {
         const isFirstSave = await checkIfFirstMessengerSave(id);
-        if (!isFirstSave) {
-            return;
+        if (isFirstSave) {
+            await registerMessengerSave(id, email, firstName, lastName);
         }
-        await registerMessengerSave(id, email, firstName, lastName);
     }
     catch (error) {
         res.status(500).json({
