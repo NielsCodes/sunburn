@@ -234,6 +234,29 @@ app.post('/apple', async (req: Request, res: Response) => {
 
 });
 
+app.get('/status', async (req: Request, res: Response) => {
+
+  const key = req.headers.key;
+  if (key !== process.env.STATUS_KEY) {
+    res
+      .status(401)
+      .send();
+    return;
+  }
+
+  const doc = await statsRef.get();
+  const stats = doc.data();
+
+  res
+    .status(200)
+    .json({
+      success: true,
+      stats
+    })
+    .send();
+
+})
+
 
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));

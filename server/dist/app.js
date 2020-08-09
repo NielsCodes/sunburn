@@ -199,6 +199,24 @@ app.post('/apple', async (req, res) => {
         throw new Error(error);
     }
 });
+app.get('/status', async (req, res) => {
+    const key = req.headers.key;
+    if (key !== process.env.STATUS_KEY) {
+        res
+            .status(401)
+            .send();
+        return;
+    }
+    const doc = await statsRef.get();
+    const stats = doc.data();
+    res
+        .status(200)
+        .json({
+        success: true,
+        stats
+    })
+        .send();
+});
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 // Get token and refresh tokens from Spotify with Authorization token
