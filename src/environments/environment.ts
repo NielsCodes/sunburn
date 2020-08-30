@@ -15,7 +15,7 @@ export const environment = {
     measurementId: 'G-60G7PF9HYR'
   },
   /** API endpoint for authentication purposes */
-endpoint: 'https://presave-api-43txmxojmq-uc.a.run.app',
+  endpoint: 'https://presave-api-43txmxojmq-uc.a.run.app',
   /** Redirect URL for Spotify authentication */
   redirect: 'https://presave-app-dev.web.app/callback'
 };
