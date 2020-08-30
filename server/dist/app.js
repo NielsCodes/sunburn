@@ -27,7 +27,7 @@ const fb = firebase.initializeApp({
     messagingSenderId: '565477002562',
     appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
-const apiVersion = '1.026';
+const apiVersion = '1.203';
 const statsRef = fb.firestore().collection('presaves').doc('--stats--');
 const increment = firebase.firestore.FieldValue.increment(1);
 if (process.env.NODE_ENV !== 'production') {
@@ -183,6 +183,17 @@ app.post('/apple', async (req, res) => {
     // Get locale from token
     const userToken = req.body.token;
     const devToken = createAppleToken();
+    if (devToken === null) {
+        console.error('Received null Apple Developer token');
+        res
+            .status(500)
+            .json({
+            success: false,
+            message: 'Failed to authenticate'
+        })
+            .send();
+        return;
+    }
     try {
         const region = await getLocalization(userToken, devToken);
         await registerApplePresave(userToken, region);
@@ -214,6 +225,40 @@ app.get('/status', async (req, res) => {
         .json({
         success: true,
         stats
+    })
+        .send();
+});
+app.get('/execute', async (req, res) => {
+    // Check for header password
+    const pass = req.get('pass');
+    if (pass !== 'perspective') {
+        res
+            .status(403)
+            .json({
+            success: false,
+            message: 'Unauthorized request'
+        });
+        return;
+    }
+    const spotifySaveStatus = await executeSpotifySaves();
+    if (!spotifySaveStatus.success) {
+        console.log('Encountered errors while saving to Spotify');
+        console.error(spotifySaveStatus);
+    }
+    else {
+        console.log('Spotify saves processed successfully');
+    }
+    // const appleSaveStatus = await executeAppleSaves();
+    // if (!appleSaveStatus.success) {
+    //   console.log('Encountered errors while saving to Apple');
+    //   console.error(appleSaveStatus.errors);
+    // } else {
+    //   console.log('Apple saves processed successfully');
+    // }
+    res
+        .status(200)
+        .json({
+        spotifySuccess: spotifySaveStatus.success,
     })
         .send();
 });
@@ -354,7 +399,10 @@ const registerApplePresave = async (token, region) => {
     }, { merge: true });
     return batch.commit();
 };
-// Create signed Apple Developer token
+/**
+ * Create signed Apple Developer token
+ * @returns Signed token
+ */
 const createAppleToken = () => {
     // Read private Apple Music key
     const privateKey = process.env.APPLE_PRIVATE_KEY;
@@ -391,5 +439,274 @@ const getLocalization = async (userToken, devToken) => {
     catch (error) {
         throw new Error(error);
     }
+};
+/**
+ * Save track to library for all presaves
+ * - Gets access token with refresh token
+ * - Follows artist
+ * - Adds track to library
+ * - Stores status of save in Firestore
+ */
+const executeSpotifySaves = async () => {
+    const status = {
+        success: false
+    };
+    // Get all presaves from Firestore
+    const presavesDocsSnap = await fb.firestore().collection('presaves').where('hasSaved', '==', false).get();
+    const presaves = presavesDocsSnap.docs.filter(doc => doc.id !== '--stats--').map(doc => {
+        const presave = Object.assign({ id: doc.id }, doc.data());
+        return presave;
+    });
+    /** @todo Remove below line and change loop to `presaves` */
+    // const presavesTemp = presaves.filter(doc => doc.user.display_name === 'Chris P Bacon');
+    const errorFiles = [];
+    const promises = [];
+    for (const presave of presaves) {
+        // console.log('i');
+        // // Check if authorization object exists
+        // if ( presave.authorization === undefined || presave.authorization.refresh_token === undefined ) {
+        //   errorFiles.push(presave.id);
+        // }
+        // // Get new access token from refresh token
+        // const authData = await getTokenFromRefresh(presave.authorization.refresh_token);
+        // if (authData === null) {
+        //   errorFiles.push(presave.id);
+        // } else {
+        //   const accessToken = authData.access_token;
+        //   // Follow artist
+        //   const followSuccess = await followArtistonSpotify(accessToken);
+        //   if (!followSuccess) {
+        //     errorFiles.push(presave.id);
+        //   }
+        //   const saveSuccess = await saveTrackOnSpotify(accessToken);
+        //   if (!saveSuccess) {
+        //     errorFiles.push(presave.id);
+        //   } else {
+        //     const logSaveSuccess = await logSpotifySave(presave.id);
+        //   }
+        // }
+        const presaveSuccess = temp(presave);
+        promises.push(presaveSuccess);
+    }
+    Promise.all(promises).then(res => console.log(res)).catch(err => console.error(err));
+    if (errorFiles.length > 0) {
+        console.log('Encounted issues saving for the following documents:');
+        console.error(errorFiles);
+        status.errors = errorFiles;
+        return status;
+    }
+    else {
+        status.success = true;
+        console.log('executed all saves');
+        return status;
+    }
+    // Return overall status
+};
+const temp = async (presave) => {
+    console.log('i');
+    // Check if authorization object exists
+    if (presave.authorization === undefined || presave.authorization.refresh_token === undefined) {
+        console.log(`Presave ID: ${presave.id} not a valid document`);
+        return presave.id;
+    }
+    // Get new access token from refresh token
+    const authData = await getTokenFromRefresh(presave.authorization.refresh_token);
+    if (authData === null) {
+        console.log(`Presave ID: ${presave.id} not a able to get auth`);
+        return presave.id;
+    }
+    else {
+        const accessToken = authData.access_token;
+        // Follow artist
+        const followSuccess = await followArtistonSpotify(accessToken);
+        if (!followSuccess) {
+            console.log(`Presave ID: ${presave.id} not able to follow`);
+            return presave.id;
+        }
+        const saveSuccess = await saveTrackOnSpotify(accessToken);
+        if (!saveSuccess) {
+            console.log(`Presave ID: ${presave.id} not able to save`);
+            return presave.id;
+        }
+        else {
+            const logSaveSuccess = await logSpotifySave(presave.id);
+            return 'success';
+        }
+    }
+};
+/**
+ * Get a new Spotify access token by using a refresh token
+ * @param refreshToken Spotify refresh token from Firestore
+ * @returns New access information
+ */
+const getTokenFromRefresh = async (refreshToken) => {
+    const endpoint = 'https://accounts.spotify.com/api/token';
+    // const redirectUrl = process.env.REDIRECT_URL;
+    // Encode API credentials
+    const credentials = `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`;
+    const authorization = Buffer.from(credentials).toString('base64');
+    // Create request body
+    const requestBody = qs.stringify({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+    });
+    // Try calling the Spotify API
+    try {
+        const tokenRes = await axios_1.default.post(endpoint, requestBody, {
+            headers: {
+                Authorization: `Basic ${authorization}`
+            }
+        });
+        return tokenRes.data;
+    }
+    catch (error) {
+        if (error.response.status === 400) {
+            console.log('Invalid client error');
+            return null;
+        }
+        else {
+            console.error(error);
+        }
+    }
+    return null;
+};
+/**
+ * Follow artist on Spotify
+ * @param token Spotify access token
+ */
+const followArtistonSpotify = async (token) => {
+    let success = false;
+    const artistId = '0u18Cq5stIQLUoIaULzDmA';
+    const endpoint = `https://api.spotify.com/v1/me/following?type=artist`;
+    const followData = {
+        ids: [
+            artistId
+        ]
+    };
+    try {
+        const followRes = await axios_1.default.put(endpoint, followData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (followRes.status !== 204) {
+            throw new Error(`Unexpected follow response status: ${followRes.status}`);
+        }
+        success = true;
+    }
+    catch (error) {
+        console.log('Following artist failed');
+        console.error(error);
+    }
+    return success;
+};
+/**
+ * Save track to a user's library
+ * @param token Spotify access token
+ */
+const saveTrackOnSpotify = async (token) => {
+    let success = false;
+    const trackId = '0cR04cbujsPTTyKUazySY0';
+    const endpoint = 'https://api.spotify.com/v1/me/tracks';
+    const data = {
+        ids: [
+            trackId
+        ]
+    };
+    // Try to save track to user libraries
+    try {
+        const saveRes = await axios_1.default.put(endpoint, data, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (saveRes.status !== 200) {
+            throw new Error(`Unexpected save response status: ${saveRes.status}`);
+        }
+        success = true;
+    }
+    catch (error) {
+        console.log('Saving track failed');
+        console.error(error);
+    }
+    return success;
+};
+/**
+ * Update presave document when the track has been saved to the user's library
+ * @param documentId Firestore document ID of presave entry
+ */
+const logSpotifySave = async (documentId) => {
+    let success = false;
+    const docRef = fb.firestore().collection('presaves').doc(documentId);
+    try {
+        await docRef.set({ hasSaved: true }, { merge: true });
+        success = true;
+    }
+    catch (error) {
+        console.log('Error while trying to log Spotify save');
+        console.error(error);
+    }
+    return success;
+};
+const executeAppleSaves = async () => {
+    const status = {
+        success: false
+    };
+    const trackId = '1521225747';
+    const endpoint = `https://api.music.apple.com/v1/me/library?ids[albums]=${trackId}`;
+    const errorFiles = [];
+    // Get all Apple presaves
+    const presavesDocsSnap = await fb.firestore().collection('applePresaves').get();
+    const presaves = presavesDocsSnap.docs.map(doc => {
+        const presave = Object.assign({ id: doc.id }, doc.data());
+        return presave;
+    });
+    for (const presave of presaves) {
+        const userToken = presave.token;
+        // Try to save to library
+        try {
+            const devToken = createAppleToken();
+            const saveRes = await axios_1.default.post(endpoint, null, {
+                headers: {
+                    Authorization: `Bearer ${devToken}`,
+                    'Music-User-Token': userToken
+                }
+            });
+            if (saveRes.status !== 202) {
+                errorFiles.push(presave.id);
+            }
+            else {
+                const logStatus = await logAppleSave(presave.id);
+            }
+        }
+        catch (error) {
+            console.error(error);
+            errorFiles.push(presave.id);
+        }
+    }
+    if (errorFiles.length > 0) {
+        status.errors = errorFiles;
+    }
+    else {
+        status.success = true;
+    }
+    return status;
+};
+/**
+ * Update Apple presave document when the track has been saved to the user's library
+ * @param documentId Firestore document ID of presave entry
+ */
+const logAppleSave = async (documentId) => {
+    let success = false;
+    const docRef = fb.firestore().collection('applePresaves').doc(documentId);
+    try {
+        await docRef.set({ hasSaved: true }, { merge: true });
+        success = true;
+    }
+    catch (error) {
+        console.log('Error while trying to log Apple save');
+        console.error(error);
+    }
+    return success;
 };
 //# sourceMappingURL=app.js.map

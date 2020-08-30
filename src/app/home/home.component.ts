@@ -106,4 +106,12 @@ export class HomeComponent {
     return check;
   }
 
+  onSpotifyListen() {
+    window.location.href = 'https://open.spotify.com/track/0cR04cbujsPTTyKUazySY0';
+  }
+
+  onAppleListen() {
+    window.location.href = 'https://music.apple.com/us/album/open-blinds-single/1521225746';
+  }
+
 }
