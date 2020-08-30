@@ -1,3 +1,4 @@
+import { environment } from './../../environments/environment';
 import { ApiService } from './../services/api.service';
 import { ScriptsService } from './../services/scripts.service';
 import { Component, HostListener } from '@angular/core';
@@ -38,7 +39,7 @@ export class HomeComponent {
             developerToken: this.appleToken,
             app: {
               name: 'bitbird presaves',
-              build: '0.0.2'
+              build: '2.0.0'
             }
           });
           this.music = MusicKit.getInstance();
@@ -53,8 +54,7 @@ export class HomeComponent {
 
     const rootUrl = 'https://accounts.spotify.com/authorize';
     const clientID = 'e927df0934d7411181641fbd99a56f3c';
-    // const redirectURL = 'https://presave-app.web.app/callback';
-    const redirectURL = 'https://presave.droeloe.com/callback';
+    const redirectURL = environment.redirect;
     const scope = 'user-library-modify user-read-private user-follow-modify';
     const state = 'bbpresave';
 
@@ -89,6 +89,7 @@ export class HomeComponent {
   }
 
   onMessengerNotify() {
+    // TODO: Add new messenger flow
     window.location.href = 'https://m.me/bitbirdofficial?ref=MGFSRHl1UlIrZWg1T291VGIvSmJQVTNnYW9FMEdrekFJMkFuT3dJaHhOND0tLVBrM2tSV1krM1ovdVVYWFozSll2OXc9PQ==--0309a911624ec92383e0f60877cd5bebff5ef041';
   }
 

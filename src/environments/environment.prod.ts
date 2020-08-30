@@ -10,5 +10,8 @@ export const environment = {
     appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb',
     measurementId: 'G-5WJ2N84FVF'
   },
-  endpoint: 'https://presave.bitbird.dev/'
+  /** API endpoint for authentication purposes */
+  endpoint: 'https://presave.bitbird.dev',
+  /** Redirect URL for Spotify authentication */
+  redirect: 'https://presave.droeloe.com/callback'
 };

@@ -276,10 +276,16 @@ app.get('/status', async (req, res) => {
 //     })
 //     .send();
 // });
-app.get('/test', async (req, res) => {
-    const testSnapshot = await firebase.firestore().collection('test').get();
-    const test = testSnapshot.docs.map(x => x.data());
-    res.status(200).json(test).send();
+app.get('/reward', async (req, res) => {
+    const reward = generateRewardToken();
+    res
+        .status(200)
+        .json({
+        success: true,
+        reward
+    })
+        .send();
+    await storeRewardToken(reward);
 });
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
@@ -469,6 +475,14 @@ const createAppleToken = () => {
         keyid: '2XNHW5P3K5',
     };
     return jwt.sign(jwtPayload, key, jwtOptions);
+};
+/** Create a reward token to be used to access reward website */
+const generateRewardToken = () => {
+    return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 6);
+};
+/** Store reward token in Firestore */
+const storeRewardToken = async (token) => {
+    return await firebase.firestore().collection('rewards').doc().set({ token });
 };
 // Get localization for Apple Music user
 const getAppleLocalization = async (userToken, devToken) => {

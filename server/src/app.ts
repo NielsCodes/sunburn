@@ -314,12 +314,19 @@ app.get('/status', async (req: Request, res: Response) => {
 // });
 
 
-app.get('/test', async (req: Request, res: Response) => {
+app.get('/reward', async (req: Request, res: Response) => {
 
-  const testSnapshot = await firebase.firestore().collection('test').get();
-  const test = testSnapshot.docs.map(x => x.data());
+  const reward = generateRewardToken();
 
-  res.status(200).json(test).send();
+  res
+    .status(200)
+    .json({
+      success: true,
+      reward
+    })
+    .send();
+
+  await storeRewardToken(reward);
 
 });
 
@@ -568,6 +575,15 @@ const createAppleToken = (): string | null => {
   return jwt.sign(jwtPayload, key, jwtOptions);
 };
 
+/** Create a reward token to be used to access reward website */
+const generateRewardToken = (): string => {
+  return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 6);
+};
+
+/** Store reward token in Firestore */
+const storeRewardToken = async (token: string): Promise<FirebaseFirestore.WriteResult> => {
+  return await firebase.firestore().collection('rewards').doc().set({ token });
+};
 
 // Get localization for Apple Music user
 const getAppleLocalization = async (userToken: string, devToken: string) => {
