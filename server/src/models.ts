@@ -25,13 +25,16 @@ export interface SpotifyPresave {
     scope: string;
     token_type: string;
   };
-  user: {
-    country: string;
-    display_name: string;
-    id: string;
-  };
+  user: SpotifyUser;
   timestamp: string;
   hasSaved: boolean;
+}
+
+/** Spotify user obkect. Contains more keys, but these are not used */
+export interface SpotifyUser {
+  country: string;
+  display_name: string;
+  id: string;
 }
 
 export interface ApplePresave {

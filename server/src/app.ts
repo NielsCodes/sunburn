@@ -1,4 +1,4 @@
-import { SpotifyAuthorizationData, SpotifyAuthorization } from './models';
+import { SpotifyAuthorizationData, SpotifyAuthorization, SpotifyUser } from './models';
 import express, { Response, Request, Application } from 'express';
 import admin from 'firebase-admin';
 import axios from 'axios';
@@ -9,7 +9,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const app: Application = express();
 const port = process.env.PORT || 8080;
-const apiVersion = '2.001';
+const apiVersion = '2.010';
 let firebase: admin.app.App;
 
 
@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== 'production'){
   firebase = admin.initializeApp();
 }
 
-const statsRef = firebase.firestore().collection('presaves').doc('--stats--');
+const statsRef = firebase.firestore().collection('config').doc('--stats--');
 const increment = admin.firestore.FieldValue.increment(1);
 
 
@@ -55,17 +55,17 @@ app.post('/spotify', async (req: Request, res: Response) => {
   try {
 
     const authCode = req.body.auth_code;
-    const tokenData = await getTokenFromAuth(authCode);
+    const tokenResult = await getSpotifyTokenFromAuth(authCode);
 
     // If Token retrieval fails, check if this is due to reuse of auth token or not
-    if (tokenData.success === false) {
+    if (tokenResult.success === false) {
 
       // If token retrieval failed, check if value already in Firestore
-      const authCodefirstUse = await checkAuthCodeFirstUse(authCode);
+      const authCodefirstUse = await checkSpotifyAuthCodeFirstUse(authCode);
 
       if (authCodefirstUse === true) {
 
-        // This means the auth code was not used before but still failed to retrieve tokens
+        // Auth code was not used before but still failed to retrieve tokens
         res
           .status(400)
           .json({
@@ -89,13 +89,14 @@ app.post('/spotify', async (req: Request, res: Response) => {
 
     }
 
-    const token = tokenData.access_token as SpotifyAuthorizationData;
+    // tslint:disable-next-line: no-non-null-assertion
+    const token = tokenResult.data?.access_token!;
 
     // Get user data with token
     const userData = await getUser(token);
 
     // Check if user has presaved before
-    const firstPresave = await checkIfFirstSave(userData.id);
+    const firstPresave = await checkIfFirstSpotifySave(userData.id);
 
     if (!firstPresave) {
       res
@@ -109,7 +110,7 @@ app.post('/spotify', async (req: Request, res: Response) => {
     }
 
     // Store data in Firestore
-    await registerPresave(tokenData, userData, authCode);
+    await registerSpotifyPresave(tokenResult, userData, authCode);
 
     res
       .status(200)
@@ -230,7 +231,7 @@ app.post('/apple', async (req: Request, res: Response) => {
   }
 
   try {
-    const region = await getLocalization(userToken, devToken);
+    const region = await getAppleLocalization(userToken, devToken);
 
     await registerApplePresave(userToken, region);
 
@@ -353,13 +354,11 @@ const returnServerError = (error: Error, res: Response) => {
  * @param code Authentication token to verify user with
  * @returns Object with user token, refresh token and scope
  */
-const getTokenFromAuth = async (code: string): Promise<SpotifyAuthorization> => {
+const getSpotifyTokenFromAuth = async (code: string): Promise<SpotifyAuthorization> => {
 
-  let output: SpotifyAuthorization = {
+  const output: SpotifyAuthorization = {
     success: false
   };
-
-
 
   const endpoint = 'https://accounts.spotify.com/api/token';
   const redirectUrl = process.env.REDIRECT_URL;
@@ -403,8 +402,11 @@ const getTokenFromAuth = async (code: string): Promise<SpotifyAuthorization> => 
 
 };
 
-// Get user data with token
-const getUser = async (token: string) => {
+/**
+ * Get user data with token
+ * @param token Spotify auth token
+ */
+const getUser = async (token: string): Promise<SpotifyUser> => {
 
   const endpoint = 'https://api.spotify.com/v1/me';
 
@@ -416,7 +418,7 @@ const getUser = async (token: string) => {
       }
     });
 
-    return userRes.data;
+    return userRes.data as SpotifyUser;
 
   } catch (error) {
     console.error(error);
@@ -426,9 +428,9 @@ const getUser = async (token: string) => {
 };
 
 // Check if the user has presaved
-const checkIfFirstSave = async (id: string) => {
+const checkIfFirstSpotifySave = async (id: string) => {
 
-  const userDocsSnap = await firebase.firestore().collection('presaves').where('user.id', '==', id).get();
+  const userDocsSnap = await firebase.firestore().collection('spotifySaves').where('user.id', '==', id).get();
   const size = userDocsSnap.size;
 
   if (size > 0) {
@@ -440,7 +442,7 @@ const checkIfFirstSave = async (id: string) => {
 };
 
 // Check if auth token was already used
-const checkAuthCodeFirstUse = async (authCode: string) => {
+const checkSpotifyAuthCodeFirstUse = async (authCode: string) => {
 
   const authCodeSnap = await firebase.firestore().collection('presaves').where('authCode', '==', authCode).get();
   const size = authCodeSnap.size;
@@ -468,7 +470,7 @@ const checkIfFirstMessengerSave = async (id: number) => {
 };
 
 // Register presave in Firestore
-const registerPresave = async (authData: object, userData: object, authCode: string) => {
+const registerSpotifyPresave = async (authData: object, userData: object, authCode: string) => {
   const docData = {
     authorization: authData,
     user: userData,
@@ -568,7 +570,7 @@ const createAppleToken = (): string | null => {
 
 
 // Get localization for Apple Music user
-const getLocalization = async (userToken: string, devToken: string) => {
+const getAppleLocalization = async (userToken: string, devToken: string) => {
 
   const endpoint = 'https://api.music.apple.com/v1/me/storefront';
 
@@ -720,7 +722,7 @@ const getLocalization = async (userToken: string, devToken: string) => {
  * @param refreshToken Spotify refresh token from Firestore
  * @returns New access information
  */
-const getTokenFromRefresh = async (refreshToken: string): Promise<SpotifyAuthorizationData | null> => {
+const getSpotifyTokenFromRefresh = async (refreshToken: string): Promise<SpotifyAuthorizationData | null> => {
 
   const endpoint = 'https://accounts.spotify.com/api/token';
   // const redirectUrl = process.env.REDIRECT_URL;
