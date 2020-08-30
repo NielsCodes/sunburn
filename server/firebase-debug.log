@@ -1,0 +1,25 @@
+[debug] [2020-08-30T15:27:51.562Z] ----------------------------------------------------------------------
+[debug] [2020-08-30T15:27:51.564Z] Command:       /usr/local/bin/node /Users/niels/.npm-global/bin/firebase deploy --only functions
+[debug] [2020-08-30T15:27:51.564Z] CLI Version:   8.9.2
+[debug] [2020-08-30T15:27:51.564Z] Platform:      darwin
+[debug] [2020-08-30T15:27:51.564Z] Node Version:  v12.10.0
+[debug] [2020-08-30T15:27:51.565Z] Time:          Sun Aug 30 2020 17:27:51 GMT+0200 (Central European Summer Time)
+[debug] [2020-08-30T15:27:51.565Z] ----------------------------------------------------------------------
+[debug] [2020-08-30T15:27:51.565Z] 
+[debug] [2020-08-30T15:27:51.574Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-08-30T15:27:51.575Z] > authorizing via signed-in user
+[debug] [2020-08-30T15:27:51.575Z] [iam] checking project presave-app-dev for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2020-08-30T15:27:51.578Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/presave-app-dev:testIamPermissions  
+ {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2020-08-30T15:27:52.299Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sun, 30 Aug 2020 15:27:52 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=582","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-08-30T15:27:52.300Z] >>> HTTP REQUEST POST https://iam.googleapis.com/v1/projects/presave-app-dev/serviceAccounts/presave-app-dev@appspot.gserviceaccount.com:testIamPermissions  
+ {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2020-08-30T15:27:53.002Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Sun, 30 Aug 2020 15:27:52 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions.
+Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[info] 
+[info] === Deploying to 'presave-app-dev'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
