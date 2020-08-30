@@ -1,3 +1,4 @@
+import { environment } from './../../environments/environment';
 import { CookieService } from './../services/cookie.service';
 import { ApiService } from './../services/api.service';
 import { PresaveResponse } from './../../models/config.model';
@@ -65,6 +66,7 @@ export class CallbackComponent implements OnInit{
   shareState = 'inactive';
   referrer: string;
   windowHeight: number;
+  private rootEndpoint = environment.endpoint;
 
   nav: any = window.navigator;
 
@@ -75,13 +77,11 @@ export class CallbackComponent implements OnInit{
     private router: Router,
     private afs: AngularFirestore,
     private http: HttpClient,
-    private renderer2: Renderer2,
     private clipboard: Clipboard,
     private api: ApiService,
     private cookie: CookieService,
     private analytics: AngularFireAnalytics,
   ) {
-
 
     // Redirect to home when navigation does not come from Messenger save or Spotify login
     this.route.queryParamMap.subscribe(params => {
@@ -131,7 +131,7 @@ export class CallbackComponent implements OnInit{
 
         this.referrer = 'spotify';
 
-        this.http.post('https://presave.bitbird.dev/spotify', { auth_code: code }).toPromise()
+        this.http.post(`${this.rootEndpoint}/spotify`, { auth_code: code }).toPromise()
 
           .then((res: PresaveResponse) => {
 
@@ -234,7 +234,7 @@ export class CallbackComponent implements OnInit{
       const newReward = await this.api.getRewardToken();
       this.reward = newReward;
       this.updateLoadingState();
-      localStorage.setItem('reward', newReward);
+      localStorage.setItem('rewardToken', newReward);
       return;
     }
 

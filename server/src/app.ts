@@ -9,13 +9,13 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const app: Application = express();
 const port = process.env.PORT || 8080;
-const apiVersion = '2.010';
+const apiVersion = '2.012';
 let firebase: admin.app.App;
 
 
 if (process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
-  const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a');
+  const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a.json');
   firebase = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://presave-app-dev.firebaseio.com'
@@ -451,7 +451,7 @@ const checkIfFirstSpotifySave = async (id: string) => {
 // Check if auth token was already used
 const checkSpotifyAuthCodeFirstUse = async (authCode: string) => {
 
-  const authCodeSnap = await firebase.firestore().collection('presaves').where('authCode', '==', authCode).get();
+  const authCodeSnap = await firebase.firestore().collection('spotifyPresaves').where('authCode', '==', authCode).get();
   const size = authCodeSnap.size;
 
   if (size > 0) {
