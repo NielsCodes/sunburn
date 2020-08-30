@@ -1,10 +1,9 @@
 import { CookieService } from './../services/cookie.service';
 import { ApiService } from './../services/api.service';
-import { Config, PresaveResponse, EndMessage } from './../../models/config.model';
-import { Component, OnInit, ViewChild, ElementRef, OnDestroy, Renderer2, AfterViewInit, HostListener } from '@angular/core';
+import { PresaveResponse } from './../../models/config.model';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { take } from 'rxjs/operators';
 import {
   trigger,
   state,
@@ -15,7 +14,6 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { AngularFireAnalytics } from '@angular/fire/analytics';
-import { Observable } from 'rxjs';
 import { detect } from 'detect-browser';
 
 const detectBrowser = detect();
@@ -58,41 +56,19 @@ declare const fbq: any;
     ])
   ]
 })
-export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CallbackComponent implements OnInit{
 
   private pageURL = 'https://presave.droeloe.com';
-  videoURL: string;
-  videoLoaded = false;
-  presaveSuccessful = false;
+  private presaveSuccessful = false;
+  reward: string;
   loadingState = 'loading';
   shareState = 'inactive';
   referrer: string;
-  isVertical = false;
-  endMessage: Observable<EndMessage>;
   windowHeight: number;
 
   nav: any = window.navigator;
 
   canShare = false;
-
-  private unlistener: () => void;
-  private shareUnlistener: () => void;
-
-  @ViewChild('videoPlayer') playerElement: ElementRef;
-  @HostListener('window:resize', ['$event'])
-  onResize(event?) {
-
-    const height: number = window.innerHeight;
-    const width: number = window.innerWidth;
-    this.windowHeight = height;
-
-    if (height > width) {
-      this.isVertical = true;
-    } else {
-      this.isVertical = false;
-    }
-
-  }
 
   constructor(
     private route: ActivatedRoute,
@@ -106,22 +82,18 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     private analytics: AngularFireAnalytics,
   ) {
 
-    // Get device orientation to fetch right video file
-    this.onResize();
 
     // Redirect to home when navigation does not come from Messenger save or Spotify login
     this.route.queryParamMap.subscribe(params => {
 
       // Route back to homepage if error parameter is present. This means a Spotify login attempt was cancelled
       if (params.has('error')) {
-        this.router.navigate(['']);
+        this.router.navigate(['/']);
       }
 
       if (!(params.has('code') && params.has('state')) && !params.has('ref')) {
         this.router.navigate(['/']);
       }
-
-      this.getEndContent();
 
       const ref = params.get('ref');
       const code = params.get('code');
@@ -134,6 +106,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
           fbq('trackCustom', 'presave', { platform: 'messenger' });
           this.analytics.logEvent('presave', { platform: 'messenger' });
         }
+        this.getRewardToken();
       } else if (ref === 'apple') {
         this.referrer = 'apple';
 
@@ -144,7 +117,7 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
           this.api.hasSaved.subscribe( (appleState: boolean) => {
             this.presaveSuccessful = appleState;
             localStorage.setItem('appleSave', 'true');
-            this.updateLoadingState();
+            this.getRewardToken();
             if (this.cookie.trackingActive) {
               fbq('trackCustom', 'presave', { platform: 'apple' });
               this.analytics.logEvent('presave', { platform: 'apple' });
@@ -158,14 +131,13 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.referrer = 'spotify';
 
-
-        this.http.post('https://presave.bitbird.dev/login', { auth_code: code }).toPromise()
+        this.http.post('https://presave.bitbird.dev/spotify', { auth_code: code }).toPromise()
 
           .then((res: PresaveResponse) => {
 
             if (res.success) {
               this.presaveSuccessful = true;
-              this.updateLoadingState();
+              this.getRewardToken();
 
               if (this.cookie.trackingActive) {
                 fbq('trackCustom', 'presave', { platform: 'spotify' });
@@ -183,24 +155,10 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
           });
 
       } else {
-        this.router.navigate(['']);
+        this.router.navigate(['/']);
       }
 
     });
-
-    this.afs.collection('config').doc<Config>('video').valueChanges().pipe(take(1)).toPromise()
-      .then(doc => {
-
-        if (this.isVertical) {
-          this.videoURL = doc.mobileSource;
-        } else {
-          this.videoURL = doc.source;
-        }
-
-        this.updateLoadingState();
-        this.playerElement.nativeElement.load();
-      })
-      .catch(err => console.error(err));
 
     // Check if platform supports Web share API
     if (this.nav.share) {
@@ -225,62 +183,35 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 10000);
   }
 
-  // Listen to load state of video playaer after load
-  ngAfterViewInit(): void {
+  updateLoadingState(): void {
 
-    this.unlistener = this.renderer2.listen(this.playerElement.nativeElement, 'loadeddata', e => {
-      this.videoLoaded = true;
-      this.updateLoadingState();
-    });
-
-    this.shareUnlistener = this.renderer2.listen(this.playerElement.nativeElement, 'ended', e => {
-      this.shareState = 'active';
-    });
-
-  }
-
-  // Stop event listener on video before unload
-  ngOnDestroy(): void {
-
-    if (this.unlistener !== undefined && this.shareUnlistener !== undefined) {
-
-      this.unlistener();
-      this.shareUnlistener();
-    }
-
-  }
-
-  updateLoadingState() {
-
-    if (this.presaveSuccessful && this.videoURL !== undefined && this.videoLoaded) {
+    if (this.presaveSuccessful && this.reward !== undefined) {
       this.loadingState = 'loaded';
-      this.playerElement.nativeElement.play();
     }
 
   }
 
   // Copy link to clipboard
-  onCopyToClipboard() {
-    // this.clipboard.copy(this.pageURL);
-    this.clipboard.copy('https://bitbird.lnk.to/presaveCL');
+  onCopyToClipboard(): void {
+    this.clipboard.copy(this.pageURL);
   }
 
   // Share on Facebook
-  onShareToFacebook() {
+  onShareToFacebook(): void {
     const facebookBaseURL = 'https://www.facebook.com/sharer/sharer.php?u=';
     const shareURL = `${facebookBaseURL}${this.pageURL}`;
     window.open(shareURL, 'Share to Facebook', 'left=0,top=0,height=500,width=500');
   }
 
   // Share on Twitter
-  onShareToTwitter() {
+  onShareToTwitter(): void {
     const twitterBaseURL = 'https://twitter.com/intent/tweet?text=';
     const shareURL = `${twitterBaseURL} ⏳⏳⏳ @DROELOEMUSIC @bitbird&url=${this.pageURL}`;
     window.open(shareURL, 'Share to Twitter', 'left=0,top=0,height=500,width=500');
   }
 
   // Open share menu on mobile devices
-  onMobileShare() {
+  onMobileShare(): void {
 
     this.nav.share({
       title: '⏳',
@@ -290,10 +221,22 @@ export class CallbackComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  // Get data for end screen from Firestore
-  getEndContent() {
+  /** Get reward token from localstorage or from server */
+  async getRewardToken(): Promise<any> {
 
-    this.endMessage = this.afs.collection('config').doc<EndMessage>('message').valueChanges().pipe(take(1));
+    // Check localstorage if a token has already been rewarded
+    const local = localStorage.getItem('rewardToken');
+    if (local !== null) {
+      this.reward = local;
+      this.updateLoadingState();
+      return;
+    } else {
+      const newReward = await this.api.getRewardToken();
+      this.reward = newReward;
+      this.updateLoadingState();
+      localStorage.setItem('reward', newReward);
+      return;
+    }
 
   }
 
