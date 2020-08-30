@@ -367,7 +367,7 @@ const getUser = async (token) => {
 };
 // Check if the user has presaved
 const checkIfFirstSpotifySave = async (id) => {
-    const userDocsSnap = await firebase.firestore().collection('spotifySaves').where('user.id', '==', id).get();
+    const userDocsSnap = await firebase.firestore().collection('spotifyPresaves').where('user.id', '==', id).get();
     const size = userDocsSnap.size;
     if (size > 0) {
         return false;
