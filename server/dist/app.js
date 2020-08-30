@@ -111,7 +111,8 @@ app.post('/spotify', async (req, res) => {
             return;
         }
         // Store data in Firestore
-        await registerSpotifyPresave(tokenResult, userData, authCode);
+        // tslint:disable-next-line: no-non-null-assertion
+        await registerSpotifyPresave(tokenResult.data, userData, authCode);
         res
             .status(200)
             .json({
