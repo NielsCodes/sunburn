@@ -1,12 +1,20 @@
 {
   "projects": {
-    "default": "presave-app"
+    "default": "presave-app",
+    "dev": "presave-app-dev"
   },
   "targets": {
     "presave-app": {
       "hosting": {
         "presave-app": [
           "presave-app"
+        ]
+      }
+    },
+    "presave-app-dev": {
+      "hosting": {
+        "presave-app": [
+          "presave-app-dev"
         ]
       }
     }
