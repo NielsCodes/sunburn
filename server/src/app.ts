@@ -16,13 +16,25 @@ const fb = firebase.initializeApp({
   appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
 
+import admin from 'firebase-admin';
+
 const apiVersion = '2.000';
 const statsRef = fb.firestore().collection('presaves').doc('--stats--');
 const increment = firebase.firestore.FieldValue.increment(1);
 
+let fbAdmin: admin.app.App;
+
 if (process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
+  const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a');
+  fbAdmin = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://presave-app-dev.firebaseio.com'
+  });
+} else {
+  fbAdmin = admin.initializeApp();
 }
+
 
 // Use JSON parser
 app.use(express.json());
@@ -306,6 +318,16 @@ app.get('/execute', async (req: Request, res: Response) => {
       // appleSuccess: appleSaveStatus.success,
     })
     .send();
+
+});
+
+
+app.get('/test', async (req: Request, res: Response) => {
+
+  const testSnapshot = await fbAdmin.firestore().collection('test').get();
+  const test = testSnapshot.docs.map(x => x.data());
+
+  res.status(200).json(test).send();
 
 });
 

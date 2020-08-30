@@ -52,3 +52,6 @@ Thumbs.db
 
 # Firebase hosting cache
 .firebase
+
+# Local keys
+/keys
