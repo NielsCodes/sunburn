@@ -13,5 +13,6 @@ export const environment = {
     messagingSenderId: '142585143182',
     appId: '1:142585143182:web:869829d752cdc4b525cedf',
     measurementId: 'G-60G7PF9HYR'
-  }
+  },
+  endpoint: 'https://presave-api-43txmxojmq-uc.a.run.app/'
 };
