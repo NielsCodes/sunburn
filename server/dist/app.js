@@ -401,7 +401,7 @@ const registerSpotifyPresave = async (authData, userData, authCode) => {
         hasSaved: false,
         authCode
     };
-    const docRef = firebase.firestore().collection('presaves').doc();
+    const docRef = firebase.firestore().collection('spotifyPresaves').doc();
     const batch = firebase.firestore().batch();
     batch.set(docRef, docData);
     batch.set(statsRef, {
