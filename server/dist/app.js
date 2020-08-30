@@ -39,11 +39,21 @@ const fb = firebase.initializeApp({
     messagingSenderId: '565477002562',
     appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
+const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const apiVersion = '2.000';
 const statsRef = fb.firestore().collection('presaves').doc('--stats--');
 const increment = firebase.firestore.FieldValue.increment(1);
+let fbAdmin;
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
+    const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a');
+    fbAdmin = firebase_admin_1.default.initializeApp({
+        credential: firebase_admin_1.default.credential.cert(serviceAccount),
+        databaseURL: 'https://presave-app-dev.firebaseio.com'
+    });
+}
+else {
+    fbAdmin = firebase_admin_1.default.initializeApp();
 }
 // Use JSON parser
 app.use(express_1.default.json());
@@ -273,6 +283,11 @@ app.get('/execute', async (req, res) => {
         spotifySuccess: spotifySaveStatus.success,
     })
         .send();
+});
+app.get('/test', async (req, res) => {
+    const testSnapshot = await fbAdmin.firestore().collection('test').get();
+    const test = testSnapshot.docs.map(x => x.data());
+    res.status(200).json(test).send();
 });
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
