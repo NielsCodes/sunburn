@@ -437,7 +437,7 @@ const getUser = async (token: string): Promise<SpotifyUser> => {
 // Check if the user has presaved
 const checkIfFirstSpotifySave = async (id: string) => {
 
-  const userDocsSnap = await firebase.firestore().collection('spotifySaves').where('user.id', '==', id).get();
+  const userDocsSnap = await firebase.firestore().collection('spotifyPresaves').where('user.id', '==', id).get();
   const size = userDocsSnap.size;
 
   if (size > 0) {
@@ -477,7 +477,7 @@ const checkIfFirstMessengerSave = async (id: number) => {
 };
 
 // Register presave in Firestore
-const registerSpotifyPresave = async (authData: object, userData: object, authCode: string) => {
+const registerSpotifyPresave = async (authData: SpotifyAuthorizationData, userData: SpotifyUser, authCode: string) => {
   const docData = {
     authorization: authData,
     user: userData,
