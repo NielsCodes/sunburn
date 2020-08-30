@@ -16,7 +16,7 @@ const fb = firebase.initializeApp({
   appId: '1:565477002562:web:6bb7de375ed1a9e1438cdb'
 });
 
-const apiVersion = '1.203';
+const apiVersion = '2.000';
 const statsRef = fb.firestore().collection('presaves').doc('--stats--');
 const increment = firebase.firestore.FieldValue.increment(1);
 
