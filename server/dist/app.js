@@ -1,38 +1,24 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const canvas_1 = require("canvas");
+const storage_1 = require("@google-cloud/storage");
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const axios_1 = __importDefault(require("axios"));
-const qs = __importStar(require("qs"));
+const fs_1 = __importDefault(require("fs"));
+const qs_1 = __importDefault(require("qs"));
+const storage = new storage_1.Storage();
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const app = express_1.default();
 const port = process.env.PORT || 8080;
-const apiVersion = '2.012';
+const apiVersion = '2.100';
 let firebase;
-if (process.env.NODE_ENV !== 'production') {
+let bucket;
+if (process.env.ENV !== 'prod' && process.env.ENV !== 'dev') {
     require('dotenv').config();
     const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a.json');
     firebase = firebase_admin_1.default.initializeApp({
@@ -42,6 +28,12 @@ if (process.env.NODE_ENV !== 'production') {
 }
 else {
     firebase = firebase_admin_1.default.initializeApp();
+}
+if (process.env.ENV === 'prod') {
+    bucket = storage.bucket('bitbird-presave-bucket');
+}
+else {
+    bucket = storage.bucket('bitbird-presave-dev-bucket');
 }
 const statsRef = firebase.firestore().collection('config').doc('--stats--');
 const increment = firebase_admin_1.default.firestore.FieldValue.increment(1);
@@ -243,6 +235,46 @@ app.get('/status', async (req, res) => {
     })
         .send();
 });
+app.post('/ticket', async (req, res) => {
+    if (req.body === undefined) {
+        res
+            .status(400)
+            .json({
+            success: false,
+            message: 'No request body passed'
+        })
+            .send()
+            .end();
+        return;
+    }
+    const name = req.body.name;
+    const departing = req.body.departing;
+    const destination = req.body.destination;
+    const id = req.body.id;
+    const params = [name, departing, destination, id];
+    if (params.includes(undefined)) {
+        res
+            .status(400)
+            .json({
+            success: false,
+            message: `Missing request body item. Make sure you pass 'name', 'departing', 'destination' and 'id'`
+        })
+            .send()
+            .end();
+        return;
+    }
+    // tslint:disable-next-line: max-line-length
+    const promises = [createVerticalImage(name, departing, destination, 16, id), createHorizontalImage(name, departing, destination, 16, id)];
+    const urls = await Promise.all(promises);
+    res
+        .status(200)
+        .json({
+        success: true,
+        urls
+    })
+        .send()
+        .end();
+});
 // app.get('/execute', async (req: Request, res: Response) => {
 //   // Check for header password
 //   const pass = req.get('pass');
@@ -277,17 +309,6 @@ app.get('/status', async (req, res) => {
 //     })
 //     .send();
 // });
-app.get('/reward', async (req, res) => {
-    const reward = generateRewardToken();
-    res
-        .status(200)
-        .json({
-        success: true,
-        reward
-    })
-        .send();
-    await storeRewardToken(reward);
-});
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 /**
@@ -320,7 +341,7 @@ const getSpotifyTokenFromAuth = async (code) => {
     const credentials = `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`;
     const authorization = Buffer.from(credentials).toString('base64');
     // Create request body
-    const requestBody = qs.stringify({
+    const requestBody = qs_1.default.stringify({
         grant_type: 'authorization_code',
         code,
         redirect_uri: redirectUrl
@@ -477,14 +498,6 @@ const createAppleToken = () => {
     };
     return jwt.sign(jwtPayload, key, jwtOptions);
 };
-/** Create a reward token to be used to access reward website */
-const generateRewardToken = () => {
-    return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 6);
-};
-/** Store reward token in Firestore */
-const storeRewardToken = async (token) => {
-    return await firebase.firestore().collection('rewards').doc().set({ token });
-};
 // Get localization for Apple Music user
 const getAppleLocalization = async (userToken, devToken) => {
     const endpoint = 'https://api.music.apple.com/v1/me/storefront';
@@ -605,7 +618,7 @@ const getSpotifyTokenFromRefresh = async (refreshToken) => {
     const credentials = `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`;
     const authorization = Buffer.from(credentials).toString('base64');
     // Create request body
-    const requestBody = qs.stringify({
+    const requestBody = qs_1.default.stringify({
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
     });
@@ -764,5 +777,130 @@ const logAppleSave = async (documentId) => {
         console.error(error);
     }
     return success;
+};
+/**
+ * Create a vertical ticket with user defined variables
+ *
+ * Creates canvas with background image with variables overlaid
+ *
+ * Uploads the file to Google Cloud Storage and retrieves a signed URL for download
+ *
+ * @param name UGC: Name of user
+ * @param departing UGC: Departing location of user
+ * @param destination UGC: Destination location of user
+ * @param index nth presave
+ * @param id ID to link to front-end
+ * @returns Signed GCS download link for the uploaded object
+ */
+const createVerticalImage = async (name, departing, destination, index, id) => {
+    const backColor = '#232323';
+    const textColor = '#E9E7DA';
+    const canvas = canvas_1.createCanvas(1080, 1920);
+    const ctx = canvas.getContext('2d');
+    canvas_1.registerFont(`./assets/Ticketing.ttf`, { family: 'Ticketing' });
+    const ticket = await canvas_1.loadImage('./assets/ticket-vertical.jpg');
+    ctx.drawImage(ticket, 0, 0);
+    ctx.font = '52px Ticketing';
+    ctx.textBaseline = 'top';
+    // DRAW NAME
+    const nameWidth = ctx.measureText(name).width;
+    ctx.fillStyle = backColor;
+    ctx.fillRect(246, 606, nameWidth, 44);
+    ctx.fillStyle = textColor;
+    ctx.fillText(name, 248, 600);
+    // DRAW BARCODE
+    const barcode = createBarcode(index);
+    const barcodeWidth = ctx.measureText(barcode).width;
+    ctx.fillStyle = backColor;
+    ctx.fillRect(246, 1398, barcodeWidth, 44);
+    ctx.fillStyle = textColor;
+    ctx.fillText(barcode, 248, 1392);
+    // DRAW DEPARTING
+    ctx.fillStyle = backColor;
+    ctx.fillText(departing, 246, 885);
+    // DRAW DESTINATION
+    ctx.fillStyle = backColor;
+    ctx.fillText(destination, 246, 1078);
+    const buffer = canvas.toBuffer('image/jpeg');
+    const filename = `./output/vert-${id}.jpg`;
+    fs_1.default.writeFileSync(filename, buffer);
+    const res = await bucket.upload(filename, {
+        destination: `tickets/DROELOE-ticket-vert-${id}.jpg`
+    });
+    fs_1.default.unlink(filename, () => { });
+    const expiration = Date.now() + 604800;
+    const urls = await res[0].getSignedUrl({
+        action: 'read',
+        expires: expiration,
+        version: 'v4'
+    });
+    return urls[0];
+};
+/**
+ * Create a vertical ticket with user defined variables
+ *
+ * Creates canvas with background image with variables overlaid
+ *
+ * Uploads the file to Google Cloud Storage and retrieves a signed URL for download
+ *
+ * @param name UGC: Name of user
+ * @param departing UGC: Departing location of user
+ * @param destination UGC: Destination location of user
+ * @param index nth presave
+ * @param id ID to link to front-end
+ * @returns Signed GCS download link for the uploaded object
+ */
+const createHorizontalImage = async (name, departing, destination, index, id) => {
+    const backColor = '#232323';
+    const textColor = '#597BE3';
+    const canvas = canvas_1.createCanvas(1920, 1080);
+    const ctx = canvas.getContext('2d');
+    canvas_1.registerFont(`./assets/Ticketing.ttf`, { family: 'Ticketing' });
+    const ticket = await canvas_1.loadImage('./assets/ticket-horizontal.jpg');
+    ctx.drawImage(ticket, 0, 0);
+    ctx.font = '52px Ticketing';
+    ctx.textBaseline = 'top';
+    // DRAW NAME
+    const nameWidth = ctx.measureText(name).width;
+    ctx.fillStyle = backColor;
+    ctx.fillRect(780, 96, nameWidth, 44);
+    ctx.fillStyle = textColor;
+    ctx.fillText(name, 782, 90);
+    // DRAW BARCODE
+    const barcode = createBarcode(index);
+    ctx.fillStyle = backColor;
+    ctx.fillText(barcode, 505, 950);
+    // DRAW DEPARTING
+    ctx.fillStyle = backColor;
+    ctx.fillText(departing, 505, 468);
+    // DRAW DESTINATION
+    ctx.fillStyle = backColor;
+    ctx.fillText(destination, 505, 668);
+    const buffer = canvas.toBuffer('image/jpeg');
+    const filename = `./output/hor-${id}.jpg`;
+    fs_1.default.writeFileSync(filename, buffer);
+    const res = await bucket.upload(filename, {
+        destination: `tickets/DROELOE-ticket-hor-${id}.jpg`
+    });
+    fs_1.default.unlink(filename, () => { });
+    const expiration = Date.now() + 604800;
+    const urls = await res[0].getSignedUrl({
+        action: 'read',
+        expires: expiration,
+        version: 'v4'
+    });
+    return urls[0];
+};
+/**
+ * Create barcode string from an ID
+ * @param index ID at the end of the barcode
+ * @returns Barcode string in 0000 0000 (0000 0012) format
+ */
+const createBarcode = (index) => {
+    const baseString = '0000000000000000';
+    const code = `${baseString}${index}`.slice(-16);
+    const elements = code.match(/.{4}/g);
+    // tslint:disable-next-line: no-non-null-assertion
+    return `${elements[0]} ${elements[1]} (${elements[2]} ${elements[3]})`;
 };
 //# sourceMappingURL=app.js.map
