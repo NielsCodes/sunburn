@@ -867,7 +867,6 @@ const createHorizontalImage = async (name, departing, destination, index, id) =>
     // DRAW DESTINATION
     ctx.fillStyle = backColor;
     ctx.fillText(destination, 505, 668);
-    await verifyOutputFolder();
     const buffer = canvas.toBuffer('image/jpeg');
     const filename = `./output/hor-${id}.jpg`;
     fs_1.default.writeFileSync(filename, buffer);
@@ -886,8 +885,6 @@ const getSignedURLs = async (id) => {
     // });
     // return urls[0];
 };
-const verifyOutputFolder;
-();
 /**
  * Create barcode string from an ID
  * @param index ID at the end of the barcode
