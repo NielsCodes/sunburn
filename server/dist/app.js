@@ -265,12 +265,11 @@ app.post('/ticket', async (req, res) => {
     }
     // tslint:disable-next-line: max-line-length
     const promises = [createVerticalImage(name, departing, destination, 16, id), createHorizontalImage(name, departing, destination, 16, id)];
-    const urls = await Promise.all(promises);
+    await Promise.all(promises);
     res
         .status(200)
         .json({
-        success: true,
-        urls
+        success: true
     })
         .send()
         .end();
@@ -790,7 +789,6 @@ const logAppleSave = async (documentId) => {
  * @param destination UGC: Destination location of user
  * @param index nth presave
  * @param id ID to link to front-end
- * @returns Signed GCS download link for the uploaded object
  */
 const createVerticalImage = async (name, departing, destination, index, id) => {
     const backColor = '#232323';
@@ -827,14 +825,8 @@ const createVerticalImage = async (name, departing, destination, index, id) => {
     const res = await bucket.upload(filename, {
         destination: `tickets/DROELOE-ticket-vert-${id}.jpg`
     });
-    fs_1.default.unlink(filename, () => { });
-    const expiration = Date.now() + 604800;
-    const urls = await res[0].getSignedUrl({
-        action: 'read',
-        expires: expiration,
-        version: 'v4'
-    });
-    return urls[0];
+    // fs.unlink(filename, () => {});
+    return;
 };
 /**
  * Create a vertical ticket with user defined variables
@@ -848,7 +840,6 @@ const createVerticalImage = async (name, departing, destination, index, id) => {
  * @param destination UGC: Destination location of user
  * @param index nth presave
  * @param id ID to link to front-end
- * @returns Signed GCS download link for the uploaded object
  */
 const createHorizontalImage = async (name, departing, destination, index, id) => {
     const backColor = '#232323';
@@ -882,14 +873,17 @@ const createHorizontalImage = async (name, departing, destination, index, id) =>
     const res = await bucket.upload(filename, {
         destination: `tickets/DROELOE-ticket-hor-${id}.jpg`
     });
-    fs_1.default.unlink(filename, () => { });
-    const expiration = Date.now() + 604800;
-    const urls = await res[0].getSignedUrl({
-        action: 'read',
-        expires: expiration,
-        version: 'v4'
-    });
-    return urls[0];
+    // fs.unlink(filename, () => {});
+    return;
+};
+const getSignedURLs = async (id) => {
+    // const expiration = Date.now() + 604800;
+    // const urls = await res[0].getSignedUrl({
+    //   action: 'read',
+    //   expires: expiration,
+    //   version: 'v4'
+    // });
+    // return urls[0];
 };
 /**
  * Create barcode string from an ID

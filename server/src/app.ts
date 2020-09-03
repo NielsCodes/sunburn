@@ -319,13 +319,12 @@ app.post('/ticket', async (req: Request, res: Response) => {
   // tslint:disable-next-line: max-line-length
   const promises = [ createVerticalImage(name, departing, destination, 16, id), createHorizontalImage(name, departing, destination, 16, id) ];
 
-  const urls = await Promise.all(promises);
+  await Promise.all(promises);
 
   res
     .status(200)
     .json({
-      success: true,
-      urls
+      success: true
     })
     .send()
     .end();
@@ -1010,9 +1009,8 @@ const logAppleSave = async (documentId: string): Promise<boolean> => {
  * @param destination UGC: Destination location of user
  * @param index nth presave
  * @param id ID to link to front-end
- * @returns Signed GCS download link for the uploaded object
  */
-const createVerticalImage = async (name: string, departing: string, destination: string, index: number, id: number): Promise<string> => {
+const createVerticalImage = async (name: string, departing: string, destination: string, index: number, id: number) => {
 
   const backColor = '#232323';
   const textColor = '#E9E7DA';
@@ -1058,16 +1056,9 @@ const createVerticalImage = async (name: string, departing: string, destination:
     destination: `tickets/DROELOE-ticket-vert-${id}.jpg`
   });
 
-  fs.unlink(filename, () => {});
+  // fs.unlink(filename, () => {});
 
-  const expiration = Date.now() + 604800;
-  const urls = await res[0].getSignedUrl({
-    action: 'read',
-    expires: expiration,
-    version: 'v4'
-  });
-
-  return urls[0];
+  return;
 
 };
 
@@ -1083,9 +1074,8 @@ const createVerticalImage = async (name: string, departing: string, destination:
  * @param destination UGC: Destination location of user
  * @param index nth presave
  * @param id ID to link to front-end
- * @returns Signed GCS download link for the uploaded object
  */
-const createHorizontalImage = async (name: string, departing: string, destination: string, index: number, id: number): Promise<string> => {
+const createHorizontalImage = async (name: string, departing: string, destination: string, index: number, id: number) => {
 
   const backColor = '#232323';
   const textColor = '#597BE3';
@@ -1128,18 +1118,22 @@ const createHorizontalImage = async (name: string, departing: string, destinatio
     destination: `tickets/DROELOE-ticket-hor-${id}.jpg`
   });
 
-  fs.unlink(filename, () => {});
+  // fs.unlink(filename, () => {});
 
-  const expiration = Date.now() + 604800;
-  const urls = await res[0].getSignedUrl({
-    action: 'read',
-    expires: expiration,
-    version: 'v4'
-  });
-
-  return urls[0];
+  return;
 
 };
+
+const getSignedURLs = async (id: number) => {
+  // const expiration = Date.now() + 604800;
+  // const urls = await res[0].getSignedUrl({
+  //   action: 'read',
+  //   expires: expiration,
+  //   version: 'v4'
+  // });
+
+  // return urls[0];
+}
 
 /**
  * Create barcode string from an ID
