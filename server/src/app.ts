@@ -331,6 +331,60 @@ app.post('/ticket', async (req: Request, res: Response) => {
 
 });
 
+app.post('/register', async (req: Request, res: Response) => {
+
+  if (req.body === undefined) {
+    res
+      .status(400)
+      .json({
+        success: false,
+        message: 'No request body passed'
+      })
+      .send()
+      .end();
+    return;
+  }
+
+  const name = req.body.name;
+  const origin = req.body.origin;
+  const destination = req.body.destination;
+  const id = req.body.id;
+
+  const params = [name, origin, destination, id];
+  if (params.includes(undefined)) {
+    res
+      .status(400)
+      .json({
+        success: false,
+        message: `Missing request body item. Make sure you pass 'name', 'origin', 'destination' and 'id'`
+      })
+      .send()
+      .end();
+    return;
+  }
+
+  // Log in Firestore
+
+  // Create tickets
+  // tslint:disable-next-line: max-line-length
+  const promises = [ createVerticalImage(name, origin, destination, 16, id), createHorizontalImage(name, origin, destination, 16, id) ];
+
+  await Promise.all(promises);
+
+  res
+    .status(200)
+    .json({
+      success: true,
+      message: `Tickets generated with ID ${id}`
+    })
+    .send();
+
+});
+
+app.get('/ticket', async (req: Request, res: Response) => {
+
+});
+
 // app.get('/execute', async (req: Request, res: Response) => {
 
 //   // Check for header password

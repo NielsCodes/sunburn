@@ -106,7 +106,6 @@ export class CallbackComponent implements OnInit{
           fbq('trackCustom', 'presave', { platform: 'messenger' });
           this.analytics.logEvent('presave', { platform: 'messenger' });
         }
-        this.getRewardToken();
       } else if (ref === 'apple') {
         this.referrer = 'apple';
 
@@ -117,7 +116,6 @@ export class CallbackComponent implements OnInit{
           this.api.hasSaved.subscribe( (appleState: boolean) => {
             this.presaveSuccessful = appleState;
             localStorage.setItem('appleSave', 'true');
-            this.getRewardToken();
             if (this.cookie.trackingActive) {
               fbq('trackCustom', 'presave', { platform: 'apple' });
               this.analytics.logEvent('presave', { platform: 'apple' });
@@ -137,7 +135,6 @@ export class CallbackComponent implements OnInit{
 
             if (res.success) {
               this.presaveSuccessful = true;
-              this.getRewardToken();
 
               if (this.cookie.trackingActive) {
                 fbq('trackCustom', 'presave', { platform: 'spotify' });
@@ -185,7 +182,7 @@ export class CallbackComponent implements OnInit{
 
   updateLoadingState(): void {
 
-    if (this.presaveSuccessful && this.reward !== undefined) {
+    if (this.presaveSuccessful) {
       this.loadingState = 'loaded';
     }
 
@@ -218,25 +215,6 @@ export class CallbackComponent implements OnInit{
       text: 'this is a description',
       url: this.pageURL
     });
-
-  }
-
-  /** Get reward token from localstorage or from server */
-  async getRewardToken(): Promise<any> {
-
-    // Check localstorage if a token has already been rewarded
-    const local = localStorage.getItem('rewardToken');
-    if (local !== null) {
-      this.reward = local;
-      this.updateLoadingState();
-      return;
-    } else {
-      const newReward = await this.api.getRewardToken();
-      this.reward = newReward;
-      this.updateLoadingState();
-      localStorage.setItem('rewardToken', newReward);
-      return;
-    }
 
   }
 

@@ -6,80 +6,96 @@
   flex-direction: column
   min-height: -webkit-fill-available
 
-
   &.mobile
     min-height: -webkit-fill-available !important
 
-  #presave-options-container
-    background: rgba(#fff,.3)
-    padding: 50px
-    display: flex
-    flex-direction: column
-    align-items: center
-    max-width: 90vw
-    box-sizing: border-box
-    position: relative
-    z-index: 1
-    color: #fff
-    backdrop-filter: blur(10px)
-    box-shadow: 0 0 0 1px rgba(#fff,.2)
+  #start-container
+    display: none
 
-    @media screen and (max-width: 300px)
-      padding: 30px
+  #inputs-container
+    display: inline-grid
+    grid-template-columns: 1fr 1fr 1fr 1fr
+    grid-template-rows: 1fr 1fr .5fr
+    grid-column-gap: 40px
+    grid-row-gap: 40px
+    padding: 40px
 
-    &::after
-      content: ''
-      position: absolute
-      top: 0
-      bottom: 0
-      left: 0
-      right: 0
-      background-image: linear-gradient(#919a61, #a38b71)
-      opacity: 0.4
-      z-index: -1
-      mix-blend-mode: darken
+    #origin-group
+      grid-column-start: 1
+      grid-column-end: 3
 
-    #presave-options-title
-      margin-bottom: 40px
+    #destination-group
+      grid-column-start: 3
+      grid-column-end: 5
 
-    .save-link
-      background: none
-      border: none
-      cursor: pointer
-      outline: none
+    #name-group
+      grid-column-start: 1
+      grid-column-end: 3
+      grid-row: 2
+
+    #email-group
+      grid-column-start: 3
+      grid-column-end: 5
+      grid-row: 2
+
+
+
+
+    #submit-btn
+      grid-column-start: 2
+      grid-column-end: 4
+      grid-row: 3
+      height: auto
+      text-align: center
+
+    .input-group
       display: flex
-      align-items: center
+      flex-direction: column
       color: #fff
-      transition: all .2s ease
 
-      @media screen and (max-width: 300px)
-        flex-direction: column
-        align-items: start
+      label
+        margin-bottom: 5px
+        font-weight: bold
+        font-family: Arial, Helvetica, sans-serif
+        font-size: 1.4em
 
-      .save-option-logo
-        height: 50px
+      input
+        border: 3px solid #fff
+        background: #6787ED
+        outline: none
+        color: #fff
+        font-size: 1.4em
+        padding: 10px 10px
+
+        &::placeholder
+          color: #fff
 
 
-      .link-btn
-        margin-left: 40px
-        font-size: 1.2em
-        padding-bottom: 2px
-        border-bottom: 2px solid transparent
-        transition: all .2s ease
 
-        @media screen and (max-width: 300px)
-          margin-left: 0
-          margin-top: 5px
+.screen-btn
+  outline: none
+  -webkit-tap-highlight-color: none
+  border: 3px solid #fff
+  background: #6787ED
+  color: #fff
+  padding: 10px 20px
+  font-family: Arial, Helvetica, sans-serif
+  font-size: 1.4em
+  font-weight: bold
+  cursor: pointer
+  box-shadow: none
+  transition: box-shadow .2s ease
+  user-select: none
 
-      &:hover
-        .link-btn
-          border-bottom: 2px solid #fff
+  &:hover
+    // box-shadow: 4px 4px 12px rgba(0,0,0,.2)
 
-  #messenger-btn, #apple-btn
-    margin-top: 50px
+  &:active
+    // box-shadow: none
+
 
 .static-frame
-  background-image: url('../..//assets/background.jpg')
+  background-image: url('../../assets/background.jpg')
   background-size: cover
   background-position: center
 
