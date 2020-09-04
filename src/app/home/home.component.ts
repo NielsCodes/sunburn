@@ -60,6 +60,8 @@ export class HomeComponent {
 
     await this.api.registerData(d.name, d.origin, d.destination, d.email, this.dataId);
 
+    await this.api.getTickets();
+
   }
 
 
