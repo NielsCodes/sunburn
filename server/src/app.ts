@@ -393,7 +393,7 @@ app.post('/register', async (req: Request, res: Response) => {
 
 app.get('/ticket', async (req: Request, res: Response) => {
 
-  const id = req.param('id');
+  const id = req.params.id;
 
   if (id === undefined || id === null) {
     res
@@ -1225,7 +1225,7 @@ const getSignedURLs = async (id: string) => {
       version: 'v4'
     });
 
-    const url = signedURLs[0];
+    const url = signedURLs;
     urls.push(url);
 
   };
