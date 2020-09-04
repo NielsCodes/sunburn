@@ -10,9 +10,9 @@ const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const axios_1 = __importDefault(require("axios"));
 const fs_1 = __importDefault(require("fs"));
 const qs_1 = __importDefault(require("qs"));
+const cors_1 = __importDefault(require("cors"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const storage = new storage_1.Storage();
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
 const app = express_1.default();
 const port = process.env.PORT || 8080;
 const apiVersion = '2.100';
@@ -39,7 +39,7 @@ const statsRef = firebase.firestore().collection('config').doc('--stats--');
 const increment = firebase_admin_1.default.firestore.FieldValue.increment(1);
 // Use JSON parser
 app.use(express_1.default.json());
-app.use(cors());
+app.use(cors_1.default());
 // Status endpoint
 app.get('/', (req, res) => {
     res.status(200);
@@ -235,7 +235,7 @@ app.get('/status', async (req, res) => {
     })
         .send();
 });
-app.post('/ticket', async (req, res) => {
+app.post('/register', async (req, res) => {
     if (req.body === undefined) {
         res
             .status(400)
@@ -248,31 +248,64 @@ app.post('/ticket', async (req, res) => {
         return;
     }
     const name = req.body.name;
-    const departing = req.body.departing;
+    const origin = req.body.origin;
     const destination = req.body.destination;
     const id = req.body.id;
-    const params = [name, departing, destination, id];
+    const email = req.body.email;
+    const params = [name, origin, destination, id, email];
     if (params.includes(undefined)) {
         res
             .status(400)
             .json({
             success: false,
-            message: `Missing request body item. Make sure you pass 'name', 'departing', 'destination' and 'id'`
+            message: `Missing request body item. Make sure you pass 'name', 'origin', 'destination' and 'id'`
         })
             .send()
             .end();
         return;
     }
+    // Log in Firestore
+    const docRef = firebase_admin_1.default.firestore().collection('ticketData').doc();
+    await docRef.create({
+        name,
+        origin,
+        destination,
+        email,
+        id,
+        createdAt: firebase_admin_1.default.firestore.FieldValue.serverTimestamp()
+    });
+    // Create tickets
     // tslint:disable-next-line: max-line-length
-    const promises = [createVerticalImage(name, departing, destination, 16, id), createHorizontalImage(name, departing, destination, 16, id)];
+    const promises = [createVerticalImage(name, origin, destination, 16, id), createHorizontalImage(name, origin, destination, 16, id)];
     await Promise.all(promises);
     res
         .status(200)
         .json({
-        success: true
+        success: true,
+        message: `Tickets generated with ID ${id}`
     })
-        .send()
-        .end();
+        .send();
+});
+app.get('/tickets', async (req, res) => {
+    const id = req.query.id;
+    if (id === undefined || id === null) {
+        res
+            .status(400)
+            .json({
+            success: false,
+            message: 'No data ID passed'
+        })
+            .send();
+        return;
+    }
+    const urls = await getSignedURLs(id);
+    res
+        .status(200)
+        .json({
+        success: true,
+        urls
+    })
+        .send();
 });
 // app.get('/execute', async (req: Request, res: Response) => {
 //   // Check for header password
@@ -491,11 +524,7 @@ const createAppleToken = () => {
         iat: currentTime,
         exp: expiryTime
     };
-    const jwtOptions = {
-        algorithm: 'ES256',
-        keyid: '2XNHW5P3K5',
-    };
-    return jwt.sign(jwtPayload, key, jwtOptions);
+    return jsonwebtoken_1.default.sign(jwtPayload, key, { algorithm: 'ES256', keyid: '2XNHW5P3K5' });
 };
 // Get localization for Apple Music user
 const getAppleLocalization = async (userToken, devToken) => {
@@ -823,9 +852,9 @@ const createVerticalImage = async (name, departing, destination, index, id) => {
     const filename = `./output/vert-${id}.jpg`;
     fs_1.default.writeFileSync(filename, buffer);
     const res = await bucket.upload(filename, {
-        destination: `tickets/DROELOE-ticket-vert-${id}.jpg`
+        destination: `tickets/${id}/DROELOE-ticket-vertical.jpg`
     });
-    fs_1.default.unlink(filename, () => { });
+    fs_1.default.unlinkSync(filename);
     return;
 };
 /**
@@ -871,19 +900,30 @@ const createHorizontalImage = async (name, departing, destination, index, id) =>
     const filename = `./output/hor-${id}.jpg`;
     fs_1.default.writeFileSync(filename, buffer);
     const res = await bucket.upload(filename, {
-        destination: `tickets/DROELOE-ticket-hor-${id}.jpg`
+        destination: `tickets/${id}/DROELOE-ticket-horizontal.jpg`
     });
-    fs_1.default.unlink(filename, () => { });
+    fs_1.default.unlinkSync(filename);
     return;
 };
+/**
+ * Get signed URLs for all files from the given data ID
+ * @param id ID that is used to connect to right user
+ */
 const getSignedURLs = async (id) => {
-    // const expiration = Date.now() + 604800;
-    // const urls = await res[0].getSignedUrl({
-    //   action: 'read',
-    //   expires: expiration,
-    //   version: 'v4'
-    // });
-    // return urls[0];
+    const expiration = Date.now() + 604800;
+    const urls = [];
+    const [files] = await bucket.getFiles({ prefix: `tickets/${id}` });
+    for (const file of files) {
+        const [signedURLs] = await file.getSignedUrl({
+            action: 'read',
+            expires: expiration,
+            version: 'v4'
+        });
+        const url = signedURLs;
+        urls.push(url);
+    }
+    ;
+    return urls;
 };
 /**
  * Create barcode string from an ID
