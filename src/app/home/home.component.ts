@@ -4,6 +4,7 @@ import { ScriptsService } from './../services/scripts.service';
 import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { NgForm } from '@angular/forms';
 
 declare var MusicKit: any;
 
@@ -49,6 +50,15 @@ export class HomeComponent {
 
     const isMobile = this.isMobileOrTablet();
   }
+
+  async onSubmit(form: NgForm) {
+
+    const d = form.value;
+
+    await this.api.registerData(d.name, d.origin, d.destination, d.email);
+
+  }
+
 
   onSpotifyLogin() {
 

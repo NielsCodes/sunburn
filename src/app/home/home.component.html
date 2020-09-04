@@ -1,17 +1,56 @@
 <div id="page-container" class="static-frame" [ngClass]="{'mobile': isMobile === true}" [style.height.px]="windowHeight">
 
-  <div id="presave-options-container">
+  <div id="start-container">
+    <button id="start-btn" class="screen-btn">Start</button>
+  </div>
+
+  <form id="inputs-container" (ngSubmit)="onSubmit(f)" #f="ngForm">
+
+    <!-- Departing from -->
+    <div class="input-group" id="origin-group">
+      <label for="origin">Departing from:</label>
+      <input type="text" placeholder="[Origin]" id="origin-input" name="origin" title="Fill in your origin location" ngModel>
+    </div>
+
+    <!-- Going to -->
+    <div class="input-group" id="destination-group">
+      <label for="destination">Going to:</label>
+      <input type="text" placeholder="[Destination]" id="destination-input" name="destination" title="Fill in your destination location" ngModel>
+    </div>
+
+    <!-- Name -->
+    <div class="input-group" id="name-group">
+      <label for="name">Name:</label>
+      <input type="text" placeholder="[Name]" id="name-input" name="name" title="Fill in your name" ngModel>
+    </div>
+
+    <!-- Email -->
+    <div class="input-group" id="email-group">
+      <label for="email">Email:</label>
+      <input type="email" placeholder="[email@email.com]" id="email-input" name="email" title="Fill in your email address" ngModel>
+    </div>
+
+    <button id="submit-btn" class="screen-btn" type="submit" title="Click to choose a presave option to get your ticket">Pre-save to print ticket</button>
+
+  </form>
+
+
+
+
+
+
+
+
+  <!-- <div id="presave-options-container">
 
     <div id="presave-options">
 
       <div id="presave-btn" class="save-link" (click)="onSpotifyLogin()" title="Pre-save on Spotify">
-      <!-- <div id="presave-btn" class="save-link" (click)="onSpotifyListen()" title="Listen on Spotify"> -->
         <img src="../../assets/logos/spotify.png" alt="Spotify logo" class="save-option-logo">
         <div class="link-btn">Pre-save</div>
       </div>
 
       <div id="apple-btn" class="save-link" (click)="onAppleLogin()" title="Pre-add on Apple Music">
-      <!-- <div id="apple-btn" class="save-link" (click)="onAppleListen()" title="Listen on Apple Music"> -->
         <img src="../../assets/logos/apple.png" alt="Apple Music logo" class="save-option-logo">
         <div class="link-btn">Pre-add</div>
       </div>
@@ -23,6 +62,6 @@
 
     </div>
 
-  </div>
+  </div> -->
 
 </div>
