@@ -1192,12 +1192,12 @@ const getSignedURLs = async (id: string) => {
 /**
  * Create barcode string from an ID
  * @param index ID at the end of the barcode
- * @returns Barcode string in 0000 0000 (0000 0012) format
+ * @returns Barcode string in 0000 0000 0000 0012 format
  */
 const createBarcode = (index: number) => {
   const baseString = '0000000000000000';
   const code = `${baseString}${index}`.slice(-16);
   const elements = code.match(/.{4}/g);
   // tslint:disable-next-line: no-non-null-assertion
-  return `${elements![0]} ${elements![1]} (${elements![2]} ${elements![3]})`;
+  return `${elements![0]} ${elements![1]} ${elements![2]} ${elements![3]}`;
 };

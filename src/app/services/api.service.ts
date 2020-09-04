@@ -82,7 +82,6 @@ export class ApiService {
       }).toPromise();
 
       if (res.success) {
-        console.log(res);
       }
 
     } catch (error) {
@@ -105,27 +104,36 @@ export class ApiService {
           id: uuid
         }
       }).toPromise();
-
-      console.log(res);
-
-      const urls = res.urls;
-      const ticketRes = await this.http.get(urls.vertical, {
+      const blobPromises = [];
+      const verticalRes = this.http.get(res.urls.vertical, {
         responseType: 'arraybuffer',
         headers: new HttpHeaders({
           'Content-Type': 'image/jpeg'
         }),
       }).toPromise();
-      console.log(ticketRes);
+      const horizontalRes = this.http.get(res.urls.horizontal, {
+        responseType: 'arraybuffer',
+        headers: new HttpHeaders({
+          'Content-Type': 'image/jpeg'
+        }),
+      }).toPromise();
 
-      const blob = new Blob([ticketRes], { type: 'image/jpeg' });
-      this.filesaver.save(blob, 'test.jpg');
+      blobPromises.push(verticalRes);
+      blobPromises.push(horizontalRes);
 
-
+      const [ verticalBlob, horizontalBlob ] = await Promise.all(blobPromises);
+      this.downloadFile(horizontalBlob, 'DROELOE Railways 2020 16x9.jpg');
+      this.downloadFile(verticalBlob, 'DROELOE Railways 2020 9x16.jpg');
 
     } catch (error) {
       console.error(error);
     }
 
+  }
+
+  private downloadFile(data: string, filename: string) {
+    const blob = new Blob([data], { type: 'image/jpeg' });
+    this.filesaver.save(blob, `${filename}.jpg`);
   }
 
 }
