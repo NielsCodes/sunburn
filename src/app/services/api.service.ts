@@ -47,13 +47,43 @@ export class ApiService {
 
   }
 
-  async registerData(name: string, origin: string, destination: string, email: string) {
-
+  createDataID() {
     const uuid = uuidv4();
-    console.log(uuid);
+    // console.log(uuid);
+    localStorage.setItem('dataID', uuid);
+    return uuid;
+  }
 
-    // return uuid;
-    // const endpoint = `${this.rootEndpoint}/register`;
+  async registerData(name: string, origin: string, destination: string, email: string, id: string) {
+
+    const endpoint = `${this.rootEndpoint}/register`;
+
+    try {
+      const res = await this.http.post<{success: boolean, message: string}>(endpoint, {
+        name,
+        origin,
+        destination,
+        email,
+        id
+      }).toPromise();
+
+      if (res.success) {
+        console.log('Tickets created successfully');
+        console.log(res);
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+
+  }
+
+  async getTickets() {
+
+    const uuid = localStorage.getItem('dataID');
+    if (uuid === null) {
+      throw Error('No local data ID found');
+    }
 
   }
 
