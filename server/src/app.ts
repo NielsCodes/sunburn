@@ -12,7 +12,7 @@ import jwt from 'jsonwebtoken';
 const storage = new Storage();
 const app: Application = express();
 const port = process.env.PORT || 8080;
-const apiVersion = '2.100';
+const apiVersion = '2.120';
 let firebase: admin.app.App;
 let bucket: Bucket;
 
@@ -36,7 +36,6 @@ if (process.env.ENV === 'prod') {
 
 const statsRef = firebase.firestore().collection('config').doc('--stats--');
 const increment = admin.firestore.FieldValue.increment(1);
-
 
 // Use JSON parser
 app.use(express.json());
@@ -310,7 +309,7 @@ app.post('/register', async (req: Request, res: Response) => {
       .status(400)
       .json({
         success: false,
-        message: `Missing request body item. Make sure you pass 'name', 'origin', 'destination' and 'id'`
+        message: `Missing request body item. Make sure you pass 'name', 'origin', 'destination', 'email' and 'id'`
       })
       .send()
       .end();
@@ -328,9 +327,17 @@ app.post('/register', async (req: Request, res: Response) => {
     createdAt: admin.firestore.FieldValue.serverTimestamp()
   });
 
+  const statsSnapshot = await statsRef.get();
+  const ticketsGenerated = statsSnapshot.data()?.ticketsGenerated;
+  const ticketId = ticketsGenerated + 1
+
   // Create tickets
   // tslint:disable-next-line: max-line-length
-  const promises = [ createVerticalImage(name, origin, destination, 16, id), createHorizontalImage(name, origin, destination, 16, id) ];
+  const promises = [ createVerticalImage(name, origin, destination, 16, id), createHorizontalImage(name, origin, destination, ticketId, id) ];
+
+  await statsRef.set({
+    ticketsGenerated: increment
+  }, { merge: true });
 
   await Promise.all(promises);
 
@@ -1046,7 +1053,7 @@ const logAppleSave = async (documentId: string): Promise<boolean> => {
  * @param index nth presave
  * @param id ID to link to front-end
  */
-const createVerticalImage = async (name: string, departing: string, destination: string, index: number, id: number) => {
+const createVerticalImage = async (name: string, departing: string, destination: string, index: number, id: string) => {
 
   const backColor = '#232323';
   const textColor = '#E9E7DA';
@@ -1111,7 +1118,7 @@ const createVerticalImage = async (name: string, departing: string, destination:
  * @param index nth presave
  * @param id ID to link to front-end
  */
-const createHorizontalImage = async (name: string, departing: string, destination: string, index: number, id: number) => {
+const createHorizontalImage = async (name: string, departing: string, destination: string, index: number, id: string) => {
 
   const backColor = '#232323';
   const textColor = '#597BE3';
