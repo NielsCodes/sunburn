@@ -284,53 +284,6 @@ app.get('/status', async (req: Request, res: Response) => {
 
 });
 
-app.post('/ticket', async (req: Request, res: Response) => {
-
-  if (req.body === undefined) {
-    res
-      .status(400)
-      .json({
-        success: false,
-        message: 'No request body passed'
-      })
-      .send()
-      .end();
-    return;
-  }
-
-  const name = req.body.name;
-  const departing = req.body.departing;
-  const destination = req.body.destination;
-  const id = req.body.id;
-
-  const params = [name, departing, destination, id];
-  if (params.includes(undefined)) {
-    res
-      .status(400)
-      .json({
-        success: false,
-        message: `Missing request body item. Make sure you pass 'name', 'departing', 'destination' and 'id'`
-      })
-      .send()
-      .end();
-    return;
-  }
-
-  // tslint:disable-next-line: max-line-length
-  const promises = [ createVerticalImage(name, departing, destination, 16, id), createHorizontalImage(name, departing, destination, 16, id) ];
-
-  await Promise.all(promises);
-
-  res
-    .status(200)
-    .json({
-      success: true
-    })
-    .send()
-    .end();
-
-});
-
 app.post('/register', async (req: Request, res: Response) => {
 
   if (req.body === undefined) {
@@ -391,9 +344,9 @@ app.post('/register', async (req: Request, res: Response) => {
 
 });
 
-app.get('/ticket', async (req: Request, res: Response) => {
+app.get('/tickets', async (req: Request, res: Response) => {
 
-  const id = req.params.id;
+  const id = req.query.id as string;
 
   if (id === undefined || id === null) {
     res
