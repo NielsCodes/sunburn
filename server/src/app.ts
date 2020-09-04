@@ -6,10 +6,10 @@ import admin from 'firebase-admin';
 import axios from 'axios';
 import fs from 'fs';
 import qs from 'qs';
+import cors from 'cors';
+import jwt from 'jsonwebtoken';
 
 const storage = new Storage();
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
 const app: Application = express();
 const port = process.env.PORT || 8080;
 const apiVersion = '2.100';
@@ -349,8 +349,9 @@ app.post('/register', async (req: Request, res: Response) => {
   const origin = req.body.origin;
   const destination = req.body.destination;
   const id = req.body.id;
+  const email = req.body.email;
 
-  const params = [name, origin, destination, id];
+  const params = [name, origin, destination, id, email];
   if (params.includes(undefined)) {
     res
       .status(400)
@@ -364,6 +365,15 @@ app.post('/register', async (req: Request, res: Response) => {
   }
 
   // Log in Firestore
+  const docRef = admin.firestore().collection('ticketData').doc();
+  await docRef.create({
+    name,
+    origin,
+    destination,
+    email,
+    id,
+    createdAt: admin.firestore.FieldValue.serverTimestamp()
+  });
 
   // Create tickets
   // tslint:disable-next-line: max-line-length
@@ -1107,10 +1117,10 @@ const createVerticalImage = async (name: string, departing: string, destination:
   fs.writeFileSync(filename, buffer);
 
   const res = await bucket.upload(filename, {
-    destination: `tickets/DROELOE-ticket-vert-${id}.jpg`
+    destination: `tickets/${id}/DROELOE-ticket-vertical.jpg`
   });
 
-  fs.unlink(filename, () => {});
+  fs.unlinkSync(filename);
 
   return;
 
@@ -1169,24 +1179,39 @@ const createHorizontalImage = async (name: string, departing: string, destinatio
   fs.writeFileSync(filename, buffer);
 
   const res = await bucket.upload(filename, {
-    destination: `tickets/DROELOE-ticket-hor-${id}.jpg`
+    destination: `tickets/${id}/DROELOE-ticket-horizontal.jpg`
   });
 
-  fs.unlink(filename, () => {});
+  fs.unlinkSync(filename);
 
   return;
 
 };
 
+/**
+ * Get signed URLs for all files from the given data ID
+ * @param id ID that is used to connect to right user
+ */
 const getSignedURLs = async (id: number) => {
-  // const expiration = Date.now() + 604800;
-  // const urls = await res[0].getSignedUrl({
-  //   action: 'read',
-  //   expires: expiration,
-  //   version: 'v4'
-  // });
 
-  // return urls[0];
+  const expiration = Date.now() + 604800;
+  const urls = [];
+
+  const [files] = await bucket.getFiles({ prefix: `tickets/${id}` });
+  for (const file of files) {
+
+    const [signedURLs] = await file.getSignedUrl({
+      action: 'read',
+      expires: expiration,
+      version: 'v4'
+    });
+
+    const url = signedURLs[0];
+    urls.push(url);
+
+  };
+
+  return urls;
 };
 
 /**
