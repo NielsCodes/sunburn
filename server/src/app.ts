@@ -696,12 +696,8 @@ const createAppleToken = (): string | null => {
     exp: expiryTime
   };
 
-  const jwtOptions = {
-    algorithm: 'ES256',
-    keyid: '2XNHW5P3K5',
-  };
+  return jwt.sign(jwtPayload, key, { algorithm: 'ES256', keyid: '2XNHW5P3K5'});
 
-  return jwt.sign(jwtPayload, key, jwtOptions);
 };
 
 // Get localization for Apple Music user
