@@ -393,6 +393,29 @@ app.post('/register', async (req: Request, res: Response) => {
 
 app.get('/ticket', async (req: Request, res: Response) => {
 
+  const id = req.param('id');
+
+  if (id === undefined || id === null) {
+    res
+      .status(400)
+      .json({
+        success: false,
+        message: 'No data ID passed'
+      })
+      .send();
+    return;
+  }
+
+  const urls = await getSignedURLs(id);
+
+  res
+    .status(200)
+    .json({
+      success: true,
+      urls
+    })
+    .send();
+
 });
 
 // app.get('/execute', async (req: Request, res: Response) => {
@@ -1192,7 +1215,7 @@ const createHorizontalImage = async (name: string, departing: string, destinatio
  * Get signed URLs for all files from the given data ID
  * @param id ID that is used to connect to right user
  */
-const getSignedURLs = async (id: number) => {
+const getSignedURLs = async (id: string) => {
 
   const expiration = Date.now() + 604800;
   const urls = [];
