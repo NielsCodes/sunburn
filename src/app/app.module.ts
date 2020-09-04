@@ -16,6 +16,7 @@ import { AngularFireAnalyticsModule, COLLECTION_ENABLED } from '@angular/fire/an
 
 import { HttpClientModule } from '@angular/common/http';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { FileSaverModule } from 'ngx-filesaver';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     ClipboardModule,
     AngularFireAnalyticsModule,
     FormsModule,
+    FileSaverModule
   ],
   providers: [
     { provide: COLLECTION_ENABLED, useValue: false },

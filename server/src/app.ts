@@ -1176,7 +1176,6 @@ const getSignedURLs = async (id: string) => {
       action: 'read',
       expires: expiration,
       version: 'v4',
-      contentType: 'image/jpeg'
     });
 
     if (file.name.includes('vertical')) {
