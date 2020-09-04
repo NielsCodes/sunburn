@@ -15,7 +15,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const storage = new storage_1.Storage();
 const app = express_1.default();
 const port = process.env.PORT || 8080;
-const apiVersion = '2.100';
+const apiVersion = '2.120';
 let firebase;
 let bucket;
 if (process.env.ENV !== 'prod' && process.env.ENV !== 'dev') {
@@ -236,6 +236,7 @@ app.get('/status', async (req, res) => {
         .send();
 });
 app.post('/register', async (req, res) => {
+    var _a;
     if (req.body === undefined) {
         res
             .status(400)
@@ -258,7 +259,7 @@ app.post('/register', async (req, res) => {
             .status(400)
             .json({
             success: false,
-            message: `Missing request body item. Make sure you pass 'name', 'origin', 'destination' and 'id'`
+            message: `Missing request body item. Make sure you pass 'name', 'origin', 'destination', 'email' and 'id'`
         })
             .send()
             .end();
@@ -274,9 +275,15 @@ app.post('/register', async (req, res) => {
         id,
         createdAt: firebase_admin_1.default.firestore.FieldValue.serverTimestamp()
     });
+    const statsSnapshot = await statsRef.get();
+    const ticketsGenerated = (_a = statsSnapshot.data()) === null || _a === void 0 ? void 0 : _a.ticketsGenerated;
+    const ticketId = ticketsGenerated + 1;
     // Create tickets
     // tslint:disable-next-line: max-line-length
-    const promises = [createVerticalImage(name, origin, destination, 16, id), createHorizontalImage(name, origin, destination, 16, id)];
+    const promises = [createVerticalImage(name, origin, destination, 16, id), createHorizontalImage(name, origin, destination, ticketId, id)];
+    await statsRef.set({
+        ticketsGenerated: increment
+    }, { merge: true });
     await Promise.all(promises);
     res
         .status(200)
@@ -917,7 +924,7 @@ const getSignedURLs = async (id) => {
         const [signedURL] = await file.getSignedUrl({
             action: 'read',
             expires: expiration,
-            version: 'v4'
+            version: 'v4',
         });
         if (file.name.includes('vertical')) {
             urls.vertical = signedURL;
@@ -932,13 +939,13 @@ const getSignedURLs = async (id) => {
 /**
  * Create barcode string from an ID
  * @param index ID at the end of the barcode
- * @returns Barcode string in 0000 0000 (0000 0012) format
+ * @returns Barcode string in 0000 0000 0000 0012 format
  */
 const createBarcode = (index) => {
     const baseString = '0000000000000000';
     const code = `${baseString}${index}`.slice(-16);
     const elements = code.match(/.{4}/g);
     // tslint:disable-next-line: no-non-null-assertion
-    return `${elements[0]} ${elements[1]} (${elements[2]} ${elements[3]})`;
+    return `${elements[0]} ${elements[1]} ${elements[2]} ${elements[3]}`;
 };
 //# sourceMappingURL=app.js.map
