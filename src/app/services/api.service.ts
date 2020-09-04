@@ -85,13 +85,13 @@ export class ApiService {
       throw Error('No local data ID found');
     }
 
-    const endpoint = `${this.rootEndpoint}/tickets`;
+    const endpoint = `${this.rootEndpoint}/ticket`;
     try {
       const res = await this.http.get(endpoint, {
         params: {
           id: uuid
         }
-      });
+      }).toPromise();
 
       console.log(res);
 
