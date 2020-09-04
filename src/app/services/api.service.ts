@@ -14,13 +14,13 @@ export class ApiService {
   private rootEndpoint = environment.endpoint;
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
   ) { }
 
+  /** Get Apple Developer token from server */
   async getAppleToken() {
 
     const endpoint = `${this.rootEndpoint}/devtoken`;
-
     const res = await this.http.get<AppleTokenResult>(endpoint).toPromise();
 
     if (res.success) {
@@ -31,6 +31,10 @@ export class ApiService {
 
   }
 
+  /**
+   * Register Apple presave
+   * @param token Apple Music User token
+   */
   async registerApplePresave(token: string) {
 
     const endpoint = `${this.rootEndpoint}/apple`;
@@ -47,13 +51,21 @@ export class ApiService {
 
   }
 
-  createDataID() {
+  /** Create unique ID to retrieve rendered tickets from server */
+  createDataID(): string {
     const uuid = uuidv4();
-    // console.log(uuid);
     localStorage.setItem('dataID', uuid);
     return uuid;
   }
 
+  /**
+   * Register ticket data on server and generate tickets
+   * @param name User defined name
+   * @param origin User defined origin location
+   * @param destination User defined destination location
+   * @param email User defined email address
+   * @param id Generated unique ID
+   */
   async registerData(name: string, origin: string, destination: string, email: string, id: string) {
 
     const endpoint = `${this.rootEndpoint}/register`;
@@ -68,7 +80,6 @@ export class ApiService {
       }).toPromise();
 
       if (res.success) {
-        console.log('Tickets created successfully');
         console.log(res);
       }
 
@@ -85,15 +96,20 @@ export class ApiService {
       throw Error('No local data ID found');
     }
 
-    const endpoint = `${this.rootEndpoint}/ticket`;
+    const endpoint = `${this.rootEndpoint}/tickets`;
     try {
-      const res = await this.http.get(endpoint, {
+      const res = await this.http.get<{success: boolean, urls: string[]}>(endpoint, {
         params: {
           id: uuid
         }
       }).toPromise();
 
       console.log(res);
+
+      const urls = res.urls;
+      const ticketRes = await this.http.get(urls[0]).toPromise();
+      console.log(ticketRes);
+
 
     } catch (error) {
 

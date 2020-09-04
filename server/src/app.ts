@@ -1167,19 +1167,23 @@ const createHorizontalImage = async (name: string, departing: string, destinatio
 const getSignedURLs = async (id: string) => {
 
   const expiration = Date.now() + 604800;
-  const urls = [];
+  const urls: {vertical?: string, horizontal?: string} = {};
 
   const [files] = await bucket.getFiles({ prefix: `tickets/${id}` });
   for (const file of files) {
 
-    const [signedURLs] = await file.getSignedUrl({
+    const [signedURL] = await file.getSignedUrl({
       action: 'read',
       expires: expiration,
-      version: 'v4'
+      version: 'v4',
+      contentType: 'image/jpeg'
     });
 
-    const url = signedURLs;
-    urls.push(url);
+    if (file.name.includes('vertical')) {
+      urls.vertical = signedURL;
+    } else {
+      urls.horizontal = signedURL;
+    }
 
   };
 

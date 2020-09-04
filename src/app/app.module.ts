@@ -33,7 +33,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     HttpClientModule,
     ClipboardModule,
     AngularFireAnalyticsModule,
-    FormsModule
+    FormsModule,
   ],
   providers: [
     { provide: COLLECTION_ENABLED, useValue: false },
