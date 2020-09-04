@@ -1,9 +1,10 @@
 import { environment } from './../../environments/environment';
 import { AppleTokenResult } from './../../models/config.model';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
+import { FileSaverService } from 'ngx-filesaver';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class ApiService {
 
   constructor(
     private http: HttpClient,
+    private filesaver: FileSaverService
   ) { }
 
   /** Get Apple Developer token from server */
@@ -98,7 +100,7 @@ export class ApiService {
 
     const endpoint = `${this.rootEndpoint}/tickets`;
     try {
-      const res = await this.http.get<{success: boolean, urls: string[]}>(endpoint, {
+      const res = await this.http.get<{success: boolean, urls: { vertical: string, horizontal: string}}>(endpoint, {
         params: {
           id: uuid
         }
@@ -107,12 +109,21 @@ export class ApiService {
       console.log(res);
 
       const urls = res.urls;
-      const ticketRes = await this.http.get(urls[0]).toPromise();
+      const ticketRes = await this.http.get(urls.vertical, {
+        responseType: 'arraybuffer',
+        headers: new HttpHeaders({
+          'Content-Type': 'image/jpeg'
+        }),
+      }).toPromise();
       console.log(ticketRes);
+
+      const blob = new Blob([ticketRes], { type: 'image/jpeg' });
+      this.filesaver.save(blob, 'test.jpg');
+
 
 
     } catch (error) {
-
+      console.error(error);
     }
 
   }
