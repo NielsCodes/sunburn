@@ -20,6 +20,8 @@ export class HomeComponent {
   isMobile: boolean;
   windowHeight: number;
 
+  private dataId: string;
+
   @HostListener('window:resize', ['$event'])
   onResize(event?){
     this.windowHeight = window.innerHeight;
@@ -54,8 +56,9 @@ export class HomeComponent {
   async onSubmit(form: NgForm) {
 
     const d = form.value;
+    this.dataId =  this.api.createDataID();
 
-    await this.api.registerData(d.name, d.origin, d.destination, d.email);
+    await this.api.registerData(d.name, d.origin, d.destination, d.email, this.dataId);
 
   }
 
@@ -66,7 +69,7 @@ export class HomeComponent {
     const clientID = 'e927df0934d7411181641fbd99a56f3c';
     const redirectURL = environment.redirect;
     const scope = 'user-library-modify user-read-private user-follow-modify';
-    const state = 'bbpresave';
+    const state = `spotify-${this.dataId}`;
 
     // tslint:disable-next-line: max-line-length
     const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}`;
