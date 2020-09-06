@@ -16,18 +16,17 @@ const storage = new storage_1.Storage();
 const app = express_1.default();
 const port = process.env.PORT || 8080;
 const apiVersion = '2.120';
-let firebase;
 let bucket;
 if (process.env.ENV !== 'prod' && process.env.ENV !== 'dev') {
     require('dotenv').config();
     const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a.json');
-    firebase = firebase_admin_1.default.initializeApp({
+    firebase_admin_1.default.initializeApp({
         credential: firebase_admin_1.default.credential.cert(serviceAccount),
         databaseURL: 'https://presave-app-dev.firebaseio.com'
     });
 }
 else {
-    firebase = firebase_admin_1.default.initializeApp();
+    firebase_admin_1.default.initializeApp();
 }
 if (process.env.ENV === 'prod') {
     bucket = storage.bucket('bitbird-presave-bucket');
@@ -35,7 +34,7 @@ if (process.env.ENV === 'prod') {
 else {
     bucket = storage.bucket('bitbird-presave-dev-bucket');
 }
-const statsRef = firebase.firestore().collection('config').doc('--stats--');
+const statsRef = firebase_admin_1.default.firestore().collection('config').doc('--stats--');
 const increment = firebase_admin_1.default.firestore.FieldValue.increment(1);
 // Use JSON parser
 app.use(express_1.default.json());
@@ -428,7 +427,7 @@ const getUser = async (token) => {
 };
 // Check if the user has presaved
 const checkIfFirstSpotifySave = async (id) => {
-    const userDocsSnap = await firebase.firestore().collection('spotifyPresaves').where('user.id', '==', id).get();
+    const userDocsSnap = await firebase_admin_1.default.firestore().collection('spotifyPresaves').where('user.id', '==', id).get();
     const size = userDocsSnap.size;
     if (size > 0) {
         return false;
@@ -439,7 +438,7 @@ const checkIfFirstSpotifySave = async (id) => {
 };
 // Check if auth token was already used
 const checkSpotifyAuthCodeFirstUse = async (authCode) => {
-    const authCodeSnap = await firebase.firestore().collection('spotifyPresaves').where('authCode', '==', authCode).get();
+    const authCodeSnap = await firebase_admin_1.default.firestore().collection('spotifyPresaves').where('authCode', '==', authCode).get();
     const size = authCodeSnap.size;
     if (size > 0) {
         return false;
@@ -450,7 +449,7 @@ const checkSpotifyAuthCodeFirstUse = async (authCode) => {
 };
 // Check if the user has presaved with Messenger
 const checkIfFirstMessengerSave = async (id) => {
-    const userDocsSnap = await firebase.firestore().collection('messengerSaves').where('id', '==', id).get();
+    const userDocsSnap = await firebase_admin_1.default.firestore().collection('messengerSaves').where('id', '==', id).get();
     const size = userDocsSnap.size;
     if (size > 0) {
         return false;
@@ -468,8 +467,8 @@ const registerSpotifyPresave = async (authData, userData, authCode) => {
         hasSaved: false,
         authCode
     };
-    const docRef = firebase.firestore().collection('spotifyPresaves').doc();
-    const batch = firebase.firestore().batch();
+    const docRef = firebase_admin_1.default.firestore().collection('spotifyPresaves').doc();
+    const batch = firebase_admin_1.default.firestore().batch();
     batch.set(docRef, docData);
     batch.set(statsRef, {
         saves: increment,
@@ -486,8 +485,8 @@ const registerMessengerSave = async (id, email, firstName, lastName) => {
         lastName,
         timestamp: firebase_admin_1.default.firestore.FieldValue.serverTimestamp()
     };
-    const docRef = firebase.firestore().collection('messengerSaves').doc();
-    const batch = firebase.firestore().batch();
+    const docRef = firebase_admin_1.default.firestore().collection('messengerSaves').doc();
+    const batch = firebase_admin_1.default.firestore().batch();
     batch.set(docRef, docData);
     batch.set(statsRef, {
         saves: increment,
@@ -503,8 +502,8 @@ const registerApplePresave = async (token, region) => {
         timestamp: firebase_admin_1.default.firestore.FieldValue.serverTimestamp(),
         hasSaved: false
     };
-    const docRef = firebase.firestore().collection('applePresaves').doc();
-    const batch = firebase.firestore().batch();
+    const docRef = firebase_admin_1.default.firestore().collection('applePresaves').doc();
+    const batch = firebase_admin_1.default.firestore().batch();
     batch.set(docRef, docData);
     batch.set(statsRef, {
         saves: increment,
@@ -802,7 +801,7 @@ const getSpotifyTokenFromRefresh = async (refreshToken) => {
  */
 const logAppleSave = async (documentId) => {
     let success = false;
-    const docRef = firebase.firestore().collection('applePresaves').doc(documentId);
+    const docRef = firebase_admin_1.default.firestore().collection('applePresaves').doc(documentId);
     try {
         await docRef.set({ hasSaved: true }, { merge: true });
         success = true;
