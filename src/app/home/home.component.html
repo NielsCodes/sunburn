@@ -1,33 +1,34 @@
-<div id="page-container" class="static-frame" [ngClass]="{'mobile': isMobile === true}" [style.height.px]="windowHeight">
+<div id="page-container" class="static-frame" [ngClass]="{'mobile': isMobile === true}" [style.height.px]="windowHeight" [@inputAnimation]="stage">
 
-  <div id="start-container">
-    <button id="start-btn" class="screen-btn">Start</button>
+  <div id="start-container" *ngIf="stage === 'start'">
+    <button id="start-btn" class="screen-btn" (click)="onStart()">Start</button>
   </div>
 
-  <form id="inputs-container" (ngSubmit)="onSubmit(f)" #f="ngForm">
+
+  <form id="inputs-container" (ngSubmit)="onSubmit(f)" #f="ngForm" *ngIf="stage === 'data'">
 
     <!-- Departing from -->
     <div class="input-group" id="origin-group">
       <label for="origin">Departing from:</label>
-      <input type="text" placeholder="[Origin]" id="origin-input" name="origin" title="Fill in your origin location" ngModel>
+      <input type="text" placeholder="[Origin]" id="origin-input" name="origin" title="Fill in your origin location" [(ngModel)]="formData.origin">
     </div>
 
     <!-- Going to -->
     <div class="input-group" id="destination-group">
       <label for="destination">Going to:</label>
-      <input type="text" placeholder="[Destination]" id="destination-input" name="destination" title="Fill in your destination location" ngModel>
+      <input type="text" placeholder="[Destination]" id="destination-input" name="destination" title="Fill in your destination location" [(ngModel)]="formData.destination">
     </div>
 
     <!-- Name -->
     <div class="input-group" id="name-group">
       <label for="name">Name:</label>
-      <input type="text" placeholder="[Name]" id="name-input" name="name" title="Fill in your name" ngModel>
+      <input type="text" placeholder="[Name]" id="name-input" name="name" title="Fill in your name" [(ngModel)]="formData.name">
     </div>
 
     <!-- Email -->
     <div class="input-group" id="email-group">
       <label for="email">Email:</label>
-      <input type="email" placeholder="[email@email.com]" id="email-input" name="email" title="Fill in your email address" ngModel>
+      <input type="email" placeholder="[email@email.com]" id="email-input" name="email" title="Fill in your email address" [(ngModel)]="formData.email">
     </div>
 
     <button id="submit-btn" class="screen-btn" type="submit" title="Click to choose a presave option to get your ticket">Pre-save to print ticket</button>
@@ -35,33 +36,22 @@
   </form>
 
 
+  <div id="presave-options-container" *ngIf="stage === 'save'">
 
-
-
-
-
-
-  <!-- <div id="presave-options-container">
-
-    <div id="presave-options">
-
-      <div id="presave-btn" class="save-link" (click)="onSpotifyLogin()" title="Pre-save on Spotify">
-        <img src="../../assets/logos/spotify.png" alt="Spotify logo" class="save-option-logo">
-        <div class="link-btn">Pre-save</div>
-      </div>
-
-      <div id="apple-btn" class="save-link" (click)="onAppleLogin()" title="Pre-add on Apple Music">
-        <img src="../../assets/logos/apple.png" alt="Apple Music logo" class="save-option-logo">
-        <div class="link-btn">Pre-add</div>
-      </div>
-
-      <div id="messenger-btn" class="save-link" (click)="onMessengerNotify()" title="Be notified on Messenger">
-        <img src="../../assets/logos/messenger.png" alt="Messenger logo" class="save-option-logo">
-        <div class="link-btn">Notify me</div>
-      </div>
-
+    <div id="presave-option-title">
+      Choose an option
     </div>
 
-  </div> -->
+    <div class="save-option" id="spotify-option" (click)="onSpotifyLogin()">
+      <img src="../../assets/logos/spotify.png" alt="">
+      <div class="save-btn" id="spotify-save-btn">Pre-save on Spotify</div>
+    </div>
+
+    <div class="save-option" id="apple-option" (click)="onAppleLogin()">
+      <img src="../../assets/logos/apple.png" alt="">
+      <div class="save-btn" id="spotify-save-btn">Pre-add on Apple Music</div>
+    </div>
+
+  </div>
 
 </div>

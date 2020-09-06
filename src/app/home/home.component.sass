@@ -5,16 +5,18 @@
   justify-content: center
   flex-direction: column
   min-height: -webkit-fill-available
+  background-image: url('../../assets/background.jpg')
+  background-size: cover
+  background-position: center
 
   &.mobile
     min-height: -webkit-fill-available !important
 
   #start-container
-    display: none
 
   #inputs-container
     display: inline-grid
-    grid-template-columns: 1fr 1fr 1fr 1fr
+    grid-template-columns: repeat(4, 1fr)
     grid-template-rows: 1fr 1fr .5fr
     grid-column-gap: 40px
     grid-row-gap: 40px
@@ -37,9 +39,6 @@
       grid-column-start: 3
       grid-column-end: 5
       grid-row: 2
-
-
-
 
     #submit-btn
       grid-column-start: 2
@@ -71,6 +70,52 @@
           color: #fff
 
 
+#presave-options-container
+  color: #fff
+  font-family: Arial, Helvetica, sans-serif
+  font-size: 1.4em
+  font-weight: bold
+  display: grid
+  grid-auto-columns: repeat(4, 1fr)
+  grid-template-rows: 20px 1fr
+  grid-column-gap: 40px
+  grid-row-gap: 40px
+
+  #presave-option-title
+    grid-column-start: 2
+    grid-column-end: 4
+    grid-row: 1
+
+  .save-option
+    grid-row: 2
+    text-align: center
+
+    img
+      cursor: pointer
+
+    .save-btn
+      margin-top: 20px
+      outline: none
+      -webkit-tap-highlight-color: none
+      border: 2px solid #fff
+      background: #6787ED
+      color: #fff
+      padding: 8px 12px
+      font-family: Arial, Helvetica, sans-serif
+      font-size: .7em
+      font-weight: bold
+      cursor: pointer
+      user-select: none
+
+  #spotify-option
+    grid-column-start: 1
+    grid-column-end: 3
+    text-align: center
+
+  #apple-option
+    grid-column-start: 3
+    grid-column-end: 5
+
 
 .screen-btn
   outline: none
@@ -83,19 +128,6 @@
   font-size: 1.4em
   font-weight: bold
   cursor: pointer
-  box-shadow: none
-  transition: box-shadow .2s ease
   user-select: none
 
-  &:hover
-    // box-shadow: 4px 4px 12px rgba(0,0,0,.2)
-
-  &:active
-    // box-shadow: none
-
-
-.static-frame
-  background-image: url('../../assets/background.jpg')
-  background-size: cover
-  background-position: center
 

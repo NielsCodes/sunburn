@@ -2,7 +2,7 @@ import { environment } from './../../environments/environment';
 import { CookieService } from './../services/cookie.service';
 import { ApiService } from './../services/api.service';
 import { PresaveResponse } from './../../models/config.model';
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/firestore';
 import {
@@ -72,6 +72,11 @@ export class CallbackComponent implements OnInit{
 
   canShare = false;
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event?){
+    this.windowHeight = window.innerHeight;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -82,7 +87,7 @@ export class CallbackComponent implements OnInit{
     private cookie: CookieService,
     private analytics: AngularFireAnalytics,
   ) {
-
+    this.onResize();
     // Redirect to home when navigation does not come from Messenger save or Spotify login
     this.route.queryParamMap.subscribe(params => {
 
@@ -106,6 +111,7 @@ export class CallbackComponent implements OnInit{
           fbq('trackCustom', 'presave', { platform: 'messenger' });
           this.analytics.logEvent('presave', { platform: 'messenger' });
         }
+        this.updateLoadingState();
       } else if (ref === 'apple') {
         this.referrer = 'apple';
 
@@ -116,6 +122,7 @@ export class CallbackComponent implements OnInit{
           this.api.hasSaved.subscribe( (appleState: boolean) => {
             this.presaveSuccessful = appleState;
             localStorage.setItem('appleSave', 'true');
+            this.updateLoadingState();
             if (this.cookie.trackingActive) {
               fbq('trackCustom', 'presave', { platform: 'apple' });
               this.analytics.logEvent('presave', { platform: 'apple' });
@@ -125,7 +132,7 @@ export class CallbackComponent implements OnInit{
         }
 
 
-      } else if (code !== null && URLState === 'bbpresave') {
+      } else if (code !== null && URLState.includes('spotify_')) {
 
         this.referrer = 'spotify';
 
@@ -135,6 +142,7 @@ export class CallbackComponent implements OnInit{
 
             if (res.success) {
               this.presaveSuccessful = true;
+              this.updateLoadingState();
 
               if (this.cookie.trackingActive) {
                 fbq('trackCustom', 'presave', { platform: 'spotify' });
@@ -216,6 +224,10 @@ export class CallbackComponent implements OnInit{
       url: this.pageURL
     });
 
+  }
+
+  onDownload() {
+    this.api.getTickets();
   }
 
 }

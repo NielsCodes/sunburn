@@ -90,12 +90,21 @@ export class ApiService {
 
   }
 
+  /**
+   * Download ticket
+   * - Get file URLs from Google Cloud Storage by unique data ID
+   * - Retrieve images by URL
+   * - Convert to blob
+   * - Download blob
+   */
   async getTickets() {
 
     const uuid = localStorage.getItem('dataID');
     if (uuid === null) {
       throw Error('No local data ID found');
     }
+
+    console.log(uuid);
 
     const endpoint = `${this.rootEndpoint}/tickets`;
     try {
@@ -104,6 +113,7 @@ export class ApiService {
           id: uuid
         }
       }).toPromise();
+      console.log(res);
       const blobPromises = [];
       const verticalRes = this.http.get(res.urls.vertical, {
         responseType: 'arraybuffer',
