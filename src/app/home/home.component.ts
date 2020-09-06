@@ -1,7 +1,7 @@
 import { environment } from './../../environments/environment';
 import { ApiService } from './../services/api.service';
 import { ScriptsService } from './../services/scripts.service';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
@@ -11,14 +11,23 @@ declare var MusicKit: any;
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.sass']
+  styleUrls: ['./home.component.sass'],
 })
-export class HomeComponent {
+export class HomeComponent implements AfterViewInit {
 
   appleToken: string;
   music: any;
   isMobile: boolean;
   windowHeight: number;
+
+  formData = {
+    origin: '',
+    destination: '',
+    name: '',
+    email: ''
+  };
+
+  stage = '';
 
   private dataId: string;
 
@@ -55,12 +64,13 @@ export class HomeComponent {
 
   async onSubmit(form: NgForm) {
 
+    console.log(this.formData);
+
     const d = form.value;
     this.dataId =  this.api.createDataID();
 
+    this.stage = 'save';
     await this.api.registerData(d.name, d.origin, d.destination, d.email, this.dataId);
-
-    await this.api.getTickets();
 
   }
 
@@ -71,7 +81,7 @@ export class HomeComponent {
     const clientID = 'e927df0934d7411181641fbd99a56f3c';
     const redirectURL = environment.redirect;
     const scope = 'user-library-modify user-read-private user-follow-modify';
-    const state = `spotify-${this.dataId}`;
+    const state = `spotify_${this.dataId}`;
 
     // tslint:disable-next-line: max-line-length
     const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}`;
@@ -85,7 +95,7 @@ export class HomeComponent {
 
     if (hasSaved === 'true') {
 
-      this.router.navigate(['/callback'], { queryParams: { ref: 'apple', status: '2' } });
+      this.router.navigate(['/callback'], { queryParams: { ref: 'apple', status: '2', dataId: this.dataId } });
 
     } else {
 
@@ -111,7 +121,7 @@ export class HomeComponent {
   private loginWithApple() {
     this.music.authorize().then((token: string) => {
       this.api.registerApplePresave(token);
-      this.router.navigate(['/callback'], { queryParams: { ref: 'apple' } });
+      this.router.navigate(['/callback'], { queryParams: { ref: 'apple', dataId: this.dataId } });
     });
   }
 
@@ -128,6 +138,14 @@ export class HomeComponent {
 
   onAppleListen() {
     window.location.href = 'https://music.apple.com/us/album/open-blinds-single/1521225746';
+  }
+
+  onStart() {
+    this.stage = 'data';
+  }
+
+  ngAfterViewInit() {
+    this.stage = 'start';
   }
 
 }
