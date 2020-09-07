@@ -351,11 +351,7 @@ const setPassportStrategy = () => {
             const fileData = fileDownload[0];
             twitter.post('media/upload', { media: fileData }, (error, media, response) => {
                 if (!error) {
-                    twitter.post('statuses/update', { status: `👀👀👀 @nielskersic https://presave.droeloe.com`, media_ids: media.media_id_string }, (tweetError, tweet, tweetResponse) => {
-                        if (!tweetError) {
-                            console.log(tweet);
-                        }
-                    });
+                    twitter.post('statuses/update', { status: `👀👀👀 @nielskersic https://presave.droeloe.com`, media_ids: media.media_id_string }, (tweetError, tweet, tweetResponse) => null);
                 }
                 else {
                     throw Error(error);
