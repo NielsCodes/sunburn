@@ -293,7 +293,7 @@ app.post('/register', async (req, res) => {
     const ticketId = ticketsGenerated + 1;
     // Create tickets
     // tslint:disable-next-line: max-line-length
-    const promises = [createVerticalImage(name, origin, destination, 16, id), createHorizontalImage(name, origin, destination, ticketId, id)];
+    const promises = [createVerticalImage(name, origin, destination, ticketId, id), createHorizontalImage(name, origin, destination, ticketId, id)];
     await statsRef.set({
         ticketsGenerated: increment
     }, { merge: true });
