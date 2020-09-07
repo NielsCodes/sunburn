@@ -1,5 +1,5 @@
 import { SpotifyAuthorizationData, SpotifyAuthorization, SpotifyUser } from './models';
-import express, { Response, Request, Application } from 'express';
+import express, { Response, Request, Application, NextFunction } from 'express';
 import { createCanvas, loadImage, registerFont } from 'canvas';
 import { Storage, Bucket } from '@google-cloud/storage';
 import { Strategy as TwitterStrategy } from 'passport-twitter';
@@ -36,30 +36,6 @@ if (process.env.ENV === 'prod') {
 } else {
   bucket = storage.bucket('bitbird-presave-dev-bucket');
 }
-
-passport.use(new TwitterStrategy({
-  consumerKey: process.env.TWITTER_CONSUMER_KEY as string,
-  consumerSecret: process.env.TWITTER_CONSUMER_SECRET as string,
-  callbackURL: '/oauth/callback',
-  },
-  (token, tokenSecret, profile, cb) => {
-
-    twitter = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY as string,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET as string,
-      access_token_key: token,
-      access_token_secret: tokenSecret
-    })
-
-    twitter.post('statuses/update', { status: 'Foo bar' }, (error, tweet, response) => {
-      if (!error) {
-        console.log(tweet);
-      }
-    })
-
-    return cb(null, profile);
-  }
-))
 
 passport.serializeUser( (user, cb) => {
   cb(null, user);
@@ -416,9 +392,65 @@ app.get('/tickets', async (req: Request, res: Response) => {
 
 });
 
-app.get('/auth/twitter', passport.authenticate('twitter'));
+/**
+ * Dynamic middleware to set Passport Strategy for Twitter authentication
+ * - Gets data ID request parameter
+ * - Gets image from GCS with ID
+ * - Uploads image to Twitter
+ * - Tweets with image
+ */
+const setPassportStrategy = () => {
+  return (req: Request, res: Response, next: NextFunction) => {
+
+    passport.use(new TwitterStrategy({
+      consumerKey: process.env.TWITTER_CONSUMER_KEY as string,
+      consumerSecret: process.env.TWITTER_CONSUMER_SECRET as string,
+      callbackURL: '/oauth/callback',
+      },
+      async (token, tokenSecret, profile, callback) => {
+
+        twitter = new Twitter({
+          consumer_key: process.env.TWITTER_CONSUMER_KEY as string,
+          consumer_secret: process.env.TWITTER_CONSUMER_SECRET as string,
+          access_token_key: token,
+          access_token_secret: tokenSecret
+        })
+
+        const fileDownload = await bucket.file(`tickets/${req.query.dataId}/DROELOE-ticket-horizontal.jpg`).download()
+        const fileData = fileDownload[0];
+
+        twitter.post('media/upload', { media: fileData }, (error: any, media: any, response: any) => {
+
+          if (!error) {
+
+
+            twitter.post('statuses/update', { status: `👀👀👀 @nielskersic`, media_ids: media.media_id_string }, (tweetError: any, tweet: any, tweetResponse: any) => {
+              if (!tweetError) {
+                console.log(tweet);
+              }
+            })
+
+
+          } else {
+            throw Error(error);
+          }
+
+        })
+
+        return callback(null, profile);
+      }
+
+    ))
+
+    next();
+
+  }
+}
+
+app.get('/auth/twitter', setPassportStrategy(), passport.authenticate('twitter'));
 
 app.get('/oauth/callback', passport.authenticate('twitter'), (req: Request, res: Response) => {
+  // res.send('<script>window.close()</script>');
   res.send('OK');
 })
 
@@ -466,6 +498,8 @@ app.get('/oauth/callback', passport.authenticate('twitter'), (req: Request, res:
 
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
+
+
 
 
 /**
