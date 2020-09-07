@@ -6,8 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const canvas_1 = require("canvas");
 const storage_1 = require("@google-cloud/storage");
+const passport_twitter_1 = require("passport-twitter");
+const twitter_1 = __importDefault(require("twitter"));
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const axios_1 = __importDefault(require("axios"));
+const passport_1 = __importDefault(require("passport"));
 const fs_1 = __importDefault(require("fs"));
 const qs_1 = __importDefault(require("qs"));
 const cors_1 = __importDefault(require("cors"));
@@ -17,6 +20,8 @@ const app = express_1.default();
 const port = process.env.PORT || 8080;
 const apiVersion = '2.120';
 let bucket;
+let twitter;
+let tweetDataId;
 if (process.env.ENV !== 'prod' && process.env.ENV !== 'dev') {
     require('dotenv').config();
     const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a.json');
@@ -34,11 +39,38 @@ if (process.env.ENV === 'prod') {
 else {
     bucket = storage.bucket('bitbird-presave-dev-bucket');
 }
+passport_1.default.use(new passport_twitter_1.Strategy({
+    consumerKey: process.env.TWITTER_CONSUMER_KEY,
+    consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+    callbackURL: '/oauth/callback',
+}, (token, tokenSecret, profile, cb) => {
+    twitter = new twitter_1.default({
+        consumer_key: process.env.TWITTER_CONSUMER_KEY,
+        consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+        access_token_key: token,
+        access_token_secret: tokenSecret
+    });
+    twitter.post('statuses/update', { status: 'Foo bar' }, (error, tweet, response) => {
+        if (!error) {
+            console.log(tweet);
+        }
+    });
+    return cb(null, profile);
+}));
+passport_1.default.serializeUser((user, cb) => {
+    cb(null, user);
+});
+passport_1.default.deserializeUser((obj, cb) => {
+    cb(null, obj);
+});
 const statsRef = firebase_admin_1.default.firestore().collection('config').doc('--stats--');
 const increment = firebase_admin_1.default.firestore.FieldValue.increment(1);
 // Use JSON parser
 app.use(express_1.default.json());
 app.use(cors_1.default());
+app.use(require('express-session')({ secret: 'a matter of perspective', resave: true, saveUninitialized: true }));
+app.use(passport_1.default.initialize());
+app.use(passport_1.default.session());
 // Status endpoint
 app.get('/', (req, res) => {
     res.status(200);
@@ -312,6 +344,10 @@ app.get('/tickets', async (req, res) => {
         urls
     })
         .send();
+});
+app.get('/auth/twitter', passport_1.default.authenticate('twitter'));
+app.get('/oauth/callback', passport_1.default.authenticate('twitter'), (req, res) => {
+    res.send('OK');
 });
 // app.get('/execute', async (req: Request, res: Response) => {
 //   // Check for header password

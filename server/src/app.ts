@@ -2,8 +2,11 @@ import { SpotifyAuthorizationData, SpotifyAuthorization, SpotifyUser } from './m
 import express, { Response, Request, Application } from 'express';
 import { createCanvas, loadImage, registerFont } from 'canvas';
 import { Storage, Bucket } from '@google-cloud/storage';
+import { Strategy as TwitterStrategy } from 'passport-twitter';
+import Twitter from 'twitter';
 import admin from 'firebase-admin';
 import axios from 'axios';
+import passport from 'passport';
 import fs from 'fs';
 import qs from 'qs';
 import cors from 'cors';
@@ -14,7 +17,8 @@ const app: Application = express();
 const port = process.env.PORT || 8080;
 const apiVersion = '2.120';
 let bucket: Bucket;
-
+let twitter: Twitter;
+let tweetDataId: string;
 
 if (process.env.ENV !== 'prod' && process.env.ENV !== 'dev'){
   require('dotenv').config();
@@ -33,12 +37,47 @@ if (process.env.ENV === 'prod') {
   bucket = storage.bucket('bitbird-presave-dev-bucket');
 }
 
+passport.use(new TwitterStrategy({
+  consumerKey: process.env.TWITTER_CONSUMER_KEY as string,
+  consumerSecret: process.env.TWITTER_CONSUMER_SECRET as string,
+  callbackURL: '/oauth/callback',
+  },
+  (token, tokenSecret, profile, cb) => {
+
+    twitter = new Twitter({
+      consumer_key: process.env.TWITTER_CONSUMER_KEY as string,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET as string,
+      access_token_key: token,
+      access_token_secret: tokenSecret
+    })
+
+    twitter.post('statuses/update', { status: 'Foo bar' }, (error, tweet, response) => {
+      if (!error) {
+        console.log(tweet);
+      }
+    })
+
+    return cb(null, profile);
+  }
+))
+
+passport.serializeUser( (user, cb) => {
+  cb(null, user);
+});
+
+passport.deserializeUser( (obj, cb) => {
+  cb(null, obj);
+});
+
 const statsRef = admin.firestore().collection('config').doc('--stats--');
 const increment = admin.firestore.FieldValue.increment(1);
 
 // Use JSON parser
 app.use(express.json());
 app.use(cors());
+app.use(require('express-session')({ secret: 'a matter of perspective', resave: true, saveUninitialized: true }))
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Status endpoint
 app.get('/', (req: Request, res: Response) => {
@@ -376,6 +415,12 @@ app.get('/tickets', async (req: Request, res: Response) => {
     .send();
 
 });
+
+app.get('/auth/twitter', passport.authenticate('twitter'));
+
+app.get('/oauth/callback', passport.authenticate('twitter'), (req: Request, res: Response) => {
+  res.send('OK');
+})
 
 // app.get('/execute', async (req: Request, res: Response) => {
 
