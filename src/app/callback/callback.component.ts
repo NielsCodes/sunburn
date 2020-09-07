@@ -2,7 +2,7 @@ import { environment } from './../../environments/environment';
 import { CookieService } from './../services/cookie.service';
 import { ApiService } from './../services/api.service';
 import { PresaveResponse } from './../../models/config.model';
-import { Component, OnInit, Renderer2, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/firestore';
 import {
@@ -67,7 +67,13 @@ export class CallbackComponent implements OnInit{
   referrer: string;
   windowHeight: number;
   dataId: string;
+  isVertical: boolean;
   private rootEndpoint = environment.endpoint;
+  private popupReference;
+
+  stage: string;
+
+  urls: {vertical: string, horizontal: string};
 
   nav: any = window.navigator;
 
@@ -76,6 +82,11 @@ export class CallbackComponent implements OnInit{
   @HostListener('window:resize', ['$event'])
   onResize(event?){
     this.windowHeight = window.innerHeight;
+    if (window.innerHeight > window.innerWidth) {
+      this.isVertical = true;
+    } else {
+      this.isVertical = false;
+    }
   }
 
   constructor(
@@ -193,10 +204,18 @@ export class CallbackComponent implements OnInit{
     }, 10000);
   }
 
-  updateLoadingState(): void {
+  async updateLoadingState() {
 
     if (this.presaveSuccessful) {
       this.loadingState = 'loaded';
+
+      if (this.dataId === undefined) {
+        this.dataId = localStorage.getItem('dataID');
+      }
+
+      this.urls = await this.api.getTickets(this.dataId);
+      this.stage = 'download';
+
     }
 
   }
@@ -209,15 +228,23 @@ export class CallbackComponent implements OnInit{
   // Share on Facebook
   onShareToFacebook(): void {
     const facebookBaseURL = 'https://www.facebook.com/sharer/sharer.php?u=';
-    const shareURL = `${facebookBaseURL}${this.pageURL}`;
+    const shareURL = encodeURI(`${facebookBaseURL}${this.pageURL}`);
     window.open(shareURL, 'Share to Facebook', 'left=0,top=0,height=500,width=500');
   }
 
   // Share on Twitter
   onShareToTwitter(): void {
-    const twitterBaseURL = 'https://twitter.com/intent/tweet?text=';
-    const shareURL = `${twitterBaseURL} ⏳⏳⏳ @DROELOEMUSIC @bitbird&url=${this.pageURL}`;
-    window.open(shareURL, 'Share to Twitter', 'left=0,top=0,height=500,width=500');
+
+    const windowFeatures = 'toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
+    const url = `${this.rootEndpoint}/auth/twitter?dataId=${this.dataId}`;
+
+    if (this.popupReference === null || this.popupReference === undefined || this.popupReference.closed) {
+      this.popupReference = window.open(url, 'Share to Twitter', windowFeatures);
+    } else {
+      this.popupReference = window.open(url, 'Share to Twitter', windowFeatures);
+      this.popupReference.focus();
+    }
+
   }
 
   // Open share menu on mobile devices
@@ -232,13 +259,8 @@ export class CallbackComponent implements OnInit{
   }
 
   async onDownload() {
-
-    if (this.dataId !== undefined) {
-      this.dataId = localStorage.getItem('dataID');
-    }
-
-    const urls = await this.api.getTickets(this.dataId);
-    await this.api.downloadTickets(urls.vertical, urls.horizontal);
+    await this.api.downloadTickets(this.urls.vertical, this.urls.horizontal);
+    this.stage = 'share';
   }
 
 }

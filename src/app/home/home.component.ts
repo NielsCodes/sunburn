@@ -2,7 +2,7 @@ import { CookieService } from './../services/cookie.service';
 import { environment } from './../../environments/environment';
 import { ApiService } from './../services/api.service';
 import { ScriptsService } from './../services/scripts.service';
-import { Component, HostListener, AfterViewInit } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
@@ -14,7 +14,7 @@ declare var MusicKit: any;
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.sass'],
 })
-export class HomeComponent implements AfterViewInit {
+export class HomeComponent {
 
   appleToken: string;
   music: any;
@@ -70,6 +70,12 @@ export class HomeComponent implements AfterViewInit {
     });
 
     const isMobile = this.isMobileOrTablet();
+
+    const img = new Image();
+    img.src = '../../assets/background-square.jpg';
+    img.onload = () => {
+      this.stage = 'start';
+    }
   }
 
   async onSubmit(form: NgForm) {
@@ -153,10 +159,6 @@ export class HomeComponent implements AfterViewInit {
   onStart() {
     this.stage = 'data';
     this.cookieService.setConsent();
-  }
-
-  ngAfterViewInit() {
-    this.stage = 'start';
   }
 
 }

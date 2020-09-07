@@ -107,7 +107,6 @@ export class ApiService {
           id: dataId
         }
       }).toPromise();
-      console.log(res);
 
       return res.urls;
 

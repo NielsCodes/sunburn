@@ -35,7 +35,7 @@ import { FileSaverModule } from 'ngx-filesaver';
     ClipboardModule,
     AngularFireAnalyticsModule,
     FormsModule,
-    FileSaverModule
+    FileSaverModule,
   ],
   providers: [
     { provide: COLLECTION_ENABLED, useValue: false },
