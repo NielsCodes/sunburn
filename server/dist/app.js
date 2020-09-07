@@ -351,7 +351,7 @@ const setPassportStrategy = () => {
             const fileData = fileDownload[0];
             twitter.post('media/upload', { media: fileData }, (error, media, response) => {
                 if (!error) {
-                    twitter.post('statuses/update', { status: `👀👀👀 @nielskersic`, media_ids: media.media_id_string }, (tweetError, tweet, tweetResponse) => {
+                    twitter.post('statuses/update', { status: `👀👀👀 @nielskersic https://presave.droeloe.com`, media_ids: media.media_id_string }, (tweetError, tweet, tweetResponse) => {
                         if (!tweetError) {
                             console.log(tweet);
                         }
@@ -368,8 +368,7 @@ const setPassportStrategy = () => {
 };
 app.get('/auth/twitter', setPassportStrategy(), passport_1.default.authenticate('twitter'));
 app.get('/oauth/callback', passport_1.default.authenticate('twitter'), (req, res) => {
-    // res.send('<script>window.close()</script>');
-    res.send('OK');
+    res.send('<script>window.close()</script>');
 });
 // app.get('/execute', async (req: Request, res: Response) => {
 //   // Check for header password
