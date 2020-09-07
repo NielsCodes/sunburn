@@ -1,3 +1,4 @@
+import { CookieService } from './../services/cookie.service';
 import { environment } from './../../environments/environment';
 import { ApiService } from './../services/api.service';
 import { ScriptsService } from './../services/scripts.service';
@@ -19,6 +20,8 @@ export class HomeComponent implements AfterViewInit {
   music: any;
   isMobile: boolean;
   windowHeight: number;
+  windowWidth: number;
+  isVertical: boolean;
 
   formData = {
     origin: '',
@@ -34,12 +37,19 @@ export class HomeComponent implements AfterViewInit {
   @HostListener('window:resize', ['$event'])
   onResize(event?){
     this.windowHeight = window.innerHeight;
+    this.windowWidth = window.innerWidth;
+    if (window.innerHeight > window.innerWidth) {
+      this.isVertical = true;
+    } else {
+      this.isVertical = false;
+    }
   }
 
   constructor(
     private scripts: ScriptsService,
     private api: ApiService,
-    private router: Router
+    private router: Router,
+    private cookieService: CookieService
   ) {
     this.onResize();
     this.scripts.loadMusicKit().pipe(filter((status: boolean) => status === true)).subscribe((status: boolean) => {
@@ -142,6 +152,7 @@ export class HomeComponent implements AfterViewInit {
 
   onStart() {
     this.stage = 'data';
+    this.cookieService.setConsent();
   }
 
   ngAfterViewInit() {

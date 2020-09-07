@@ -93,47 +93,23 @@ export class ApiService {
   /**
    * Download ticket
    * - Get file URLs from Google Cloud Storage by unique data ID
-   * - Retrieve images by URL
-   * - Convert to blob
-   * - Download blob
    */
-  async getTickets() {
+  async getTickets(dataId: string) {
 
-    const uuid = localStorage.getItem('dataID');
-    if (uuid === null) {
-      throw Error('No local data ID found');
+    if (dataId === null) {
+      throw Error('No valid data ID found');
     }
-
-    console.log(uuid);
 
     const endpoint = `${this.rootEndpoint}/tickets`;
     try {
       const res = await this.http.get<{success: boolean, urls: { vertical: string, horizontal: string}}>(endpoint, {
         params: {
-          id: uuid
+          id: dataId
         }
       }).toPromise();
       console.log(res);
-      const blobPromises = [];
-      const verticalRes = this.http.get(res.urls.vertical, {
-        responseType: 'arraybuffer',
-        headers: new HttpHeaders({
-          'Content-Type': 'image/jpeg'
-        }),
-      }).toPromise();
-      const horizontalRes = this.http.get(res.urls.horizontal, {
-        responseType: 'arraybuffer',
-        headers: new HttpHeaders({
-          'Content-Type': 'image/jpeg'
-        }),
-      }).toPromise();
 
-      blobPromises.push(verticalRes);
-      blobPromises.push(horizontalRes);
-
-      const [ verticalBlob, horizontalBlob ] = await Promise.all(blobPromises);
-      this.downloadFile(horizontalBlob, 'DROELOE Railways 2020 16x9.jpg');
-      this.downloadFile(verticalBlob, 'DROELOE Railways 2020 9x16.jpg');
+      return res.urls;
 
     } catch (error) {
       console.error(error);
@@ -141,6 +117,37 @@ export class ApiService {
 
   }
 
+  /** Download ticket files to devices from passed URLs */
+  async downloadTickets(verticalTicketURL: string, horizontalTicketURL: string) {
+
+    const blobPromises = [];
+    const verticalRes = this.http.get(verticalTicketURL, {
+      responseType: 'arraybuffer',
+      headers: new HttpHeaders({
+        'Content-Type': 'image/jpeg'
+      }),
+    }).toPromise();
+    const horizontalRes = this.http.get(horizontalTicketURL, {
+      responseType: 'arraybuffer',
+      headers: new HttpHeaders({
+        'Content-Type': 'image/jpeg'
+      }),
+    }).toPromise();
+
+    blobPromises.push(verticalRes);
+    blobPromises.push(horizontalRes);
+
+    const [ verticalBlob, horizontalBlob ] = await Promise.all(blobPromises);
+    this.downloadFile(horizontalBlob, 'DROELOE Railways 2020 16x9.jpg');
+    this.downloadFile(verticalBlob, 'DROELOE Railways 2020 9x16.jpg');
+
+  }
+
+  /**
+   * Turn blob into file and download to device
+   * @param data Blob data to turn into file
+   * @param filename Desired output file name
+   */
   private downloadFile(data: string, filename: string) {
     const blob = new Blob([data], { type: 'image/jpeg' });
     this.filesaver.save(blob, `${filename}.jpg`);
