@@ -1,6 +1,6 @@
-<div id="page-container" class="static-frame" [style.height.px]="windowHeight">
+<div id="page-container" class="static-frame" [ngClass]="{'vertical': isVertical === true}" [style.height.px]="windowHeight">
 
-  <div id="output-container">
+  <div id="output-container" *ngIf="stage === 'download'">
 
     <div id="output-title">Thank you. You can now download your tickets</div>
 
@@ -9,13 +9,14 @@
   </div>
 
 
-  <div id="share-container">
+  <div id="share-container" *ngIf="stage === 'share'">
 
     <div id="share-title">Share with your friends</div>
 
-    .share-option
+    <button class="share-option screen-btn" id="share-twitter" (click)="onShareToTwitter()">Share on Twitter</button>
+    <button class="share-option screen-btn" id="share-facebook" (click)="onShareToFacebook()">Share on Facebook</button>
 
-    <div id="download-fallback">Download didn't start? Click here</div>
+    <a id="download-fallback" *ngIf="urls" [href]="urls.vertical" title="Open ticket in new window" target="_blank">Download didn't start? Click <u>here</u></a>
 
   </div>
 
