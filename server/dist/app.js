@@ -39,24 +39,6 @@ if (process.env.ENV === 'prod') {
 else {
     bucket = storage.bucket('bitbird-presave-dev-bucket');
 }
-passport_1.default.use(new passport_twitter_1.Strategy({
-    consumerKey: process.env.TWITTER_CONSUMER_KEY,
-    consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-    callbackURL: '/oauth/callback',
-}, (token, tokenSecret, profile, cb) => {
-    twitter = new twitter_1.default({
-        consumer_key: process.env.TWITTER_CONSUMER_KEY,
-        consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-        access_token_key: token,
-        access_token_secret: tokenSecret
-    });
-    twitter.post('statuses/update', { status: 'Foo bar' }, (error, tweet, response) => {
-        if (!error) {
-            console.log(tweet);
-        }
-    });
-    return cb(null, profile);
-}));
 passport_1.default.serializeUser((user, cb) => {
     cb(null, user);
 });
@@ -345,8 +327,48 @@ app.get('/tickets', async (req, res) => {
     })
         .send();
 });
-app.get('/auth/twitter', passport_1.default.authenticate('twitter'));
+/**
+ * Dynamic middleware to set Passport Strategy for Twitter authentication
+ * - Gets data ID request parameter
+ * - Gets image from GCS with ID
+ * - Uploads image to Twitter
+ * - Tweets with image
+ */
+const setPassportStrategy = () => {
+    return (req, res, next) => {
+        passport_1.default.use(new passport_twitter_1.Strategy({
+            consumerKey: process.env.TWITTER_CONSUMER_KEY,
+            consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+            callbackURL: '/oauth/callback',
+        }, async (token, tokenSecret, profile, callback) => {
+            twitter = new twitter_1.default({
+                consumer_key: process.env.TWITTER_CONSUMER_KEY,
+                consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+                access_token_key: token,
+                access_token_secret: tokenSecret
+            });
+            const fileDownload = await bucket.file(`tickets/${req.query.dataId}/DROELOE-ticket-horizontal.jpg`).download();
+            const fileData = fileDownload[0];
+            twitter.post('media/upload', { media: fileData }, (error, media, response) => {
+                if (!error) {
+                    twitter.post('statuses/update', { status: `👀👀👀 @nielskersic`, media_ids: media.media_id_string }, (tweetError, tweet, tweetResponse) => {
+                        if (!tweetError) {
+                            console.log(tweet);
+                        }
+                    });
+                }
+                else {
+                    throw Error(error);
+                }
+            });
+            return callback(null, profile);
+        }));
+        next();
+    };
+};
+app.get('/auth/twitter', setPassportStrategy(), passport_1.default.authenticate('twitter'));
 app.get('/oauth/callback', passport_1.default.authenticate('twitter'), (req, res) => {
+    // res.send('<script>window.close()</script>');
     res.send('OK');
 });
 // app.get('/execute', async (req: Request, res: Response) => {
