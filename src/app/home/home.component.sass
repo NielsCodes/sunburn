@@ -5,17 +5,12 @@
   justify-content: center
   flex-direction: column
   min-height: -webkit-fill-available
-  background-image: url('../../assets/background.jpg')
+  background-image: url('../../assets/background-square.jpg')
   background-size: cover
   background-position: center
 
-  &.mobile
-    min-height: -webkit-fill-available !important
-
-  #start-container
-
   #inputs-container
-    display: inline-grid
+    display: grid
     grid-template-columns: repeat(4, 1fr)
     grid-template-rows: 1fr 1fr .5fr
     grid-column-gap: 40px
@@ -58,16 +53,39 @@
         font-family: Arial, Helvetica, sans-serif
         font-size: 1.4em
 
+      @media screen and (max-width: 600px)
+        font-size: 1em
+
       input
         border: 3px solid #fff
         background: #6787ED
         outline: none
         color: #fff
-        font-size: 1.4em
         padding: 10px 10px
+        font-size: 1.4em
+        border-radius: 0
 
         &::placeholder
           color: #fff
+
+        @media screen and (max-width: 600px)
+          font-size: 1em
+
+  &.vertical
+    background-image: url('../../assets/background-vertical.jpg')
+
+    #inputs-container
+      display: flex
+      flex-direction: column
+      padding: 40px
+      width: 100%
+      box-sizing: border-box
+
+      .input-group
+        margin: 10px 0
+
+      #submit-btn
+        margin-top: 20px
 
 
 #presave-options-container
@@ -80,11 +98,14 @@
   grid-template-rows: 20px 1fr
   grid-column-gap: 40px
   grid-row-gap: 40px
+  padding: 40px
+  box-sizing: border-box
 
   #presave-option-title
-    grid-column-start: 2
-    grid-column-end: 4
+    grid-column-start: 1
+    grid-column-end: 5
     grid-row: 1
+    text-align: center
 
   .save-option
     grid-row: 2
@@ -130,4 +151,6 @@
   cursor: pointer
   user-select: none
 
+  @media screen and (max-width: 600px)
+    font-size: 1em
 

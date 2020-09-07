@@ -1,4 +1,4 @@
-<div id="page-container" class="static-frame" [ngClass]="{'mobile': isMobile === true}" [style.height.px]="windowHeight" [@inputAnimation]="stage">
+<div id="page-container" class="static-frame" [ngClass]="{'vertical': isVertical === true}" [style.height.px]="windowHeight">
 
   <div id="start-container" *ngIf="stage === 'start'">
     <button id="start-btn" class="screen-btn" (click)="onStart()">Start</button>
@@ -43,12 +43,12 @@
     </div>
 
     <div class="save-option" id="spotify-option" (click)="onSpotifyLogin()">
-      <img src="../../assets/logos/spotify.png" alt="">
+      <img src="../../assets/logos/spotify.png" alt="Spotify logo" rel="preload">
       <div class="save-btn" id="spotify-save-btn">Pre-save on Spotify</div>
     </div>
 
     <div class="save-option" id="apple-option" (click)="onAppleLogin()">
-      <img src="../../assets/logos/apple.png" alt="">
+      <img src="../../assets/logos/apple.png" alt="Apple Music logo" rel="preload">
       <div class="save-btn" id="spotify-save-btn">Pre-add on Apple Music</div>
     </div>
 

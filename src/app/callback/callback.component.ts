@@ -66,6 +66,7 @@ export class CallbackComponent implements OnInit{
   shareState = 'inactive';
   referrer: string;
   windowHeight: number;
+  dataId: string;
   private rootEndpoint = environment.endpoint;
 
   nav: any = window.navigator;
@@ -114,6 +115,7 @@ export class CallbackComponent implements OnInit{
         this.updateLoadingState();
       } else if (ref === 'apple') {
         this.referrer = 'apple';
+        this.dataId = params.get('dataId');
 
         if (params.has('status')) {
           this.presaveSuccessful = true;
@@ -135,6 +137,9 @@ export class CallbackComponent implements OnInit{
       } else if (code !== null && URLState.includes('spotify_')) {
 
         this.referrer = 'spotify';
+
+        const stateElements = URLState.split('_');
+        this.dataId = stateElements[1];
 
         this.http.post(`${this.rootEndpoint}/spotify`, { auth_code: code }).toPromise()
 
@@ -226,8 +231,14 @@ export class CallbackComponent implements OnInit{
 
   }
 
-  onDownload() {
-    this.api.getTickets();
+  async onDownload() {
+
+    if (this.dataId !== undefined) {
+      this.dataId = localStorage.getItem('dataID');
+    }
+
+    const urls = await this.api.getTickets(this.dataId);
+    await this.api.downloadTickets(urls.vertical, urls.horizontal);
   }
 
 }
