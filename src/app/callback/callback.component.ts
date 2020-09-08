@@ -238,8 +238,7 @@ export class CallbackComponent implements OnInit{
   onShareToTwitter(): void {
 
     const windowFeatures = 'toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
-    // const url = `${this.rootEndpoint}/auth/twitter?dataId=${this.dataId}`;
-    const url = `http://localhost:8080/auth/twitter?dataId=${this.dataId}`;
+    const url = `${this.rootEndpoint}/auth/twitter?dataId=${this.dataId}`;
 
     if (this.popupReference === null || this.popupReference === undefined || this.popupReference.closed) {
       this.popupReference = window.open(url, 'Share to Twitter', windowFeatures);
