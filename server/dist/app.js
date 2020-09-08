@@ -527,7 +527,7 @@ const registerSpotifyPresave = async (authData, userData, authCode) => {
 };
 /** Add auth code to an existing presave */
 const registerAuthCodeForExistingSpotifyPresave = async (id, authCode) => {
-    const presaveDocsSnap = await firebase_admin_1.default.firestore().collection('spotifyPresaves').where('id', '==', id).get();
+    const presaveDocsSnap = await firebase_admin_1.default.firestore().collection('spotifyPresaves').where('user.id', '==', id).get();
     const docId = presaveDocsSnap.docs[0].id;
     await firebase_admin_1.default.firestore().collection('spotifyPresaves').doc(docId).set({
         authCodes: firebase_admin_1.default.firestore.FieldValue.arrayUnion(authCode)
