@@ -72,15 +72,13 @@ export class HomeComponent {
     const isMobile = this.isMobileOrTablet();
 
     const img = new Image();
-    img.src = '../../assets/background-square.jpg';
+    img.src = '../../assets/background.jpg';
     img.onload = () => {
       this.stage = 'start';
-    }
-  }
+    };
+  };
 
   async onSubmit(form: NgForm) {
-
-    console.log(this.formData);
 
     const d = form.value;
     this.dataId =  this.api.createDataID();

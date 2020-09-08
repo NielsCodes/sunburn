@@ -1,4 +1,4 @@
-<div id="page-container" class="static-frame" [ngClass]="{'vertical': isVertical === true}" [style.height.px]="windowHeight">
+<div id="page-container" class="static-frame" [ngClass]="{'vertical': isVertical === true}" [ngStyle]="{'background-size.px': isVertical ? windowHeight*3.5 : windowWidth}" [style.height.px]="windowHeight">
 
   <div id="output-container" *ngIf="stage === 'download'">
 
