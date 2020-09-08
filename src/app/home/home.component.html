@@ -1,4 +1,4 @@
-<div id="page-container" class="static-frame" [ngClass]="{'vertical': isVertical === true}" [style.height.px]="windowHeight">
+<div id="page-container" class="static-frame" [ngClass]="{'vertical': isVertical === true, 'verticalActive': stage && stage !== 'start'}" [ngStyle]="{'background-size.px': (isVertical && stage && stage !== 'start') ? windowHeight*3 : (isVertical) ? windowHeight : windowWidth}" [style.height.px]="windowHeight">
 
   <div id="start-container" *ngIf="stage === 'start'">
     <button id="start-btn" class="screen-btn" (click)="onStart()">Start</button>

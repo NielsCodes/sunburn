@@ -6,7 +6,6 @@
   flex-direction: column
   min-height: -webkit-fill-available
   background-image: url('../../assets/background-square.jpg')
-  background-size: cover
   background-position: center
 
   #inputs-container
@@ -72,7 +71,7 @@
           font-size: 1em
 
   &.vertical
-    background-image: url('../../assets/background-vertical.jpg')
+    transition: background-size 1s ease-out
 
     #inputs-container
       display: flex
@@ -80,12 +79,17 @@
       padding: 40px
       width: 100%
       box-sizing: border-box
+      opacity: 0
+      animation: .1s fadein 1s linear forwards
 
       .input-group
         margin: 10px 0
 
       #submit-btn
         margin-top: 20px
+
+  &.verticalActive
+    // background-size: 200vh !important
 
 
 #presave-options-container
@@ -153,4 +157,11 @@
 
   @media screen and (max-width: 600px)
     font-size: 1em
+
+@keyframes fadein
+  0%
+    opacity: 0
+
+  100%
+    opacity: 1
 
