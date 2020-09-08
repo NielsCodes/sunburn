@@ -44,6 +44,42 @@ passport.deserializeUser( (obj, cb) => {
   cb(null, obj);
 });
 
+passport.use(new TwitterStrategy({
+  consumerKey: process.env.TWITTER_CONSUMER_KEY as string,
+  consumerSecret: process.env.TWITTER_CONSUMER_SECRET as string,
+  callbackURL: `/oauth/callback`,
+  passReqToCallback: true
+  },
+  async (req, token, tokenSecret, profile, callback) => {
+
+    twitter = new Twitter({
+      consumer_key: process.env.TWITTER_CONSUMER_KEY as string,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET as string,
+      access_token_key: token,
+      access_token_secret: tokenSecret
+    })
+
+    const fileDownload = await bucket.file(`tickets/${req.session!.dataId}/DROELOE-ticket-horizontal.jpg`).download()
+    const fileData = fileDownload[0];
+
+    twitter.post('media/upload', { media: fileData }, (error: any, media: any, response: any) => {
+
+      if (!error) {
+
+        twitter.post('statuses/update', { status: `🎟️🎟️🎟️ @DROELOEMUSIC @bitbird https://presave.droeloe.com`, media_ids: media.media_id_string }, (tweetError: any, tweet: any, tweetResponse: any) => null);
+
+
+      } else {
+        throw Error(error);
+      }
+
+    })
+
+    return callback(null, profile);
+  }
+
+))
+
 const statsRef = admin.firestore().collection('config').doc('--stats--');
 const increment = admin.firestore.FieldValue.increment(1);
 
@@ -394,58 +430,14 @@ app.get('/tickets', async (req: Request, res: Response) => {
 
 });
 
-/**
- * Dynamic middleware to set Passport Strategy for Twitter authentication
- * - Gets data ID request parameter
- * - Gets image from GCS with ID
- * - Uploads image to Twitter
- * - Tweets with image
- */
-const setPassportStrategy = () => {
-  return (req: Request, res: Response, next: NextFunction) => {
-
-    passport.use(new TwitterStrategy({
-      consumerKey: process.env.TWITTER_CONSUMER_KEY as string,
-      consumerSecret: process.env.TWITTER_CONSUMER_SECRET as string,
-      callbackURL: '/oauth/callback',
-      },
-      async (token, tokenSecret, profile, callback) => {
-
-        twitter = new Twitter({
-          consumer_key: process.env.TWITTER_CONSUMER_KEY as string,
-          consumer_secret: process.env.TWITTER_CONSUMER_SECRET as string,
-          access_token_key: token,
-          access_token_secret: tokenSecret
-        })
-
-        const fileDownload = await bucket.file(`tickets/${req.query.dataId}/DROELOE-ticket-horizontal.jpg`).download()
-        const fileData = fileDownload[0];
-
-        twitter.post('media/upload', { media: fileData }, (error: any, media: any, response: any) => {
-
-          if (!error) {
-
-
-            twitter.post('statuses/update', { status: `👀👀👀 @nielskersic https://presave.droeloe.com`, media_ids: media.media_id_string }, (tweetError: any, tweet: any, tweetResponse: any) => null);
-
-
-          } else {
-            throw Error(error);
-          }
-
-        })
-
-        return callback(null, profile);
-      }
-
-    ))
-
-    next();
-
-  }
-}
-
-app.get('/auth/twitter', setPassportStrategy(), passport.authenticate('twitter'));
+app.get('/auth/twitter', (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * req.query gets overwritten by OAuth
+   * Passing data ID to req.sessions enables retrieval in Passport auth callback
+   */
+  req.session!.dataId = req.query.dataId;
+  next();
+}, passport.authenticate('twitter'));
 
 app.get('/oauth/callback', passport.authenticate('twitter'), (req: Request, res: Response) => {
   res.send('<script>window.close()</script>');
