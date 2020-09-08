@@ -18,7 +18,6 @@ const port = process.env.PORT || 8080;
 const apiVersion = '2.120';
 let bucket: Bucket;
 let twitter: Twitter;
-let tweetDataId: string;
 
 if (process.env.ENV !== 'prod' && process.env.ENV !== 'dev'){
   require('dotenv').config();
@@ -122,6 +121,9 @@ app.post('/spotify', async (req: Request, res: Response) => {
     const firstPresave = await checkIfFirstSpotifySave(userData.id);
 
     if (!firstPresave) {
+
+      await registerAuthCodeForExistingSpotifyPresave(userData.id, authCode)
+
       res
         .status(200)
         .json({
@@ -613,7 +615,7 @@ const checkIfFirstSpotifySave = async (id: string) => {
 // Check if auth token was already used
 const checkSpotifyAuthCodeFirstUse = async (authCode: string) => {
 
-  const authCodeSnap = await admin.firestore().collection('spotifyPresaves').where('authCode', '==', authCode).get();
+  const authCodeSnap = await admin.firestore().collection('spotifyPresaves').where('authCodes', 'array-contains', authCode).get();
   const size = authCodeSnap.size;
 
   if (size > 0) {
@@ -645,7 +647,7 @@ const registerSpotifyPresave = async (authData: SpotifyAuthorizationData, userDa
     user: userData,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
     hasSaved: false,
-    authCode
+    authCodes: [authCode]
   };
 
   const docRef = admin.firestore().collection('spotifyPresaves').doc();
@@ -659,6 +661,16 @@ const registerSpotifyPresave = async (authData: SpotifyAuthorizationData, userDa
   return batch.commit();
 
 };
+
+/** Add auth code to an existing presave */
+const registerAuthCodeForExistingSpotifyPresave = async (id: string, authCode: string) => {
+
+  const presaveDocsSnap = await admin.firestore().collection('spotifyPresaves').where('id', '==', id).get();
+  const docId = presaveDocsSnap.docs[0].id;
+  await admin.firestore().collection('spotifyPresaves').doc(docId).set({
+    authCodes: admin.firestore.FieldValue.arrayUnion(authCode)
+  }, { merge: true })
+}
 
 // Register Messenger signup in Firestore
 const registerMessengerSave = async (id: string, email: string, firstName: string, lastName: string) => {

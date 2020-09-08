@@ -21,7 +21,6 @@ const port = process.env.PORT || 8080;
 const apiVersion = '2.120';
 let bucket;
 let twitter;
-let tweetDataId;
 if (process.env.ENV !== 'prod' && process.env.ENV !== 'dev') {
     require('dotenv').config();
     const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a.json');
@@ -106,6 +105,7 @@ app.post('/spotify', async (req, res) => {
         // Check if user has presaved before
         const firstPresave = await checkIfFirstSpotifySave(userData.id);
         if (!firstPresave) {
+            await registerAuthCodeForExistingSpotifyPresave(userData.id, authCode);
             res
                 .status(200)
                 .json({
@@ -491,7 +491,7 @@ const checkIfFirstSpotifySave = async (id) => {
 };
 // Check if auth token was already used
 const checkSpotifyAuthCodeFirstUse = async (authCode) => {
-    const authCodeSnap = await firebase_admin_1.default.firestore().collection('spotifyPresaves').where('authCode', '==', authCode).get();
+    const authCodeSnap = await firebase_admin_1.default.firestore().collection('spotifyPresaves').where('authCodes', 'array-contains', authCode).get();
     const size = authCodeSnap.size;
     if (size > 0) {
         return false;
@@ -518,7 +518,7 @@ const registerSpotifyPresave = async (authData, userData, authCode) => {
         user: userData,
         timestamp: firebase_admin_1.default.firestore.FieldValue.serverTimestamp(),
         hasSaved: false,
-        authCode
+        authCodes: [authCode]
     };
     const docRef = firebase_admin_1.default.firestore().collection('spotifyPresaves').doc();
     const batch = firebase_admin_1.default.firestore().batch();
@@ -528,6 +528,14 @@ const registerSpotifyPresave = async (authData, userData, authCode) => {
         spotify: increment
     }, { merge: true });
     return batch.commit();
+};
+/** Add auth code to an existing presave */
+const registerAuthCodeForExistingSpotifyPresave = async (id, authCode) => {
+    const presaveDocsSnap = await firebase_admin_1.default.firestore().collection('spotifyPresaves').where('id', '==', id).get();
+    const docId = presaveDocsSnap.docs[0].id;
+    await firebase_admin_1.default.firestore().collection('spotifyPresaves').doc(docId).set({
+        authCodes: firebase_admin_1.default.firestore.FieldValue.arrayUnion(authCode)
+    }, { merge: true });
 };
 // Register Messenger signup in Firestore
 const registerMessengerSave = async (id, email, firstName, lastName) => {
