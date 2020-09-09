@@ -130,6 +130,7 @@ export class CallbackComponent implements OnInit{
 
         if (params.has('status')) {
           this.presaveSuccessful = true;
+          this.updateLoadingState();
         } else {
 
           this.api.hasSaved.subscribe( (appleState: boolean) => {

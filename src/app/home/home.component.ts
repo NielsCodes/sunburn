@@ -57,11 +57,19 @@ export class HomeComponent {
   onResize(event?){
     this.windowHeight = window.innerHeight;
     this.windowWidth = window.innerWidth;
-    if (window.innerHeight > window.innerWidth) {
+
+    this.isMobile = this.isMobileOrTablet();
+
+    if (this.isMobile || this.windowWidth < 600) {
       this.isVertical = true;
     } else {
-      this.isVertical = false;
+      if ((window.innerHeight > window.innerWidth)) {
+        this.isVertical = true;
+      } else {
+        this.isVertical = false;
+      }
     }
+
   }
 
   constructor(
