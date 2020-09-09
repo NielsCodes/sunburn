@@ -49,7 +49,7 @@ export class HomeComponent {
   };
 
   stage = '';
-  showPolicy = true;
+  showPolicy = false;
 
   private dataId: string;
 

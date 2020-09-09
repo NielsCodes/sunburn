@@ -15,6 +15,7 @@
 
     <button class="share-option screen-btn" id="share-twitter" (click)="onShareToTwitter()">Share on Twitter</button>
     <button class="share-option screen-btn" id="share-facebook" (click)="onShareToFacebook()">Share on Facebook</button>
+    <button class="share-option screen-btn" id="share-any" *ngIf="canShare" (click)="onMobileShare()">Share elsewhere</button>
 
     <a id="download-fallback" *ngIf="urls" [href]="urls.vertical" title="Open ticket in new window" target="_blank">Download didn't start? Click <u>here</u></a>
 

@@ -73,9 +73,7 @@ export class CallbackComponent implements OnInit{
   private popupReference;
 
   stage: string;
-
   urls: {vertical: string, horizontal: string};
-
   nav: any = window.navigator;
 
   canShare = false;
@@ -258,8 +256,7 @@ export class CallbackComponent implements OnInit{
   onMobileShare(): void {
 
     this.nav.share({
-      title: '⏳',
-      text: 'this is a description',
+      title: '🎟️',
       url: this.pageURL
     });
 
