@@ -110,6 +110,8 @@ app.post('/spotify', async (req: Request, res: Response) => {
     return;
   }
 
+  const dataId = req.body.dataId;
+
   try {
 
     const authCode = req.body.auth_code;
@@ -172,7 +174,7 @@ app.post('/spotify', async (req: Request, res: Response) => {
 
     // Store data in Firestore
     // tslint:disable-next-line: no-non-null-assertion
-    await registerSpotifyPresave(tokenResult.data!, userData, authCode);
+    await registerSpotifyPresave(tokenResult.data!, userData, authCode, dataId);
 
     res
       .status(200)
@@ -276,6 +278,8 @@ app.post('/apple', async (req: Request, res: Response) => {
     return;
   }
 
+  const dataId = req.body.dataId;
+
   // Get locale from token
   const userToken: string = req.body.token;
   const devToken: string | null = createAppleToken();
@@ -295,7 +299,7 @@ app.post('/apple', async (req: Request, res: Response) => {
   try {
     const region = await getAppleLocalization(userToken, devToken);
 
-    await registerApplePresave(userToken, region);
+    await registerApplePresave(userToken, region, dataId);
 
     res.status(200);
     res.json({
@@ -633,13 +637,14 @@ const checkIfFirstMessengerSave = async (id: number) => {
 };
 
 // Register presave in Firestore
-const registerSpotifyPresave = async (authData: SpotifyAuthorizationData, userData: SpotifyUser, authCode: string) => {
+const registerSpotifyPresave = async (authData: SpotifyAuthorizationData, userData: SpotifyUser, authCode: string, dataId: string) => {
   const docData = {
     authorization: authData,
     user: userData,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
     hasSaved: false,
-    authCodes: [authCode]
+    authCodes: [authCode],
+    dataId
   };
 
   const docRef = admin.firestore().collection('spotifyPresaves').doc();
@@ -687,13 +692,14 @@ const registerMessengerSave = async (id: string, email: string, firstName: strin
 };
 
 // Register Apple Presave in Firestore
-const registerApplePresave = async (token: string, region: string) => {
+const registerApplePresave = async (token: string, region: string, dataId: string) => {
 
   const docData = {
     token,
     region,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    hasSaved: false
+    hasSaved: false,
+    dataId
   };
 
   const docRef = admin.firestore().collection('applePresaves').doc();

@@ -92,6 +92,7 @@ app.post('/spotify', async (req, res) => {
         res.send(msg);
         return;
     }
+    const dataId = req.body.dataId;
     try {
         const authCode = req.body.auth_code;
         const tokenResult = await getSpotifyTokenFromAuth(authCode);
@@ -141,7 +142,7 @@ app.post('/spotify', async (req, res) => {
         }
         // Store data in Firestore
         // tslint:disable-next-line: no-non-null-assertion
-        await registerSpotifyPresave(tokenResult.data, userData, authCode);
+        await registerSpotifyPresave(tokenResult.data, userData, authCode, dataId);
         res
             .status(200)
             .json({
@@ -224,6 +225,7 @@ app.post('/apple', async (req, res) => {
         res.send(msg);
         return;
     }
+    const dataId = req.body.dataId;
     // Get locale from token
     const userToken = req.body.token;
     const devToken = createAppleToken();
@@ -240,7 +242,7 @@ app.post('/apple', async (req, res) => {
     }
     try {
         const region = await getAppleLocalization(userToken, devToken);
-        await registerApplePresave(userToken, region);
+        await registerApplePresave(userToken, region, dataId);
         res.status(200);
         res.json({
             success: true,
@@ -508,13 +510,14 @@ const checkIfFirstMessengerSave = async (id) => {
     }
 };
 // Register presave in Firestore
-const registerSpotifyPresave = async (authData, userData, authCode) => {
+const registerSpotifyPresave = async (authData, userData, authCode, dataId) => {
     const docData = {
         authorization: authData,
         user: userData,
         timestamp: firebase_admin_1.default.firestore.FieldValue.serverTimestamp(),
         hasSaved: false,
-        authCodes: [authCode]
+        authCodes: [authCode],
+        dataId
     };
     const docRef = firebase_admin_1.default.firestore().collection('spotifyPresaves').doc();
     const batch = firebase_admin_1.default.firestore().batch();
@@ -552,12 +555,13 @@ const registerMessengerSave = async (id, email, firstName, lastName) => {
     return batch.commit();
 };
 // Register Apple Presave in Firestore
-const registerApplePresave = async (token, region) => {
+const registerApplePresave = async (token, region, dataId) => {
     const docData = {
         token,
         region,
         timestamp: firebase_admin_1.default.firestore.FieldValue.serverTimestamp(),
-        hasSaved: false
+        hasSaved: false,
+        dataId
     };
     const docRef = firebase_admin_1.default.firestore().collection('applePresaves').doc();
     const batch = firebase_admin_1.default.firestore().batch();
