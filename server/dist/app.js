@@ -510,7 +510,7 @@ const checkIfFirstMessengerSave = async (id) => {
     }
 };
 // Register presave in Firestore
-const registerSpotifyPresave = async (authData, userData, authCode, dataId) => {
+const registerSpotifyPresave = async (authData, userData, authCode, dataId = '') => {
     const docData = {
         authorization: authData,
         user: userData,
@@ -555,7 +555,7 @@ const registerMessengerSave = async (id, email, firstName, lastName) => {
     return batch.commit();
 };
 // Register Apple Presave in Firestore
-const registerApplePresave = async (token, region, dataId) => {
+const registerApplePresave = async (token, region, dataId = '') => {
     const docData = {
         token,
         region,
