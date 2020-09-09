@@ -153,7 +153,7 @@ export class CallbackComponent implements OnInit{
         const stateElements = URLState.split('_');
         this.dataId = stateElements[1];
 
-        this.http.post(`${this.rootEndpoint}/spotify`, { auth_code: code }).toPromise()
+        this.http.post(`${this.rootEndpoint}/spotify`, { auth_code: code, dataId: this.dataId }).toPromise()
 
           .then((res: PresaveResponse) => {
 

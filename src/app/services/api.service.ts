@@ -39,9 +39,11 @@ export class ApiService {
    */
   async registerApplePresave(token: string) {
 
+    const dataId = localStorage.getItem('dataID');
+
     const endpoint = `${this.rootEndpoint}/apple`;
     try {
-      const res = await this.http.post<{success: boolean, message: string}>(endpoint, { token }).toPromise();
+      const res = await this.http.post<{success: boolean, message: string}>(endpoint, { token, dataId }).toPromise();
       if (res.success) {
         this.hasSaved.next(true);
       } else {
