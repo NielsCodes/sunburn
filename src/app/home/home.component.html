@@ -1,6 +1,12 @@
 <div id="page-container" class="static-frame" [ngClass]="{'vertical': isVertical === true, 'verticalActive': stage && stage !== 'start'}" [ngStyle]="{'background-size.px': (isVertical && stage && stage !== 'start') ? windowHeight*3.5 : (isVertical) ? windowHeight : windowWidth}" [style.height.px]="windowHeight">
 
   <div id="start-container" *ngIf="stage === 'start'">
+
+    <div id="cookie-container">
+      <h3>We use cookies to ensure you get the best experience.</h3>
+      <h5 id="policy-link" (click)="onShowPolicy()">You can read our privacy policy <u>here</u>.</h5>
+    </div>
+
     <button id="start-btn" class="screen-btn" (click)="onStart()">Start</button>
   </div>
 
@@ -53,5 +59,50 @@
     </div>
 
   </div>
+
+</div>
+
+
+<div id="policy-container" *ngIf="showPolicy" [style.height.px]="windowHeight" [@policyAnimation]>
+
+  <div id="policy-content">
+
+    <div id="x-close-btn-container">
+      <div id="x-close-btn" (click)="onHidePolicy()">
+        &times;
+      </div>
+    </div>
+
+    <div id="custom-policy-text-wrapper">
+
+      <p>For the purposes of this presave, we ask for the following personal information:</p>
+
+      <br>
+      <br>
+
+      <b>Name</b>
+      <p>Your name will only be used to generate a personalized ticket</p>
+
+      <br>
+      <b>Email address</b>
+      <p>As part of this presave campaign, we might contact you via your email address. <br> Your email address will only be recorded for this purpose and will not be used for any marketing communications.</p>
+
+      <br>
+      <br>
+
+      <p>- Filling in your personal information is not mandatory for completing this presave.</p>
+      <br>
+      <p>- All personal data will be removed after the presave campaign ends</p>
+      <br>
+
+      <p>- All elements that are not specific to this presave page fall under the general <a href="https://bitbirdofficial.com/privacy" target="_blank" title="Open the bitbird privacy policy in a new tab">bitbird privacy policy</a>. </p>
+
+    </div>
+
+
+    <div id="close-btn" (click)="onHidePolicy()">I understand</div>
+
+  </div>
+
 
 </div>

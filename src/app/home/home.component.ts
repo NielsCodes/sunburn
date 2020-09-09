@@ -6,6 +6,7 @@ import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NgForm } from '@angular/forms';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 declare var MusicKit: any;
 
@@ -13,6 +14,23 @@ declare var MusicKit: any;
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.sass'],
+  animations: [
+
+    trigger('policyAnimation', [
+
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('.2s ease', style({ opacity: 1 }))
+      ]),
+
+      transition(':leave', [
+        style({ opacity: 1 }),
+        animate('.2s ease', style({ opacity: 0 }))
+      ]),
+
+    ])
+
+  ]
 })
 export class HomeComponent {
 
@@ -31,6 +49,7 @@ export class HomeComponent {
   };
 
   stage = '';
+  showPolicy = true;
 
   private dataId: string;
 
@@ -157,6 +176,14 @@ export class HomeComponent {
   onStart() {
     this.stage = 'data';
     this.cookieService.setConsent();
+  }
+
+  onShowPolicy() {
+    this.showPolicy = true;
+  }
+
+  onHidePolicy() {
+    this.showPolicy = false;
   }
 
 }
