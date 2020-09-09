@@ -232,6 +232,8 @@ export class CallbackComponent implements OnInit{
     const facebookBaseURL = 'https://www.facebook.com/sharer/sharer.php?u=';
     const shareURL = encodeURI(`${facebookBaseURL}${this.pageURL}`);
     window.open(shareURL, 'Share to Facebook', 'left=0,top=0,height=500,width=500');
+    fbq('trackCustom', 'presaveShare', { platform: 'facebook' });
+    this.analytics.logEvent('presaveShare', { platform: 'facebook' });
   }
 
   // Share on Twitter
@@ -239,6 +241,9 @@ export class CallbackComponent implements OnInit{
 
     const windowFeatures = 'toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
     const url = `${this.rootEndpoint}/auth/twitter?dataId=${this.dataId}`;
+
+    fbq('trackCustom', 'presaveShare', { platform: 'twitter' });
+    this.analytics.logEvent('presaveShare', { platform: 'twitter' });
 
     if (this.popupReference === null || this.popupReference === undefined || this.popupReference.closed) {
       this.popupReference = window.open(url, 'Share to Twitter', windowFeatures);
@@ -258,11 +263,16 @@ export class CallbackComponent implements OnInit{
       url: this.pageURL
     });
 
+    fbq('trackCustom', 'presaveShare', { platform: 'mobile' });
+    this.analytics.logEvent('presaveShare', { platform: 'mobile' });
+
   }
 
   async onDownload() {
     await this.api.downloadTickets(this.urls.vertical, this.urls.horizontal);
     this.stage = 'share';
+    fbq('trackCustom', 'ticketDownload');
+    this.analytics.logEvent('ticketDownload');
   }
 
 }
