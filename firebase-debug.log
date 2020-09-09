@@ -1,0 +1,109 @@
+[debug] [2020-09-09T14:09:42.246Z] ----------------------------------------------------------------------
+[debug] [2020-09-09T14:09:42.247Z] Command:       /usr/local/bin/node /Users/niels/.npm-global/bin/firebase deploy --only functions
+[debug] [2020-09-09T14:09:42.248Z] CLI Version:   8.9.2
+[debug] [2020-09-09T14:09:42.248Z] Platform:      darwin
+[debug] [2020-09-09T14:09:42.248Z] Node Version:  v12.10.0
+[debug] [2020-09-09T14:09:42.248Z] Time:          Wed Sep 09 2020 16:09:42 GMT+0200 (Central European Summer Time)
+[debug] [2020-09-09T14:09:42.248Z] ----------------------------------------------------------------------
+[debug] [2020-09-09T14:09:42.248Z] 
+[debug] [2020-09-09T14:09:42.255Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-09-09T14:09:42.255Z] > authorizing via signed-in user
+[debug] [2020-09-09T14:09:42.255Z] [iam] checking project presave-app for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2020-09-09T14:09:42.258Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/presave-app:testIamPermissions  
+ {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2020-09-09T14:09:42.550Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:42 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=128","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-09-09T14:09:42.551Z] >>> HTTP REQUEST POST https://iam.googleapis.com/v1/projects/presave-app/serviceAccounts/presave-app@appspot.gserviceaccount.com:testIamPermissions  
+ {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2020-09-09T14:09:43.397Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:43 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions.
+Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[info] 
+[info] === Deploying to 'presave-app'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[info] ✔  functions: Finished running predeploy script. 
+[debug] [2020-09-09T14:09:50.418Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "10"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "firebase-admin": "^8.10.0",
+    "firebase-functions": "^3.6.1",
+    "qs": "^6.9.4"
+  },
+  "devDependencies": {
+    "tslint": "^5.12.0",
+    "typescript": "^3.8.0",
+    "firebase-functions-test": "^0.2.0"
+  },
+  "private": true
+}
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[debug] [2020-09-09T14:09:51.166Z] >>> HTTP REQUEST GET https://serviceusage.googleapis.com/v1/projects/presave-app/services/cloudfunctions.googleapis.com  
+ 
+[debug] [2020-09-09T14:09:51.167Z] >>> HTTP REQUEST GET https://serviceusage.googleapis.com/v1/projects/presave-app/services/runtimeconfig.googleapis.com  
+ 
+[debug] [2020-09-09T14:09:51.167Z] >>> HTTP REQUEST GET https://serviceusage.googleapis.com/v1/projects/presave-app/services/cloudbuild.googleapis.com  
+ 
+[debug] [2020-09-09T14:09:52.098Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:51 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-09-09T14:09:52.146Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:52 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] ✔  functions: required API cloudbuild.googleapis.com is enabled 
+[debug] [2020-09-09T14:09:52.183Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:52 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] ✔  functions: required API cloudfunctions.googleapis.com is enabled 
+[debug] [2020-09-09T14:09:52.183Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/presave-app/adminSdkConfig  
+ 
+[debug] [2020-09-09T14:09:52.517Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:52 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] i  functions: preparing functions directory for uploading... 
+[debug] [2020-09-09T14:09:52.519Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/presave-app/configs  
+ 
+[debug] [2020-09-09T14:09:52.866Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:52 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-09-09T14:09:52.866Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/presave-app/configs/spotify/variables  
+ 
+[debug] [2020-09-09T14:09:53.629Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:53 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-09-09T14:09:53.629Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/presave-app/configs/spotify/variables/secret  
+ 
+[debug] [2020-09-09T14:09:53.630Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/presave-app/configs/spotify/variables/id  
+ 
+[debug] [2020-09-09T14:09:53.899Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:53 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-09-09T14:09:53.901Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:53 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] i  functions: packaged functions (41.35 KB) for uploading 
+[debug] [2020-09-09T14:09:54.394Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/projects/presave-app/locations/-/functions  
+ 
+[debug] [2020-09-09T14:09:55.028Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:54 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-09-09T14:09:55.031Z] >>> HTTP REQUEST POST https://cloudfunctions.googleapis.com/v1/projects/presave-app/locations/us-central1/functions:generateUploadUrl  
+ 
+[debug] [2020-09-09T14:09:55.762Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Wed, 09 Sep 2020 14:09:55 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-09-09T14:09:55.762Z] >>> HTTP REQUEST PUT https://storage.googleapis.com/gcf-upload-us-central1-8c52f971-0b63-439e-8760-bc1162b18cc1/5bd977e4-626a-46b2-8e81-271c0aa108af.zip?GoogleAccessId=service-565477002562@gcf-admin-robot.iam.gserviceaccount.com&Expires=1599662395&Signature=Kf3Spc2oQgS0lmyqX5ucwW9X8IakImioqtJRqUsEjNwfTeSIz%2F%2Bm4ohrIezjHnoZEOVRyq5lrXSx28agoojRYS3hqmpxd8r8YfzYB7C%2FluPLBbBP%2F%2BlPqWFPuqmnMloQPdyIUHHCCZFGya3k8VyuWh5XaCoQkZio2hKL9q2wrdM%2FXtIIzJkH2n0AqdMW9HLotYKa9NmzR1PSu0gsr8TzRGjLtDsh7vjaGpjcPCicMnfcgf%2FlFEubaVwaR%2BkTXDfoHzjhPZvhns9Kxq6CBN8Dx1I%2BzqVNdPSK5ZywCCRbYHifR8r7IjIqbz62dfkskylHDHHU0uCjPJ1c9yuTXDuRnA%3D%3D  
+ <request body omitted>
+[debug] [2020-09-09T14:09:56.274Z] <<< HTTP RESPONSE 200 {"x-guploader-uploadid":"ABg5-Uwnhq-KYIqeTzk7msVXMbfM4eRGkhY6aHaSC6K59xlzIvPZkF_3d5Vc9VpF22RbQBS0HyUCOc0HUycVLOQU_g","etag":"\"cd8f5c81e327a44e4ebba6efc6429736\"","x-goog-generation":"1599660596198200","x-goog-metageneration":"1","x-goog-hash":"crc32c=WUTm4g==, md5=zY9cgeMnpE5Ou6bvxkKXNg==","x-goog-stored-content-length":"42347","x-goog-stored-content-encoding":"identity","vary":"Origin","content-length":"0","date":"Wed, 09 Sep 2020 14:09:56 GMT","server":"UploadServer","content-type":"text/html; charset=UTF-8","alt-svc":"h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\""}
+[info] ✔  functions: functions folder uploaded successfully 
+[info] i  functions: creating Node.js 10 function decrementSaveOnSpotifyDelete(us-central1)... 
+[debug] [2020-09-09T14:09:56.277Z] Trigger is:  {"eventTrigger":{"resource":"projects/presave-app/databases/(default)/documents/spotifyPresaves/{presaveId}","eventType":"providers/cloud.firestore/eventTypes/document.delete","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 10 function followOnCreate(us-central1)... 
+[debug] [2020-09-09T14:09:56.278Z] Trigger is:  {"eventTrigger":{"resource":"projects/presave-app/databases/(default)/documents/spotifyPresaves/{presaveId}","eventType":"providers/cloud.firestore/eventTypes/document.create","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 10 function decrementSaveOnMessengerDelete(us-central1)... 
+[debug] [2020-09-09T14:09:56.278Z] Trigger is:  {"eventTrigger":{"resource":"projects/presave-app/databases/(default)/documents/messengerSaves/{presaveId}","eventType":"providers/cloud.firestore/eventTypes/document.delete","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 10 function decrementSaveOnAppleDelete(us-central1)... 
+[debug] [2020-09-09T14:09:56.278Z] Trigger is:  {"eventTrigger":{"resource":"projects/presave-app/databases/(default)/documents/applePresaves/{presaveId}","eventType":"providers/cloud.firestore/eventTypes/document.delete","service":"firestore.googleapis.com"}}
+[info] 
+The following functions are found in your project but do not exist in your local source code:
+	decrementSaveOnDelete(us-central1)
+	parseSaveCount(us-central1)
+
+If you are renaming a function or changing its region, it is recommended that you create the new function first before deleting the old one to prevent event loss. For more info, visit https://firebase.google.com/docs/functions/manage-functions#modify
+

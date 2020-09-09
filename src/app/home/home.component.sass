@@ -24,6 +24,9 @@
       text-align: center
       margin-bottom: 20px
 
+      @media screen and (max-width: 600px)
+        font-size: .8em
+
       #policy-link
         cursor: pointer
 
@@ -180,7 +183,6 @@
   display: flex
   align-items: center
   justify-content: center
-  padding: 20px
   box-sizing: border-box
 
   #policy-content
@@ -188,6 +190,10 @@
     padding-top: 20px
     background: #6787ED
     border: 5px solid #fff
+    max-height: calc(100vh - 40px)
+    margin: 20px
+    box-sizing: border-box
+    overflow: scroll
 
     a
       color: inherit
