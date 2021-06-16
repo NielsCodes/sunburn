@@ -201,46 +201,6 @@ app.post('/spotify', async (req: Request, res: Response) => {
 
 });
 
-// Messenger presave from Zapier
-app.post('/zapier', async (req: Request, res: Response) => {
-
-  console.log(req.body);
-
-  const id = req.body.id;
-
-  if (id === undefined) {
-    res.status(400).json({
-      success: false,
-      message: 'No ID found'
-    });
-    console.error(`Retrieved call without ID`);
-    return;
-  }
-
-  const email = req.body.email || 'undefined';
-  const firstName = req.body.firstName || 'undefined';
-  const lastName = req.body.lastName || 'undefined';
-
-  try {
-    const isFirstSave = await checkIfFirstMessengerSave(id);
-    if (isFirstSave) {
-      await registerMessengerSave(id, email, firstName, lastName);
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error
-    });
-    return;
-  }
-
-  res.status(200).json({
-    success: true,
-    message: 'Messenger save registered successfully'
-  });
-
-});
-
 // Get Apple Music developer token
 app.get('/devtoken', async (req: Request, res: Response) => {
 
@@ -445,54 +405,12 @@ app.get('/auth/twitter', (req: Request, res: Response, next: NextFunction) => {
 
 app.get('/oauth/callback', passport.authenticate('twitter'), (req: Request, res: Response) => {
   res.send('<script>window.close()</script>');
-})
-
-// app.get('/execute', async (req: Request, res: Response) => {
-
-//   // Check for header password
-//   const pass = req.get('pass');
-//   if (pass !== 'perspective') {
-//     res
-//       .status(403)
-//       .json({
-//         success: false,
-//         message: 'Unauthorized request'
-//       });
-//     return;
-//   }
-
-//   // const spotifySaveStatus = await executeSpotifySaves();
-//   if (!spotifySaveStatus.success) {
-//     console.log('Encountered errors while saving to Spotify');
-//     console.error(spotifySaveStatus);
-//   } else {
-//     console.log('Spotify saves processed successfully');
-//   }
-
-  // const appleSaveStatus = await executeAppleSaves();
-  // if (!appleSaveStatus.success) {
-  //   console.log('Encountered errors while saving to Apple');
-  //   console.error(appleSaveStatus.errors);
-  // } else {
-  //   console.log('Apple saves processed successfully');
-  // }
-
-//   res
-//     .status(200)
-//     .json({
-//       spotifySuccess: spotifySaveStatus.success,
-      // appleSuccess: appleSaveStatus.success,
-//     })
-//     .send();
-
-// });
+});
 
 
 
 // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
-
-
 
 
 /**
@@ -501,7 +419,6 @@ app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
  * @param res Response class of active route
  */
 const returnServerError = (error: Error, res: Response) => {
-
   console.error(error);
 
   res
@@ -511,9 +428,7 @@ const returnServerError = (error: Error, res: Response) => {
       message: error
     })
     .send();
-
 };
-
 
 
 /**
@@ -622,20 +537,6 @@ const checkSpotifyAuthCodeFirstUse = async (authCode: string) => {
 
 };
 
-// Check if the user has presaved with Messenger
-const checkIfFirstMessengerSave = async (id: number) => {
-
-  const userDocsSnap = await admin.firestore().collection('messengerSaves').where('id', '==', id).get();
-  const size = userDocsSnap.size;
-
-  if (size > 0) {
-    return false;
-  } else {
-    return true;
-  }
-
-};
-
 // Register presave in Firestore
 const registerSpotifyPresave = async (authData: SpotifyAuthorizationData, userData: SpotifyUser, authCode: string, dataId: string = '') => {
   const docData = {
@@ -668,28 +569,6 @@ const registerAuthCodeForExistingSpotifyPresave = async (id: string, authCode: s
     authCodes: admin.firestore.FieldValue.arrayUnion(authCode)
   }, { merge: true })
 }
-
-// Register Messenger signup in Firestore
-const registerMessengerSave = async (id: string, email: string, firstName: string, lastName: string) => {
-
-  const docData = {
-    id,
-    email,
-    firstName,
-    lastName,
-    timestamp: admin.firestore.FieldValue.serverTimestamp()
-  };
-
-  const docRef = admin.firestore().collection('messengerSaves').doc();
-
-  const batch = admin.firestore().batch();
-  batch.set(docRef, docData);
-  batch.set(statsRef, {
-    saves: increment,
-    messenger: increment
-  }, { merge: true });
-  return batch.commit();
-};
 
 // Register Apple Presave in Firestore
 const registerApplePresave = async (token: string, region: string, dataId: string = '') => {
