@@ -11,7 +11,7 @@ export interface SpotifyAuthorizationData {
 export interface SpotifyAuthorization {
   success: boolean;
   data?: SpotifyAuthorizationData;
-  error?: any;
+  error?: unknown;
 }
 
 /** Spotify Presave document interface */
