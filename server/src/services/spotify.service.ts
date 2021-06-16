@@ -1,4 +1,6 @@
+import axios from 'axios';
 import {SpotifyAuthorizationData} from '../models';
+
 /**
  * Get token and refresh tokens from Spotify with Authorization token
  * @param authCode Authentication code to verify user with. Returned by OAuth flow
@@ -46,4 +48,27 @@ const getEncodedCredentials = (): string => {
   const buffer = Buffer.from(credentials);
   const encoded = buffer.toString('base64');
   return encoded;
+};
+
+/**
+ * Save the track to a user's library using their access token
+ * @param accessToken the user's access token from the auth flow
+ */
+export const saveTrackToLibrary = async (accessToken: string): Promise => {
+  const trackId = '0i27kJRbxmdzQzhVDJVgzO';
+  const endpoint = 'https://api.spotify.com/v1/me/tracks';
+  const authorization = `Bearer ${accessToken}`;
+
+  await axios.put(
+    endpoint,
+    {
+      ids: [trackId],
+    },
+    {
+      headers: {
+        Authorization: authorization,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
 };
