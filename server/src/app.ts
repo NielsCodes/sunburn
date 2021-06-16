@@ -16,7 +16,7 @@ import qs from 'qs';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import {spotifyPresaveHandler} from './controllers/spotify.controller';
-import {appleTokenHandler} from './controllers/apple.controller';
+import {appleSaveHandler, appleTokenHandler} from './controllers/apple.controller';
 
 const storage = new Storage();
 const app: Application = express();
@@ -105,57 +105,14 @@ app.get('/', (req: Request, res: Response) => {
   res.send(`Presave API is running. Version: ${apiVersion}`);
 });
 
-// Spotify login endpoint
+// Spotify save endpoint
 app.post('/spotify', spotifyPresaveHandler);
 
 // Get Apple Music developer token
-app.get('/devtoken', appleTokenHandler);
+app.get('/apple/token', appleTokenHandler);
 
-// app.post('/apple', async (req: Request, res: Response) => {
-//   // Get token from Request
-//   if (req.body.token === undefined) {
-//     res.status(400);
-//     const msg = 'Invalid request: Missing User token';
-//     console.error(msg);
-//     res.send(msg);
-//     return;
-//   }
-
-//   const dataId = req.body.dataId;
-
-//   // Get locale from token
-//   const userToken: string = req.body.token;
-//   const devToken: string | null = createAppleToken();
-
-//   if (devToken === null) {
-//     console.error('Received null Apple Developer token');
-//     res
-//       .status(500)
-//       .json({
-//         success: false,
-//         message: 'Failed to authenticate',
-//       })
-//       .send();
-//     return;
-//   }
-
-//   try {
-//     const region = await getAppleLocalization(userToken, devToken);
-
-//     await registerApplePresave(userToken, region, dataId);
-
-//     res.status(200);
-//     res.json({
-//       success: true,
-//       message: 'Saved Apple presave successfully',
-//     });
-//   } catch (error) {
-//     res.status(500);
-//     res.send('Something went wrong');
-//     console.error(error);
-//     throw new Error(error);
-//   }
-// });
+// Apple Music save endpoint
+app.post('/apple', appleSaveHandler);
 
 // app.post('/register', async (req: Request, res: Response) => {
 //   if (req.body === undefined) {
@@ -278,115 +235,6 @@ app.get('/devtoken', appleTokenHandler);
 // // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 
-// // Register Apple Presave in Firestore
-// const registerApplePresave = async (
-//   token: string,
-//   region: string,
-//   dataId: string = ''
-// ) => {
-//   const docData = {
-//     token,
-//     region,
-//     timestamp: admin.firestore.FieldValue.serverTimestamp(),
-//     hasSaved: false,
-//     dataId,
-//   };
-
-//   const docRef = admin.firestore().collection('applePresaves').doc();
-
-//   const batch = admin.firestore().batch();
-//   batch.set(docRef, docData);
-//   batch.set(
-//     statsRef,
-//     {
-//       saves: increment,
-//       apple: increment,
-//     },
-//     {merge: true}
-//   );
-//   return batch.commit();
-// };
-
-// // Get localization for Apple Music user
-// const getAppleLocalization = async (userToken: string, devToken: string) => {
-//   const endpoint = 'https://api.music.apple.com/v1/me/storefront';
-
-//   try {
-//     const res = await axios.get(endpoint, {
-//       headers: {
-//         Authorization: `Bearer ${devToken}`,
-//         'Music-User-Token': userToken,
-//       },
-//     });
-
-//     return res.data.data[0].id;
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// };
-
-// /**
-//  * Get a new Spotify access token by using a refresh token
-//  * @param refreshToken Spotify refresh token from Firestore
-//  * @returns New access information
-//  */
-// const getSpotifyTokenFromRefresh = async (
-//   refreshToken: string
-// ): Promise<SpotifyAuthorizationData | null> => {
-//   const endpoint = 'https://accounts.spotify.com/api/token';
-//   // const redirectUrl = process.env.REDIRECT_URL;
-
-//   // Encode API credentials
-//   const credentials = `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`;
-//   const authorization = Buffer.from(credentials).toString('base64');
-
-//   // Create request body
-//   const requestBody = qs.stringify({
-//     grant_type: 'refresh_token',
-//     refresh_token: refreshToken,
-//   });
-
-//   // Try calling the Spotify API
-//   try {
-//     const tokenRes = await axios.post(endpoint, requestBody, {
-//       headers: {
-//         Authorization: `Basic ${authorization}`,
-//       },
-//     });
-
-//     return tokenRes.data as SpotifyAuthorizationData;
-//   } catch (error) {
-//     if (error.response.status === 400) {
-//       console.log('Invalid client error');
-//       return null;
-//     } else {
-//       console.error(error);
-//     }
-//   }
-
-//   return null;
-// };
-
-// /**
-//  * Update Apple presave document when the track has been saved to the user's library
-//  * @param documentId Firestore document ID of presave entry
-//  */
-// const logAppleSave = async (documentId: string): Promise<boolean> => {
-//   let success = false;
-
-//   const docRef = admin.firestore().collection('applePresaves').doc(documentId);
-
-//   try {
-//     await docRef.set({hasSaved: true}, {merge: true});
-//     success = true;
-//   } catch (error) {
-//     console.log('Error while trying to log Apple save');
-//     console.error(error);
-//   }
-
-//   return success;
-// };
-
 // /**
 //  * Create a vertical ticket with user defined variables
 //  *
@@ -457,7 +305,7 @@ app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 // };
 
 // /**
-//  * Create a vertical ticket with user defined variables
+//  * Create a horizontal ticket with user defined variables
 //  *
 //  * Creates canvas with background image with variables overlaid
 //  *
