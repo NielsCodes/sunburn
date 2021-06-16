@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
-import {getAccessToken} from '../services/spotify.service';
+import {getAccessToken, saveTrackToLibrary} from '../services/spotify.service';
 
+/** Controller to handle Spotify presave requests */
 export const spotifyPresaveHandler = async (req: Request, res: Response) => {
   const {auth_code: authCode} = req.body;
   if (!authCode) {
@@ -15,10 +16,17 @@ export const spotifyPresaveHandler = async (req: Request, res: Response) => {
   try {
     const tokenData = await getAccessToken(authCode);
     const accessToken = tokenData.access_token;
+    await saveTrackToLibrary(accessToken);
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message,
-    })
+    });
+    return;
   }
+
+  res.json({
+    success: true,
+    message: 'Presave successful',
+  });
 };
