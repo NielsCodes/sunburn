@@ -16,6 +16,7 @@ import qs from 'qs';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import {spotifyPresaveHandler} from './controllers/spotify.controller';
+import {appleTokenHandler} from './controllers/apple.controller';
 
 const storage = new Storage();
 const app: Application = express();
@@ -23,17 +24,6 @@ const port = process.env.PORT || 8080;
 const apiVersion = '3.0-portfolio';
 let bucket: Bucket;
 let twitter: Twitter;
-
-// if (process.env.ENV !== 'prod' && process.env.ENV !== 'dev') {
-//   require('dotenv').config();
-//   const serviceAccount = require('../keys/presave-app-dev-firebase-adminsdk-7jzfy-7159a5d47a.json');
-//   admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-//     databaseURL: 'https://presave-app-dev.firebaseio.com',
-//   });
-// } else {
-//   admin.initializeApp();
-// }
 
 require('dotenv').config();
 
@@ -118,29 +108,8 @@ app.get('/', (req: Request, res: Response) => {
 // Spotify login endpoint
 app.post('/spotify', spotifyPresaveHandler);
 
-// // Get Apple Music developer token
-// app.get('/devtoken', async (req: Request, res: Response) => {
-//   const token = createAppleToken();
-
-//   if (token === null) {
-//     const msg = 'Error creating Apple token. No environment variable';
-//     res
-//       .status(503)
-//       .json({
-//         success: false,
-//         message: msg,
-//       })
-//       .send();
-
-//     console.error(msg);
-//   }
-
-//   res.status(200).json({
-//     success: true,
-//     message: 'Token generated. Development...',
-//     token,
-//   });
-// });
+// Get Apple Music developer token
+app.get('/devtoken', appleTokenHandler);
 
 // app.post('/apple', async (req: Request, res: Response) => {
 //   // Get token from Request
@@ -186,25 +155,6 @@ app.post('/spotify', spotifyPresaveHandler);
 //     console.error(error);
 //     throw new Error(error);
 //   }
-// });
-
-// app.get('/status', async (req: Request, res: Response) => {
-//   const key = req.headers.key;
-//   if (key !== process.env.STATUS_KEY) {
-//     res.status(401).send();
-//     return;
-//   }
-
-//   const doc = await statsRef.get();
-//   const stats = doc.data();
-
-//   res
-//     .status(200)
-//     .json({
-//       success: true,
-//       stats,
-//     })
-//     .send();
 // });
 
 // app.post('/register', async (req: Request, res: Response) => {
@@ -328,130 +278,6 @@ app.post('/spotify', spotifyPresaveHandler);
 // // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 
-// /**
-//  * Return server error
-//  * @param error Encountered error
-//  * @param res Response class of active route
-//  */
-// const returnServerError = (error: Error, res: Response) => {
-//   console.error(error);
-
-//   res
-//     .status(500)
-//     .json({
-//       success: false,
-//       message: error,
-//     })
-//     .send();
-// };
-
-// /**
-//  * Get user data with token
-//  * @param token Spotify auth token
-//  */
-// const getUser = async (token: string): Promise<SpotifyUser> => {
-//   const endpoint = 'https://api.spotify.com/v1/me';
-
-//   try {
-//     const userRes = await axios.get(endpoint, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-
-//     return userRes.data as SpotifyUser;
-//   } catch (error) {
-//     console.error(error);
-//     throw new Error(error);
-//   }
-// };
-
-// // Check if the user has presaved
-// const checkIfFirstSpotifySave = async (id: string) => {
-//   const userDocsSnap = await admin
-//     .firestore()
-//     .collection('spotifyPresaves')
-//     .where('user.id', '==', id)
-//     .get();
-//   const size = userDocsSnap.size;
-
-//   if (size > 0) {
-//     return false;
-//   } else {
-//     return true;
-//   }
-// };
-
-// // Check if auth token was already used
-// const checkSpotifyAuthCodeFirstUse = async (authCode: string) => {
-//   const authCodeSnap = await admin
-//     .firestore()
-//     .collection('spotifyPresaves')
-//     .where('authCodes', 'array-contains', authCode)
-//     .get();
-//   const size = authCodeSnap.size;
-
-//   if (size > 0) {
-//     return false;
-//   } else {
-//     return true;
-//   }
-// };
-
-// // Register presave in Firestore
-// const registerSpotifyPresave = async (
-//   authData: SpotifyAuthorizationData,
-//   userData: SpotifyUser,
-//   authCode: string,
-//   dataId: string = ''
-// ) => {
-//   const docData = {
-//     authorization: authData,
-//     user: userData,
-//     timestamp: admin.firestore.FieldValue.serverTimestamp(),
-//     hasSaved: false,
-//     authCodes: [authCode],
-//     dataId,
-//   };
-
-//   const docRef = admin.firestore().collection('spotifyPresaves').doc();
-
-//   const batch = admin.firestore().batch();
-//   batch.set(docRef, docData);
-//   batch.set(
-//     statsRef,
-//     {
-//       saves: increment,
-//       spotify: increment,
-//     },
-//     {merge: true}
-//   );
-//   return batch.commit();
-// };
-
-// /** Add auth code to an existing presave */
-// const registerAuthCodeForExistingSpotifyPresave = async (
-//   id: string,
-//   authCode: string
-// ) => {
-//   const presaveDocsSnap = await admin
-//     .firestore()
-//     .collection('spotifyPresaves')
-//     .where('user.id', '==', id)
-//     .get();
-//   const docId = presaveDocsSnap.docs[0].id;
-//   await admin
-//     .firestore()
-//     .collection('spotifyPresaves')
-//     .doc(docId)
-//     .set(
-//       {
-//         authCodes: admin.firestore.FieldValue.arrayUnion(authCode),
-//       },
-//       {merge: true}
-//     );
-// };
-
 // // Register Apple Presave in Firestore
 // const registerApplePresave = async (
 //   token: string,
@@ -479,33 +305,6 @@ app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 //     {merge: true}
 //   );
 //   return batch.commit();
-// };
-
-// /**
-//  * Create signed Apple Developer token
-//  * @returns Signed token
-//  */
-// const createAppleToken = (): string | null => {
-//   // Read private Apple Music key
-//   const privateKey = process.env.APPLE_PRIVATE_KEY;
-
-//   if (privateKey === undefined || privateKey === null) {
-//     return null;
-//   }
-
-//   const key = privateKey.replace(/\\n/gm, '\n');
-
-//   // Current UNIX timestamp + UNIX timestamp in 6 months
-//   const currentTime: number = Math.floor(Date.now() / 1000);
-//   const expiryTime: number = currentTime + 15777000;
-
-//   const jwtPayload = {
-//     iss: '8FCF4L99M8',
-//     iat: currentTime,
-//     exp: expiryTime,
-//   };
-
-//   return jwt.sign(jwtPayload, key, {algorithm: 'ES256', keyid: '2XNHW5P3K5'});
 // };
 
 // // Get localization for Apple Music user
