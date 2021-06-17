@@ -17,6 +17,7 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import {spotifyPresaveHandler} from './controllers/spotify.controller';
 import {appleSaveHandler, appleTokenHandler} from './controllers/apple.controller';
+import {ticketGenerationHandler} from './controllers/ticket.controller';
 
 const storage = new Storage();
 const app: Application = express();
@@ -114,6 +115,12 @@ app.get('/apple/token', appleTokenHandler);
 // Apple Music save endpoint
 app.post('/apple', appleSaveHandler);
 
+// Ticket generation endpoint
+app.post('/ticket', ticketGenerationHandler);
+
+// Ticket retrieval endpoint
+// app.get('/ticket')
+
 // app.post('/register', async (req: Request, res: Response) => {
 //   if (req.body === undefined) {
 //     res
@@ -172,7 +179,7 @@ app.post('/apple', appleSaveHandler);
 //     {
 //       ticketsGenerated: increment,
 //     },
-//     {merge: true}
+//     {merge: true}()
 //   );
 
 //   await Promise.all(promises);
@@ -236,141 +243,6 @@ app.post('/apple', appleSaveHandler);
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 
 // /**
-//  * Create a vertical ticket with user defined variables
-//  *
-//  * Creates canvas with background image with variables overlaid
-//  *
-//  * Uploads the file to Google Cloud Storage and retrieves a signed URL for download
-//  *
-//  * @param name UGC: Name of user
-//  * @param departing UGC: Departing location of user
-//  * @param destination UGC: Destination location of user
-//  * @param index nth presave
-//  * @param id ID to link to front-end
-//  */
-// const createVerticalImage = async (
-//   name: string,
-//   departing: string,
-//   destination: string,
-//   index: number,
-//   id: string
-// ) => {
-//   const backColor = '#232323';
-//   const textColor = '#E9E7DA';
-
-//   const canvas = createCanvas(1080, 1920);
-//   const ctx = canvas.getContext('2d');
-
-//   registerFont(`./assets/Ticketing.ttf`, {family: 'Ticketing'});
-//   const ticket = await loadImage('./assets/ticket-vertical.jpg');
-
-//   ctx.drawImage(ticket, 0, 0);
-//   ctx.font = '52px Ticketing';
-//   ctx.textBaseline = 'top';
-
-//   // DRAW NAME
-//   const nameWidth = ctx.measureText(name).width;
-//   ctx.fillStyle = backColor;
-//   ctx.fillRect(246, 606, nameWidth, 44);
-//   ctx.fillStyle = textColor;
-//   ctx.fillText(name, 248, 600);
-
-//   // DRAW BARCODE
-//   const barcode = createBarcode(index);
-//   const barcodeWidth = ctx.measureText(barcode).width;
-//   ctx.fillStyle = backColor;
-//   ctx.fillRect(246, 1398, barcodeWidth, 44);
-//   ctx.fillStyle = textColor;
-//   ctx.fillText(barcode, 248, 1392);
-
-//   // DRAW DEPARTING
-//   ctx.fillStyle = backColor;
-//   ctx.fillText(departing, 246, 885);
-
-//   // DRAW DESTINATION
-//   ctx.fillStyle = backColor;
-//   ctx.fillText(destination, 246, 1078);
-
-//   const buffer = canvas.toBuffer('image/jpeg');
-//   const filename = `./output/vert-${id}.jpg`;
-//   fs.writeFileSync(filename, buffer);
-
-//   const res = await bucket.upload(filename, {
-//     destination: `tickets/${id}/DROELOE-ticket-vertical.jpg`,
-//   });
-
-//   fs.unlinkSync(filename);
-
-//   return;
-// };
-
-// /**
-//  * Create a horizontal ticket with user defined variables
-//  *
-//  * Creates canvas with background image with variables overlaid
-//  *
-//  * Uploads the file to Google Cloud Storage and retrieves a signed URL for download
-//  *
-//  * @param name UGC: Name of user
-//  * @param departing UGC: Departing location of user
-//  * @param destination UGC: Destination location of user
-//  * @param index nth presave
-//  * @param id ID to link to front-end
-//  */
-// const createHorizontalImage = async (
-//   name: string,
-//   departing: string,
-//   destination: string,
-//   index: number,
-//   id: string
-// ) => {
-//   const backColor = '#232323';
-//   const textColor = '#597BE3';
-
-//   const canvas = createCanvas(1920, 1080);
-//   const ctx = canvas.getContext('2d');
-
-//   registerFont(`./assets/Ticketing.ttf`, {family: 'Ticketing'});
-//   const ticket = await loadImage('./assets/ticket-horizontal.jpg');
-
-//   ctx.drawImage(ticket, 0, 0);
-//   ctx.font = '52px Ticketing';
-//   ctx.textBaseline = 'top';
-
-//   // DRAW NAME
-//   const nameWidth = ctx.measureText(name).width;
-//   ctx.fillStyle = backColor;
-//   ctx.fillRect(780, 96, nameWidth, 44);
-//   ctx.fillStyle = textColor;
-//   ctx.fillText(name, 782, 90);
-
-//   // DRAW BARCODE
-//   const barcode = createBarcode(index);
-//   ctx.fillStyle = backColor;
-//   ctx.fillText(barcode, 505, 950);
-
-//   // DRAW DEPARTING
-//   ctx.fillStyle = backColor;
-//   ctx.fillText(departing, 505, 468);
-
-//   // DRAW DESTINATION
-//   ctx.fillStyle = backColor;
-//   ctx.fillText(destination, 505, 668);
-
-//   const buffer = canvas.toBuffer('image/jpeg');
-//   const filename = `./output/hor-${id}.jpg`;
-//   fs.writeFileSync(filename, buffer);
-
-//   const res = await bucket.upload(filename, {
-//     destination: `tickets/${id}/DROELOE-ticket-horizontal.jpg`,
-//   });
-
-//   fs.unlinkSync(filename);
-
-//   return;
-// };
-
-// /**
 //  * Get signed URLs for all files from the given data ID
 //  * @param id ID that is used to connect to right user
 //  */
@@ -394,17 +266,4 @@ app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
 //   }
 
 //   return urls;
-// };
-
-// /**
-//  * Create barcode string from an ID
-//  * @param index ID at the end of the barcode
-//  * @returns Barcode string in 0000 0000 0000 0012 format
-//  */
-// const createBarcode = (index: number) => {
-//   const baseString = '0000000000000000';
-//   const code = `${baseString}${index}`.slice(-16);
-//   const elements = code.match(/.{4}/g);
-//   // tslint:disable-next-line: no-non-null-assertion
-//   return `${elements![0]} ${elements![1]} ${elements![2]} ${elements![3]}`;
 // };
