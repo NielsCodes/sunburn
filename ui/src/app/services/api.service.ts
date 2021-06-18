@@ -22,7 +22,7 @@ export class ApiService {
   /** Get Apple Developer token from server */
   async getAppleToken() {
 
-    const endpoint = `${this.rootEndpoint}/devtoken`;
+    const endpoint = `${this.rootEndpoint}/apple/token`;
     const res = await this.http.get<AppleTokenResult>(endpoint).toPromise();
 
     if (res.success) {
@@ -39,7 +39,7 @@ export class ApiService {
    */
   async registerApplePresave(token: string) {
 
-    const dataId = localStorage.getItem('dataID');
+    const dataId = localStorage.getItem('dataId');
 
     const endpoint = `${this.rootEndpoint}/apple`;
     try {
@@ -55,10 +55,10 @@ export class ApiService {
 
   }
 
-  /** Create unique ID to retrieve rendered tickets from server */
-  createDataID(): string {
+  /** Create unique ID to identify rendered tickets */
+  createDataId(): string {
     const uuid = uuidv4();
-    localStorage.setItem('dataID', uuid);
+    localStorage.setItem('dataId', uuid);
     return uuid;
   }
 
