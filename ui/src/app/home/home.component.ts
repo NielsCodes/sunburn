@@ -80,7 +80,7 @@ export class HomeComponent {
     this.scripts.loadMusicKit().pipe(filter((status: boolean) => status === true)).subscribe((status: boolean) => {
       // TODO: Rewrite as async?
       this.api.getAppleToken()
-        .then((token) => {
+        .then(async (token) => {
           this.appleToken = token;
           MusicKit.configure({
             developerToken: this.appleToken,
@@ -137,7 +137,6 @@ export class HomeComponent {
    * - If MusicKit JS has not yet loaded, wait for it to load
    */
   onAppleLogin() {
-
     const hasSaved = localStorage.getItem('appleSave');
 
     if (hasSaved === 'true') {

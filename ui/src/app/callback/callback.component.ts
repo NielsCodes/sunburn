@@ -59,7 +59,7 @@ declare const fbq: any;
 })
 export class CallbackComponent implements OnInit{
 
-  private pageURL = 'https://presave.droeloe.com';
+  private pageURL = 'https://sunburn.niels.codes';
   private presaveSuccessful = false;
   reward: string;
   loadingState = 'loading';
@@ -119,10 +119,6 @@ export class CallbackComponent implements OnInit{
       if (ref === 'messenger') {
         this.referrer = 'messenger';
         this.presaveSuccessful = true;
-        if (this.cookie.trackingActive) {
-          fbq('trackCustom', 'presave', { platform: 'messenger' });
-          this.analytics.logEvent('presave', { platform: 'messenger' });
-        }
         this.updateLoadingState();
       } else if (ref === 'apple') {
         this.referrer = 'apple';
@@ -137,10 +133,6 @@ export class CallbackComponent implements OnInit{
             this.presaveSuccessful = appleState;
             localStorage.setItem('appleSave', 'true');
             this.updateLoadingState();
-            if (this.cookie.trackingActive) {
-              fbq('trackCustom', 'presave', { platform: 'apple' });
-              this.analytics.logEvent('presave', { platform: 'apple' });
-            }
           });
 
         }
@@ -156,20 +148,12 @@ export class CallbackComponent implements OnInit{
         this.http.post(`${this.rootEndpoint}/spotify`, { auth_code: code, dataId: this.dataId }).toPromise()
 
           .then((res: PresaveResponse) => {
-
             if (res.success) {
               this.presaveSuccessful = true;
               this.updateLoadingState();
-
-              if (this.cookie.trackingActive) {
-                fbq('trackCustom', 'presave', { platform: 'spotify' });
-                this.analytics.logEvent('presave', { platform: 'spotify' });
-              }
-
             } else {
               this.router.navigate(['/']);
             }
-
           })
           .catch(err => {
             console.error(err);
@@ -206,17 +190,15 @@ export class CallbackComponent implements OnInit{
   }
 
   async updateLoadingState() {
-
     if (this.presaveSuccessful) {
       this.loadingState = 'loaded';
 
       if (this.dataId === undefined) {
-        this.dataId = localStorage.getItem('dataID');
+        this.dataId = localStorage.getItem('dataId');
       }
 
       this.urls = await this.api.getTickets(this.dataId);
       this.stage = 'download';
-
     }
 
   }
@@ -231,46 +213,28 @@ export class CallbackComponent implements OnInit{
     const facebookBaseURL = 'https://www.facebook.com/sharer/sharer.php?u=';
     const shareURL = encodeURI(`${facebookBaseURL}${this.pageURL}`);
     window.open(shareURL, 'Share to Facebook', 'left=0,top=0,height=500,width=500');
-    fbq('trackCustom', 'presaveShare', { platform: 'facebook' });
-    this.analytics.logEvent('presaveShare', { platform: 'facebook' });
   }
 
   // Share on Twitter
   onShareToTwitter(): void {
-
     const windowFeatures = 'toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
-    const url = `${this.rootEndpoint}/auth/twitter?dataId=${this.dataId}`;
+    const url = `${this.rootEndpoint}/twitter/auth?dataId=${this.dataId}`;
 
-    fbq('trackCustom', 'presaveShare', { platform: 'twitter' });
-    this.analytics.logEvent('presaveShare', { platform: 'twitter' });
-
-    if (this.popupReference === null || this.popupReference === undefined || this.popupReference.closed) {
-      this.popupReference = window.open(url, 'Share to Twitter', windowFeatures);
-    } else {
-      this.popupReference = window.open(url, 'Share to Twitter', windowFeatures);
-      this.popupReference.focus();
-    }
-
+    this.popupReference = window.open(url, 'Share to Twitter', windowFeatures);
+    this.popupReference.focus();
   }
 
   // Open share menu on mobile devices
   onMobileShare(): void {
-
     this.nav.share({
       title: '🎟️',
       url: this.pageURL
     });
-
-    fbq('trackCustom', 'presaveShare', { platform: 'mobile' });
-    this.analytics.logEvent('presaveShare', { platform: 'mobile' });
-
   }
 
   async onDownload() {
     await this.api.downloadTickets(this.urls.vertical, this.urls.horizontal);
     this.stage = 'share';
-    fbq('trackCustom', 'ticketDownload');
-    this.analytics.logEvent('ticketDownload');
   }
 
 }

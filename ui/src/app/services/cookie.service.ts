@@ -19,7 +19,6 @@ export class CookieService {
    }
 
   checkConsent() {
-
     const local = localStorage.getItem('cookieConsent');
     if (local === 'true') {
       this.hasConsented.next(true);
@@ -47,8 +46,6 @@ export class CookieService {
     localStorage.removeItem('cookieConsent');
     // Disable Firebase analytics
     this.analytics.setAnalyticsCollectionEnabled(false);
-    // Remove FB Pixel
-    this.scripts.removePixel();
     this.trackingActive = false;
     this.checkConsent();
   }
@@ -57,10 +54,10 @@ export class CookieService {
     // Enable Firebase analytics
     this.analytics.setAnalyticsCollectionEnabled(true);
 
-    // Enable FB Pixel
-    this.scripts.loadPixel();
+    // // Enable FB Pixel
+    // this.scripts.loadPixel();
 
-    this.trackingActive = true;
+    // this.trackingActive = true;
   }
 
 }

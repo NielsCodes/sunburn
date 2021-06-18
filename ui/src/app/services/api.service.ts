@@ -38,7 +38,6 @@ export class ApiService {
    * @param token Apple Music User token
    */
   async registerApplePresave(token: string) {
-
     const dataId = localStorage.getItem('dataId');
 
     const endpoint = `${this.rootEndpoint}/apple`;
@@ -71,8 +70,7 @@ export class ApiService {
    * @param id Generated unique ID
    */
   async registerData(name: string, origin: string, destination: string, email: string, id: string) {
-
-    const endpoint = `${this.rootEndpoint}/register`;
+    const endpoint = `${this.rootEndpoint}/ticket`;
 
     try {
       const res = await this.http.post<{success: boolean, message: string}>(endpoint, {
@@ -89,7 +87,6 @@ export class ApiService {
     } catch (error) {
       console.error(error);
     }
-
   }
 
   /**
@@ -97,12 +94,11 @@ export class ApiService {
    * - Get file URLs from Google Cloud Storage by unique data ID
    */
   async getTickets(dataId: string) {
-
     if (dataId === null) {
       throw Error('No valid data ID found');
     }
 
-    const endpoint = `${this.rootEndpoint}/tickets`;
+    const endpoint = `${this.rootEndpoint}/ticket`;
     try {
       const res = await this.http.get<{success: boolean, urls: { vertical: string, horizontal: string}}>(endpoint, {
         params: {
@@ -115,7 +111,6 @@ export class ApiService {
     } catch (error) {
       console.error(error);
     }
-
   }
 
   /** Download ticket files to devices from passed URLs */
