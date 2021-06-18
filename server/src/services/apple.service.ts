@@ -40,7 +40,7 @@ export const saveTrackToLibrary = async (
   const devToken = createAppleDeveloperToken();
   const authorization = `Bearer ${devToken}`;
 
-  axios.post(endpoint, null, {
+  await axios.post(endpoint, null, {
     headers: {
       Authorization: authorization,
       'Music-User-Token': musicUserToken,

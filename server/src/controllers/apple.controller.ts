@@ -2,7 +2,7 @@ import {Request, Response} from 'express';
 import {
   createAppleDeveloperToken,
   saveTrackToLibrary,
-} from '../services/apple.services';
+} from '../services/apple.service';
 
 /** Controller to handle Apple Dev Token requests */
 export const appleTokenHandler = async (req: Request, res: Response) => {
