@@ -16,23 +16,18 @@ import qs from 'qs';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import {spotifyPresaveHandler} from './controllers/spotify.controller';
-import {appleSaveHandler, appleTokenHandler} from './controllers/apple.controller';
-import {ticketGenerationHandler} from './controllers/ticket.controller';
-
-const storage = new Storage();
-const app: Application = express();
-const port = process.env.PORT || 8080;
-const apiVersion = '3.0-portfolio';
-let bucket: Bucket;
-let twitter: Twitter;
+import {
+  appleSaveHandler,
+  appleTokenHandler,
+} from './controllers/apple.controller';
+import {ticketGenerationHandler, ticketRetrievalHandler} from './controllers/ticket.controller';
 
 require('dotenv').config();
 
-// if (process.env.ENV === 'prod') {
-//   bucket = storage.bucket('bitbird-presave-bucket');
-// } else {
-//   bucket = storage.bucket('bitbird-presave-dev-bucket');
-// }
+const app: Application = express();
+const port = process.env.PORT || 8080;
+const apiVersion = '3.0-portfolio';
+// let twitter: Twitter;
 
 // passport.serializeUser((user, cb) => {
 //   cb(null, user);
@@ -119,79 +114,7 @@ app.post('/apple', appleSaveHandler);
 app.post('/ticket', ticketGenerationHandler);
 
 // Ticket retrieval endpoint
-// app.get('/ticket')
-
-// app.post('/register', async (req: Request, res: Response) => {
-//   if (req.body === undefined) {
-//     res
-//       .status(400)
-//       .json({
-//         success: false,
-//         message: 'No request body passed',
-//       })
-//       .send()
-//       .end();
-//     return;
-//   }
-
-//   const name = req.body.name;
-//   const origin = req.body.origin;
-//   const destination = req.body.destination;
-//   const id = req.body.id;
-//   const email = req.body.email;
-
-//   const params = [name, origin, destination, id, email];
-//   if (params.includes(undefined)) {
-//     res
-//       .status(400)
-//       .json({
-//         success: false,
-//         message: `Missing request body item. Make sure you pass 'name', 'origin', 'destination', 'email' and 'id'`,
-//       })
-//       .send()
-//       .end();
-//     return;
-//   }
-
-//   // Log in Firestore
-//   const docRef = admin.firestore().collection('ticketData').doc();
-//   await docRef.create({
-//     name,
-//     origin,
-//     destination,
-//     email,
-//     id,
-//     createdAt: admin.firestore.FieldValue.serverTimestamp(),
-//   });
-
-//   const statsSnapshot = await statsRef.get();
-//   const ticketsGenerated = statsSnapshot.data()?.ticketsGenerated;
-//   const ticketId = ticketsGenerated + 1;
-
-//   // Create tickets
-//   // tslint:disable-next-line: max-line-length
-//   const promises = [
-//     createVerticalImage(name, origin, destination, ticketId, id),
-//     createHorizontalImage(name, origin, destination, ticketId, id),
-//   ];
-
-//   await statsRef.set(
-//     {
-//       ticketsGenerated: increment,
-//     },
-//     {merge: true}()
-//   );
-
-//   await Promise.all(promises);
-
-//   res
-//     .status(200)
-//     .json({
-//       success: true,
-//       message: `Tickets generated with ID ${id}`,
-//     })
-//     .send();
-// });
+app.get('/ticket', ticketRetrievalHandler);
 
 // app.get('/tickets', async (req: Request, res: Response) => {
 //   const id = req.query.id as string;
@@ -241,29 +164,3 @@ app.post('/ticket', ticketGenerationHandler);
 
 // // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
-
-// /**
-//  * Get signed URLs for all files from the given data ID
-//  * @param id ID that is used to connect to right user
-//  */
-// const getSignedURLs = async (id: string) => {
-//   const expiration = Date.now() + 604800;
-//   const urls: {vertical?: string; horizontal?: string} = {};
-
-//   const [files] = await bucket.getFiles({prefix: `tickets/${id}`});
-//   for (const file of files) {
-//     const [signedURL] = await file.getSignedUrl({
-//       action: 'read',
-//       expires: expiration,
-//       version: 'v4',
-//     });
-
-//     if (file.name.includes('vertical')) {
-//       urls.vertical = signedURL;
-//     } else {
-//       urls.horizontal = signedURL;
-//     }
-//   }
-
-//   return urls;
-// };

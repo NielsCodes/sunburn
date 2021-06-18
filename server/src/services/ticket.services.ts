@@ -2,9 +2,13 @@ import {Storage} from '@google-cloud/storage';
 import {createCanvas, loadImage, registerFont} from 'canvas';
 import fs from 'fs';
 
-// const storage = new Storage();
-// const bucketName = process.env.FILE_BUCKET!;
-// const bucket = storage.bucket(bucketName);
+require('dotenv').config();
+
+const storage = new Storage();
+const bucketName = process.env.FILE_BUCKET;
+const bucket = storage.bucket(bucketName!);
+
+registerFont('./assets/Ticketing.ttf', {family: 'Ticketing'});
 
 /**
  * Create a vertical ticket with user defined variables
@@ -32,7 +36,6 @@ export const createVerticalImage = async (
   const canvas = createCanvas(1080, 1920);
   const ctx = canvas.getContext('2d');
 
-  registerFont('./assets/Ticketing.ttf', {family: 'Ticketing'});
   const ticket = await loadImage('./assets/ticket-vertical.jpg');
 
   ctx.drawImage(ticket, 0, 0);
@@ -66,11 +69,11 @@ export const createVerticalImage = async (
   const filename = `./output/vert-${id}.jpg`;
   fs.writeFileSync(filename, buffer);
 
-  // await bucket.upload(filename, {
-  //   destination: `tickets/${id}/DROELOE-ticket-vertical.jpg`,
-  // });
+  await bucket.upload(filename, {
+    destination: `tickets/${id}/DROELOE-ticket-vertical.jpg`,
+  });
 
-  // fs.unlinkSync(filename);
+  fs.unlinkSync(filename);
 
   return;
 };
@@ -101,7 +104,6 @@ export const createHorizontalImage = async (
   const canvas = createCanvas(1920, 1080);
   const ctx = canvas.getContext('2d');
 
-  registerFont('./assets/Ticketing.ttf', {family: 'Ticketing'});
   const ticket = await loadImage('./assets/ticket-horizontal.jpg');
 
   ctx.drawImage(ticket, 0, 0);
@@ -132,13 +134,39 @@ export const createHorizontalImage = async (
   const filename = `./output/hor-${id}.jpg`;
   fs.writeFileSync(filename, buffer);
 
-  // await bucket.upload(filename, {
-  //   destination: `tickets/${id}/DROELOE-ticket-horizontal.jpg`,
-  // });
+  await bucket.upload(filename, {
+    destination: `tickets/${id}/DROELOE-ticket-horizontal.jpg`,
+  });
 
-  // fs.unlinkSync(filename);
+  fs.unlinkSync(filename);
 
   return;
+};
+
+/**
+ * Get signed URLs for all files for the given data ID
+ * @param id ID that is used to connect to right user
+ */
+export const getSignedURLs = async (id: string) => {
+  const expiration = Date.now() + 604800;
+  const urls: {vertical?: string; horizontal?: string} = {};
+
+  const [files] = await bucket.getFiles({prefix: `tickets/${id}`});
+  for (const file of files) {
+    const [signedURL] = await file.getSignedUrl({
+      action: 'read',
+      expires: expiration,
+      version: 'v4',
+    });
+
+    if (file.name.includes('vertical')) {
+      urls.vertical = signedURL;
+    } else {
+      urls.horizontal = signedURL;
+    }
+  }
+
+  return urls;
 };
 
 /**

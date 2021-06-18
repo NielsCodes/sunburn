@@ -11,10 +11,6 @@ export const createAppleDeveloperToken = (): string => {
   if (!privateKey) throw Error('No Apple Private Key environment variable');
 
   const key = privateKey.replace(/\\n/gm, '\n');
-  console.log({
-    key,
-    privateKey,
-  });
 
   // Current UNIX timestamp + UNIX timestamp in 6 months
   const currentTime: number = Math.floor(Date.now() / 1000);
