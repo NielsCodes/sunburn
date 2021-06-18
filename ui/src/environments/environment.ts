@@ -1,7 +1,3 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
-
 export const environment = {
   production: false,
   firebase: {
@@ -15,7 +11,7 @@ export const environment = {
     measurementId: 'G-60G7PF9HYR'
   },
   /** API endpoint for authentication purposes */
-  endpoint: 'https://presave-api-43txmxojmq-uc.a.run.app',
+  endpoint: 'http://localhost:8080',
   /** Redirect URL for Spotify authentication */
-  redirect: 'https://presave-app-dev.web.app/callback'
+  redirect: 'http://localhost:4200/callback'
 };
