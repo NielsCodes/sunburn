@@ -1,90 +1,90 @@
-import {
-  SpotifyAuthorizationData,
-  SpotifyAuthorization,
-  SpotifyUser,
-} from './models';
-import express, {Response, Request, Application, NextFunction} from 'express';
-import {createCanvas, loadImage, registerFont} from 'canvas';
-import {Storage, Bucket} from '@google-cloud/storage';
+import express, {Response, Request, Application} from 'express';
 import {Strategy as TwitterStrategy} from 'passport-twitter';
 import Twitter from 'twitter';
-import admin from 'firebase-admin';
-import axios from 'axios';
 import passport from 'passport';
-import fs from 'fs';
-import qs from 'qs';
 import cors from 'cors';
-import jwt from 'jsonwebtoken';
 import {spotifyPresaveHandler} from './controllers/spotify.controller';
 import {
   appleSaveHandler,
   appleTokenHandler,
 } from './controllers/apple.controller';
-import {ticketGenerationHandler, ticketRetrievalHandler} from './controllers/ticket.controller';
+import {
+  ticketGenerationHandler,
+  ticketRetrievalHandler,
+} from './controllers/ticket.controller';
+import {
+  twitterAuthHandler,
+  twitterCallbackHandler,
+} from './controllers/twitter.controller';
+import {getFileData} from './services/ticket.service';
 
 require('dotenv').config();
 
 const app: Application = express();
 const port = process.env.PORT || 8080;
 const apiVersion = '3.0-portfolio';
-// let twitter: Twitter;
-
-// passport.serializeUser((user, cb) => {
-//   cb(null, user);
-// });
-
-// passport.deserializeUser((obj, cb) => {
-//   cb(null, obj);
-// });
-
-// passport.use(
-//   new TwitterStrategy(
-//     {
-//       consumerKey: process.env.TWITTER_CONSUMER_KEY as string,
-//       consumerSecret: process.env.TWITTER_CONSUMER_SECRET as string,
-//       callbackURL: `/oauth/callback`,
-//       passReqToCallback: true,
-//     },
-//     async (req, token, tokenSecret, profile, callback) => {
-//       twitter = new Twitter({
-//         consumer_key: process.env.TWITTER_CONSUMER_KEY as string,
-//         consumer_secret: process.env.TWITTER_CONSUMER_SECRET as string,
-//         access_token_key: token,
-//         access_token_secret: tokenSecret,
-//       });
-
-//       const fileDownload = await bucket
-//         .file(`tickets/${req.session!.dataId}/DROELOE-ticket-horizontal.jpg`)
-//         .download();
-//       const fileData = fileDownload[0];
-
-//       twitter.post(
-//         'media/upload',
-//         {media: fileData},
-//         (error: any, media: any, response: any) => {
-//           if (!error) {
-//             twitter.post(
-//               'statuses/update',
-//               {
-//                 status: `🎟️🎟️🎟️ @DROELOEMUSIC @bitbird https://presave.droeloe.com`,
-//                 media_ids: media.media_id_string,
-//               },
-//               (tweetError: any, tweet: any, tweetResponse: any) => null
-//             );
-//           } else {
-//             throw Error(error);
-//           }
-//         }
-//       );
-
-//       return callback(null, profile);
-//     }
-//   )
-// );
+let twitter: Twitter;
 
 // Use JSON parser
 app.use(express.json());
 app.use(cors());
+
+// No clue what this does
+passport.serializeUser((user, cb) => {
+  cb(null, user);
+});
+passport.deserializeUser((obj, cb) => {
+  cb(null, obj);
+});
+
+passport.use(
+  new TwitterStrategy(
+    {
+      consumerKey: process.env.TWITTER_KEY!,
+      consumerSecret: process.env.TWITTER_SECRET!,
+      callbackURL: '/twitter/callback',
+      passReqToCallback: true,
+    },
+    async (req, token, tokenSecret, profile, callback) => {
+      twitter = new Twitter({
+        consumer_key: process.env.TWITTER_KEY!,
+        consumer_secret: process.env.TWITTER_SECRET!,
+        access_token_key: token,
+        access_token_secret: tokenSecret,
+      });
+
+      const fileData = await getFileData(req.session!.dataId);
+
+      twitter.post(
+        'media/upload',
+        {media: fileData},
+        // eslint-disable-next-line
+        (error: unknown, media: any, response: unknown) => {
+          if (!error) {
+            twitter.post(
+              'statuses/update',
+              {
+                // status: '🎟️🎟️🎟️ @DROELOEMUSIC @bitbird https://presave.droeloe.com',
+                status:
+                  '🎟️🎟️🎟️ I created this @DROELOEMUSIC ticket at https://sunburn.niels.codes, a portfolio project by @NielsCodes',
+                media_ids: media.media_id_string,
+              },
+              // eslint-disable-next-line
+              (tweetError: unknown, tweet: unknown, tweetResponse: unknown) =>
+                null
+            );
+          } else {
+            throw error;
+          }
+        }
+      );
+
+      return callback(null, profile);
+    }
+  )
+);
+
+// This is necessary for the Twitter share function
 app.use(
   require('express-session')({
     secret: 'a matter of perspective',
@@ -116,51 +116,12 @@ app.post('/ticket', ticketGenerationHandler);
 // Ticket retrieval endpoint
 app.get('/ticket', ticketRetrievalHandler);
 
-// app.get('/tickets', async (req: Request, res: Response) => {
-//   const id = req.query.id as string;
+app.get('/twitter/auth', twitterAuthHandler, passport.authenticate('twitter'));
 
-//   if (id === undefined || id === null) {
-//     res
-//       .status(400)
-//       .json({
-//         success: false,
-//         message: 'No data ID passed',
-//       })
-//       .send();
-//     return;
-//   }
+app.get(
+  '/twitter/callback',
+  passport.authenticate('twitter'),
+  twitterCallbackHandler
+);
 
-//   const urls = await getSignedURLs(id);
-
-//   res
-//     .status(200)
-//     .json({
-//       success: true,
-//       urls,
-//     })
-//     .send();
-// });
-
-// app.get(
-//   '/auth/twitter',
-//   (req: Request, res: Response, next: NextFunction) => {
-//     /**
-//      * req.query gets overwritten by OAuth
-//      * Passing data ID to req.sessions enables retrieval in Passport auth callback
-//      */
-//     req.session!.dataId = req.query.dataId;
-//     next();
-//   },
-//   passport.authenticate('twitter')
-// );
-
-// app.get(
-//   '/oauth/callback',
-//   passport.authenticate('twitter'),
-//   (req: Request, res: Response) => {
-//     res.send('<script>window.close()</script>');
-//   }
-// );
-
-// // Start listening on defined port
 app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));

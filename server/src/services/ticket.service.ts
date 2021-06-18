@@ -170,6 +170,18 @@ export const getSignedURLs = async (id: string) => {
 };
 
 /**
+ * Get a horizontal ticket's file data from GCS by its uuid
+ * @param id the presave UUID
+ * @returns the raw file data
+ */
+export const getFileData = async (id: string) => {
+  const fileDownload = await bucket
+    .file(`tickets/${id}/DROELOE-ticket-horizontal.jpg`)
+    .download();
+  return fileDownload[0];
+};
+
+/**
  * Create barcode string from an ID
  * @param index ID at the end of the barcode
  * @returns Barcode string in 0000 0000 0000 0012 format

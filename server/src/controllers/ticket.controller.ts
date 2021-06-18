@@ -3,7 +3,7 @@ import {
   createHorizontalImage,
   createVerticalImage,
   getSignedURLs,
-} from '../services/ticket.services';
+} from '../services/ticket.service';
 
 /** Controller to handle ticket generation requests */
 export const ticketGenerationHandler = async (req: Request, res: Response) => {
