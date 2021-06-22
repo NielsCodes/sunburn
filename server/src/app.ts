@@ -22,11 +22,6 @@ if (process.env.ENV !== 'prod') {
   require('dotenv').config();
 }
 
-console.log({
-  twitterKey: process.env.TWITTER_KEY,
-  twitterSecret: process.env.TWITTER_SECRET,
-});
-
 const app: Application = express();
 const port = process.env.PORT || 8080;
 const apiVersion = '3.0-portfolio';
