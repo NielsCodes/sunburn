@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "nielscodes-portfolio-projects"
+  },
+  "targets": {
+    "nielscodes-portfolio-projects": {
+      "hosting": {
+        "sunburn": [
+          "sunburn"
+        ]
+      }
+    }
+  }
+}
