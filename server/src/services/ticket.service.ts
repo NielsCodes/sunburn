@@ -171,6 +171,9 @@ export const getSignedURLs = async (id: string) => {
 
 /**
  * Get a horizontal ticket's file data from GCS by its uuid
+ *
+ * Used for Twitter sharing feature
+ *
  * @param id the presave UUID
  * @returns the raw file data
  */
