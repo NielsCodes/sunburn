@@ -18,7 +18,9 @@ import {
 } from './controllers/twitter.controller';
 import {getFileData} from './services/ticket.service';
 
-require('dotenv').config();
+if (process.env.ENV !== 'prod') {
+  require('dotenv').config();
+}
 
 const app: Application = express();
 const port = process.env.PORT || 8080;
