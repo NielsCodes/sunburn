@@ -77,21 +77,16 @@ export class HomeComponent {
     private cookieService: CookieService
   ) {
     this.onResize();
-    this.scripts.loadMusicKit().pipe(filter((status: boolean) => status === true)).subscribe((status: boolean) => {
-      // TODO: Rewrite as async?
-      this.api.getAppleToken()
-        .then(async (token) => {
-          this.appleToken = token;
-          MusicKit.configure({
-            developerToken: this.appleToken,
-            app: {
-              name: 'bitbird presaves',
-              build: '2.0.0'
-            }
-          });
-          this.music = MusicKit.getInstance();
-        });
-
+    this.scripts.loadMusicKit().pipe(filter((status: boolean) => status === true)).subscribe(async (status: boolean) => {
+      this.appleToken = await this.api.getAppleToken();
+      MusicKit.configure({
+        developerToken: this.appleToken,
+        app: {
+          name: 'bitbird presaves',
+          build: '2.0.0'
+        }
+      });
+      this.music = MusicKit.getInstance();
     });
 
     // Only show the first UI step once the background image has loaded
@@ -121,11 +116,11 @@ export class HomeComponent {
   /** Redirect user to the Spotify Auth screen */
   onSpotifyLogin() {
     const rootUrl = 'https://accounts.spotify.com/authorize';
-    const clientID = '26f68dd9f50f4defbb31908146defed2';
+    const clientId = '26f68dd9f50f4defbb31908146defed2';
     const redirectURL = environment.redirect;
-    const scope = 'user-library-modify user-read-private user-follow-modify';
+    const scope = 'user-library-modify';
     const state = `spotify_${this.dataId}`;
-    const loginUrl = `${rootUrl}?client_id=${clientID}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}`;
+    const loginUrl = `${rootUrl}?client_id=${clientId}&response_type=code&redirect_uri=${redirectURL}&scope=${encodeURIComponent(scope)}&state=${state}`;
     window.location.href = loginUrl;
   }
 
