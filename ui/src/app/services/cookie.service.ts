@@ -1,7 +1,6 @@
 import { ScriptsService } from './scripts.service';
 import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { AngularFireAnalytics } from '@angular/fire/analytics';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +11,6 @@ export class CookieService {
   trackingActive = false;
 
   constructor(
-    private analytics: AngularFireAnalytics,
     private scripts: ScriptsService
   ) {
     this.checkConsent();
@@ -45,14 +43,14 @@ export class CookieService {
   removeConsent() {
     localStorage.removeItem('cookieConsent');
     // Disable Firebase analytics
-    this.analytics.setAnalyticsCollectionEnabled(false);
+    // this.analytics.setAnalyticsCollectionEnabled(false);
     this.trackingActive = false;
     this.checkConsent();
   }
 
   private setTracking() {
     // Enable Firebase analytics
-    this.analytics.setAnalyticsCollectionEnabled(true);
+    // this.analytics.setAnalyticsCollectionEnabled(true);
 
     // // Enable FB Pixel
     // this.scripts.loadPixel();
