@@ -34,3 +34,9 @@ The backend is a NodeJS Express application. This is where most of the interacti
 - Cleaner code. This presave app was adapted from an earlier presave campaign. This saved a lot of time implementing elements like the Spotify and Apple Music login, but it also lead to some unused code remaining in the app.
 - Moving the Spotify OAuth flow to a pop-up. This would prevent having to pass around the unique ID for each presave (used for the user-generated tickets) in the URL.
 - Small UI improvements and bug fixes.
+
+---
+
+# Generated ticket examples
+![Horizontal ticket example](https://storage.googleapis.com/nielskersic/static-images/github/sunburn-example-ticket-horizontal.jpg)
+![Vertical ticket example](https://storage.googleapis.com/nielskersic/static-images/github/sunburn-example-ticket-vertical.jpg)
