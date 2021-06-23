@@ -27,6 +27,7 @@ The backend is a NodeJS Express application. This is where most of the interacti
 - The original application would store Spotify and Apple Music tokens in Firestore. On release day, these tokens were used to save the track to the user's libraries. No data is stored in Firestore for the showcase version. The track is instantly saved to the user's library instead.
 - To keep accurate metrics of presaves, Firestore Cloud Functions would fire on each new document add or remove.
 - The original implemented both Google Analytics and Facebook Pixel to track events for marketing purposes. These were removed for the showcase version.
+- In the original ticket generator, the code at the bottom would auto-increment with each presave. Since presaves are not stored and such a counter is not kept, a random number is generated instead. 
 
 ## What could be improved
 - TESTS! The original application was developed under a very tight deadline, so no tests were written.
