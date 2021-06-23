@@ -1,6 +1,6 @@
 # DROELOE - Sunburn (Reimagined Presave)
 
-![DROELOE - Sunburn (Reimagined) teaser](https://storage.googleapis.com/nielskersic/static-images/github/sunburn-teaser-long.gif)
+![DROELOE - Sunburn (Reimagined) teaser](https://storage.googleapis.com/nielskersic/static-images/github/sunburn-teaser-small.gif)
 
 This is an adapted showcase version of an application developed by me, Niels Kersic, for [bitbird](https://bitbirdofficial.com/) and [DROELOE](https://www.instagram.com/droeloemusic/).
 The purpose of this application was for people to presave DROELOE's new track 'Sunburn (Reimagined)', one of the singles of their (then) upcoming Anthology Album '[A Matter of Perspective](https://bitbird.lnk.to/amatterofperspective)'.
