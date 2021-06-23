@@ -14,7 +14,6 @@ import {
 } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { AngularFireAnalytics } from '@angular/fire/analytics';
 import { detect } from 'detect-browser';
 
 const detectBrowser = detect();
@@ -92,12 +91,10 @@ export class CallbackComponent implements OnInit{
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private afs: AngularFirestore,
     private http: HttpClient,
     private clipboard: Clipboard,
     private api: ApiService,
     private cookie: CookieService,
-    private analytics: AngularFireAnalytics,
   ) {
     this.onResize();
     // Redirect to home when navigation does not come from Messenger save or Spotify login
