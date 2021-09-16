@@ -7,13 +7,13 @@ The purpose of this application was for people to presave DROELOE's new track 'S
 
 ---
 ## The premise
-As the name suggests, 'Sunburn (Reimagined)', is a reimagination of DROELOE's track Sunburn. Based on the lyrics, the theming for both tracks is based around trains and train stations. For this reason, we decided center the presave campaign around a classic Dutch ticketing machine. People would be able to imagine their own journey and generate a ticket. This ticket could be downloaded after completing the presave to share on social media.
+As the name suggests, 'Sunburn (Reimagined)', is a reimagination of DROELOE's track Sunburn. Based on the lyrics, the theming for both tracks is based around trains and train stations. For this reason, we decided to center the presave campaign around a classic Dutch ticketing machine. People would be able to imagine their own journey and generate a ticket. This ticket could be downloaded after completing the presave to share on social media.
 
 ![Dutch National Rail ticketing machine](https://storage.googleapis.com/nielskersic/static-images/github/sunburn-presave-cover.jpg)
 
 ## How it's made
 ### Frontend
-The frontend is a pretty straight-forward Angular 9 app. This app consists of just two routes. The main route is where users can create their journey and select a presave option. The second route is where people land after completing the save. This is where they can download their generated tickets and share them to social media. While some animations were considered, we chose to not implement them to stay closer to the ticketing machines from which we drew inspiration. The frontend also makes use of Apple's MusicKitJS, as this is required to enable login with Apple Music.
+The frontend is an Angular 9 app that consists of two routes. The main route is where users can create their journey by filling in some text inputs and select a presave option (Spotify or Apple Music). The second route is where people land after completing the save. This is where they can download their generated train tickets and share them to social media. While some animations were considered, we chose to not implement them to stay closer to the ticketing machines from which we drew inspiration. The frontend also use of Apple's MusicKitJS, as this is required to enable login with Apple Music. Spotify auth follows the Oauth 2.0 Authorization Code Grant Flow (RFC-6749).
 
 ### Backend
 The backend is a NodeJS Express application. This is where most of the interactions with the Spotify Web API and Apple Music API take place. The backend is also where tickets are generated using the [canvas package](https://www.npmjs.com/package/canvas). The canvas consists of a static background image onto which the user's text is added. The canvas is then written to a JPG file to be stored on Google Cloud Storage for retrieval by the user.
